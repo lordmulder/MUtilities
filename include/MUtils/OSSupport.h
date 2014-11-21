@@ -22,6 +22,7 @@
 #pragma once
 
 #include <QString>
+#include <QDate>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -41,6 +42,9 @@ namespace MUtils
 		
 		//Get known Folder
 		const QString &known_folder(known_folder_t folder_id);
+
+		//Current Date
+		QDate current_date(void);
 
 		//Error handling
 		void fatal_exit(const char* const errorMessage);

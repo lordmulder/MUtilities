@@ -688,20 +688,22 @@ bool UpdateChecker::parseVersionInfo(const QString &file, UpdateCheckerInfo *upd
 			}
 		}
 	}
-	
+
 	if(!updateInfoDate.isValid())
 	{
 		updateInfo->resetInfo();
 		log("WARNING: Version info timestamp is missing!");
 		return false;
 	}
-	else if(updateInfoDate.addMonths(VERSION_INFO_EXPIRES_MONTHS) < current_date_safe())
+	
+	const QDate currentDate = OS::current_date();
+	if(updateInfoDate.addMonths(VERSION_INFO_EXPIRES_MONTHS) < currentDate)
 	{
 		updateInfo->resetInfo();
 		log(QString::fromLatin1("WARNING: This version info has expired at %1!").arg(updateInfoDate.addMonths(VERSION_INFO_EXPIRES_MONTHS).toString(Qt::ISODate)));
 		return false;
 	}
-	else if(current_date_safe() < updateInfoDate)
+	else if(currentDate < updateInfoDate)
 	{
 		log("Version info is from the future, take care!");
 		qWarning("Version info is from the future, take care!");

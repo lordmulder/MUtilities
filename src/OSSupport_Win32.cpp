@@ -30,6 +30,7 @@
 #define WIN32_LEAN_AND_MEAN 1
 #include <Windows.h>
 #include <Objbase.h>
+#include <Psapi.h>
 
 //Qt
 #include <QMap>
@@ -156,6 +157,66 @@ const QString &MUtils::OS::known_folder(known_folder_t folder_id)
 	//Update cache
 	g_known_folders_map->insert(folderId, folderPath);
 	return g_known_folders_map->operator[](folderId);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// CURRENT DATA (SAFE)
+///////////////////////////////////////////////////////////////////////////////
+
+QDate MUtils::OS::current_date(void)
+{
+	const DWORD MAX_PROC = 1024;
+	QScopedArrayPointer<DWORD> processes(new DWORD[MAX_PROC]);
+	DWORD bytesReturned = 0;
+	
+	if(!EnumProcesses(processes.data(), sizeof(DWORD) * MAX_PROC, &bytesReturned))
+	{
+		return QDate::currentDate();
+	}
+
+	const DWORD procCount = bytesReturned / sizeof(DWORD);
+	ULARGE_INTEGER lastStartTime;
+	memset(&lastStartTime, 0, sizeof(ULARGE_INTEGER));
+
+	for(DWORD i = 0; i < procCount; i++)
+	{
+		if(HANDLE hProc = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, processes[i]))
+		{
+			FILETIME processTime[4];
+			if(GetProcessTimes(hProc, &processTime[0], &processTime[1], &processTime[2], &processTime[3]))
+			{
+				ULARGE_INTEGER timeCreation;
+				timeCreation.LowPart  = processTime[0].dwLowDateTime;
+				timeCreation.HighPart = processTime[0].dwHighDateTime;
+				if(timeCreation.QuadPart > lastStartTime.QuadPart)
+				{
+					lastStartTime.QuadPart = timeCreation.QuadPart;
+				}
+			}
+			CloseHandle(hProc);
+		}
+	}
+	
+	FILETIME lastStartTime_fileTime;
+	lastStartTime_fileTime.dwHighDateTime = lastStartTime.HighPart;
+	lastStartTime_fileTime.dwLowDateTime  = lastStartTime.LowPart;
+
+	FILETIME lastStartTime_localTime;
+	if(!FileTimeToLocalFileTime(&lastStartTime_fileTime, &lastStartTime_localTime))
+	{
+		memcpy(&lastStartTime_localTime, &lastStartTime_fileTime, sizeof(FILETIME));
+	}
+	
+	SYSTEMTIME lastStartTime_system;
+	if(!FileTimeToSystemTime(&lastStartTime_localTime, &lastStartTime_system))
+	{
+		memset(&lastStartTime_system, 0, sizeof(SYSTEMTIME));
+		lastStartTime_system.wYear = 1970; lastStartTime_system.wMonth = lastStartTime_system.wDay = 1;
+	}
+
+	const QDate currentDate = QDate::currentDate();
+	const QDate processDate = QDate(lastStartTime_system.wYear, lastStartTime_system.wMonth, lastStartTime_system.wDay);
+	return (currentDate >= processDate) ? currentDate : processDate;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
