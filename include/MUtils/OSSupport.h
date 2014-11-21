@@ -27,38 +27,21 @@
 
 namespace MUtils
 {
-	//Random
-	void seed_rand(void);
-	QString rand_str(const bool &bLong = false);
-	quint32 next_rand32(void);
-	quint64 next_rand64(void);
-
-	//Temp Folder
-	const QString &temp_folder(void);
+	namespace OS
+	{
+		//Known Folders IDs
+		typedef enum
+		{
+			FOLDER_LOCALAPPDATA = 0,
+			FOLDER_PROGRAMFILES = 2,
+			FOLDER_SYSTEMFOLDER = 3,
+			FOLDER_SYSTROOT_DIR = 4
+		}
+		known_folder_t;
+		
+		//Get known Folder
+		const QString &known_folder(known_folder_t folder_id);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-#define MUTILS_DELETE(PTR) do \
-{ \
-	if((PTR)) \
-	{ \
-		delete (PTR); \
-		(PTR) = NULL; \
-	} \
-} \
-while(0)
-
-#define MUTILS_DELETE_ARRAY(PTR) do \
-{ \
-	if((PTR)) \
-	{ \
-		delete [] (PTR); \
-		(PTR) = NULL; \
-	} \
-} \
-while(0)
-
-#define MUTILS_QUTF8(STR) ((STR).toUtf8().constData())
-#define MUTILS_QSTR2WCHAR(STR) (reinterpret_cast<const wchar_t*>((STR).utf16()))
-#define MUTILS_WCHAR2QSTR(STR) (QString::fromUtf16(reinterpret_cast<const unsigned short*>((STR))))

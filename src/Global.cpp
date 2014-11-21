@@ -24,6 +24,7 @@
 #endif
 
 #include <MUtils/Global.h>
+#include <MUtils/OSSupport.h>
 
 //Qt
 #include <QDir>
@@ -205,13 +206,13 @@ const QString &MUtils::temp_folder(void)
 	if(g_temp_folder_path->isEmpty())
 	{
 		qWarning("%%TEMP%% directory not found -> trying fallback mode now!");
-		static const lamexp_known_folder_t folderId[2] = { lamexp_folder_localappdata, lamexp_folder_systroot_dir };
-		for(size_t id = 0; (g_lamexp_temp_folder.path->isEmpty() && (id < 2)); id++)
+		static const OS::known_folder_t folderId[2] = { OS::FOLDER_LOCALAPPDATA, OS::FOLDER_SYSTROOT_DIR };
+		for(size_t id = 0; (g_temp_folder_path->isEmpty() && (id < 2)); id++)
 		{
-			const QString &knownFolder = lamexp_known_folder(folderId[id]);
+			const QString &knownFolder = OS::known_folder(folderId[id]);
 			if(!knownFolder.isEmpty())
 			{
-				tempPath = try_init_folder(QString("%1/Temp").arg(knownFolder));
+				tempPath = try_init_folder(QString("%1/Temp").arg(knownFolder), g_temp_folder_file);
 				if(!tempPath.isEmpty())
 				{
 					INIT_TEMP_FOLDER_RAND(g_temp_folder_path, g_temp_folder_file, tempPath);
