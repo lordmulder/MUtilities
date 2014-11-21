@@ -199,12 +199,13 @@ void UpdateCheckerInfo::resetInfo(void)
 // Constructor & Destructor
 ////////////////////////////////////////////////////////////
 
-UpdateChecker::UpdateChecker(const QString &binWGet, const QString &binGnuPG, const QString &binKeys, const bool betaUpdates, const bool testMode)
+UpdateChecker::UpdateChecker(const QString &binWGet, const QString &binGnuPG, const QString &binKeys, const quint32 &installedBuildNo, const bool betaUpdates, const bool testMode)
 :
 	m_updateInfo(new UpdateCheckerInfo()),
 	m_binaryWGet(binWGet),
 	m_binaryGnuPG(binGnuPG),
 	m_binaryKeys(binKeys),
+	m_installedBuildNo(installedBuildNo),
 	m_betaUpdates(betaUpdates),
 	m_testMode(testMode),
 	m_maxProgress(getMaxProgress())
@@ -339,11 +340,11 @@ void UpdateChecker::checkForUpdates(void)
 
 	if(m_success)
 	{
-		if(m_updateInfo->m_buildNo > lamexp_version_build())
+		if(m_updateInfo->m_buildNo > m_installedBuildNo)
 		{
 			setStatus(UpdateStatus_CompletedUpdateAvailable);
 		}
-		else if(m_updateInfo->m_buildNo == lamexp_version_build())
+		else if(m_updateInfo->m_buildNo == m_installedBuildNo)
 		{
 			setStatus(UpdateStatus_CompletedNoUpdates);
 		}
