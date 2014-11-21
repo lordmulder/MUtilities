@@ -1,0 +1,13 @@
+*.exe
+*.dll
+*.opensdf
+*.sdf
+*.suo
+*.user
+*.dcu
+*.ddp
+*.local.*
+/bin
+/obj
+/out
+/tmp
