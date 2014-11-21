@@ -18,6 +18,7 @@
     <ClCompile Include="src\Global.cpp" />
     <ClCompile Include="src\OSSupport_Win32.cpp" />
     <ClCompile Include="src\UpdateChecker.cpp" />
+    <ClCompile Include="src\Version.cpp" />
     <ClCompile Include="tmp\MUtilities_VS2013\MOC_UpdateChecker.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -35,6 +36,7 @@
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MOC "$(SolutionDir)tmp\$(ProjectName)\MOC_%(Filename).cpp"</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)tmp\$(ProjectName)\MOC_%(Filename).cpp;%(Outputs)</Outputs>
     </CustomBuild>
+    <ClInclude Include="include\MUtils\Version.h" />
     <ClInclude Include="src\CriticalSection_Win32.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

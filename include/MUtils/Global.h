@@ -36,11 +36,14 @@ namespace MUtils
 	//Process Utils
 	void init_process(QProcess &process, const QString &wokringDir, const bool bReplaceTempDir = true);
 
-		//Random
+	//Random
 	void seed_rand(void);
 	QString rand_str(const bool &bLong = false);
 	quint32 next_rand32(void);
 	quint64 next_rand64(void);
+
+	//Version
+	const char* buildDate(void);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

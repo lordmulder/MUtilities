@@ -244,7 +244,7 @@ static volatile bool   g_fatal_exit_flag = true;
 
 static DWORD WINAPI fatal_exit_helper(LPVOID lpParameter)
 {
-	MessageBoxA(NULL, ((LPCSTR) lpParameter), "LameXP - Guru Meditation", MB_OK | MB_ICONERROR | MB_TASKMODAL | MB_TOPMOST | MB_SETFOREGROUND);
+	MessageBoxA(NULL, ((LPCSTR) lpParameter), "Guru Meditation", MB_OK | MB_ICONERROR | MB_TASKMODAL | MB_TOPMOST | MB_SETFOREGROUND);
 	return 0;
 }
 

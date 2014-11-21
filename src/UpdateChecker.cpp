@@ -39,7 +39,6 @@ using namespace MUtils;
 ///////////////////////////////////////////////////////////////////////////////
 
 static const char *header_id = "!Update";
-static const char *section_id = "LameXP";
 
 static const char *mirror_url_postfix[] = 
 {
@@ -199,12 +198,13 @@ void UpdateCheckerInfo::resetInfo(void)
 // Constructor & Destructor
 ////////////////////////////////////////////////////////////
 
-UpdateChecker::UpdateChecker(const QString &binWGet, const QString &binGnuPG, const QString &binKeys, const quint32 &installedBuildNo, const bool betaUpdates, const bool testMode)
+UpdateChecker::UpdateChecker(const QString &binWGet, const QString &binGnuPG, const QString &binKeys, const QString &applicationId, const quint32 &installedBuildNo, const bool betaUpdates, const bool testMode)
 :
 	m_updateInfo(new UpdateCheckerInfo()),
 	m_binaryWGet(binWGet),
 	m_binaryGnuPG(binGnuPG),
 	m_binaryKeys(binKeys),
+	m_applicationId(applicationId),
 	m_installedBuildNo(installedBuildNo),
 	m_betaUpdates(betaUpdates),
 	m_testMode(testMode),
@@ -634,8 +634,8 @@ bool UpdateChecker::parseVersionInfo(const QString &file, UpdateCheckerInfo *upd
 		return false;
 	}
 	
-	bool inHeader = false;
-	bool inSection = false;
+	bool inHdr = false;
+	bool inSec = false;
 	
 	while(!data.atEnd())
 	{
@@ -643,11 +643,11 @@ bool UpdateChecker::parseVersionInfo(const QString &file, UpdateCheckerInfo *upd
 		if(section.indexIn(line) >= 0)
 		{
 			log(QString("Sec: [%1]").arg(section.cap(1)));
-			inSection = (section.cap(1).compare(section_id, Qt::CaseInsensitive) == 0);
-			inHeader = (section.cap(1).compare(header_id, Qt::CaseInsensitive) == 0);
+			inSec = (section.cap(1).compare(m_applicationId, Qt::CaseInsensitive) == 0);
+			inHdr = (section.cap(1).compare(QString::fromLatin1(header_id), Qt::CaseInsensitive) == 0);
 			continue;
 		}
-		if(inSection && (value.indexIn(line) >= 0))
+		if(inSec && (value.indexIn(line) >= 0))
 		{
 			log(QString("Val: '%1' ==> '%2").arg(value.cap(1), value.cap(2)));
 			if(value.cap(1).compare("BuildNo", Qt::CaseInsensitive) == 0)
@@ -678,7 +678,7 @@ bool UpdateChecker::parseVersionInfo(const QString &file, UpdateCheckerInfo *upd
 				updateInfo->m_downloadFilecode = value.cap(2).trimmed();
 			}
 		}
-		if(inHeader && (value.indexIn(line) >= 0))
+		if(inHdr && (value.indexIn(line) >= 0))
 		{
 			log(QString("Val: '%1' ==> '%2").arg(value.cap(1), value.cap(2)));
 			if(value.cap(1).compare("TimestampCreated", Qt::CaseInsensitive) == 0)
