@@ -23,18 +23,24 @@
 
 #include <QString>
 
+//Forward Declarations
+class QProcess;
+
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace MUtils
 {
-	//Random
+	//Temp Folder
+	const QString &temp_folder(void);
+
+	//Process Utils
+	void init_process(QProcess &process, const QString &wokringDir, const bool bReplaceTempDir = true);
+
+		//Random
 	void seed_rand(void);
 	QString rand_str(const bool &bLong = false);
 	quint32 next_rand32(void);
 	quint64 next_rand64(void);
-
-	//Temp Folder
-	const QString &temp_folder(void);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
