@@ -16,6 +16,9 @@
     <Filter Include="Public Headers">
       <UniqueIdentifier>{d47fbdba-5e24-460a-bba8-824ea0fe874c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Generated">
+      <UniqueIdentifier>{458f07b7-5414-4e9c-a599-222196e8d2e8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\UpdateChecker.cpp">
@@ -26,6 +29,9 @@
     </ClCompile>
     <ClCompile Include="src\OSSupport_Win32.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tmp\MUtilities_VS2013\MOC_UpdateChecker.cpp">
+      <Filter>Source Files\Generated</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -41,8 +47,10 @@
     <ClInclude Include="include\MUtils\OSSupport.h">
       <Filter>Public Headers</Filter>
     </ClInclude>
-    <ClInclude Include="include\Mutils\UpdateChecker.h">
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="include\Mutils\UpdateChecker.h">
       <Filter>Public Headers</Filter>
-    </ClInclude>
+    </CustomBuild>
   </ItemGroup>
 </Project>
