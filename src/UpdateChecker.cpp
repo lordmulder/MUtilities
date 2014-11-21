@@ -253,8 +253,8 @@ void UpdateChecker::checkForUpdates(void)
 	log("Checking internet connection...");
 	setStatus(UpdateStatus_CheckingConnection);
 
-	const int networkStatus = lamexp_network_status();
-	if(networkStatus == lamexp_network_non)
+	const int networkStatus = OS::network_status();
+	if(networkStatus == OS::NETWORK_TYPE_NON)
 	{
 		log("", "Operating system reports that the computer is currently offline !!!");
 		setProgress(m_maxProgress);

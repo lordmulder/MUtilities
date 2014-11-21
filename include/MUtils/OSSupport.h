@@ -40,11 +40,23 @@ namespace MUtils
 		}
 		known_folder_t;
 		
+		//Network connection types
+		typedef enum
+		{
+			NETWORK_TYPE_ERR = 0,	/*unknown*/
+			NETWORK_TYPE_NON = 1,	/*not connected*/
+			NETWORK_TYPE_YES = 2	/*connected*/
+		}
+		network_type_t;
+		
 		//Get known Folder
 		const QString &known_folder(known_folder_t folder_id);
 
 		//Current Date
 		QDate current_date(void);
+
+		//Network Status
+		int network_status(void);
 
 		//Error handling
 		void fatal_exit(const char* const errorMessage);

@@ -31,6 +31,7 @@
 #include <Windows.h>
 #include <Objbase.h>
 #include <Psapi.h>
+#include <Sensapi.h>
 
 //Qt
 #include <QMap>
@@ -217,6 +218,21 @@ QDate MUtils::OS::current_date(void)
 	const QDate currentDate = QDate::currentDate();
 	const QDate processDate = QDate(lastStartTime_system.wYear, lastStartTime_system.wMonth, lastStartTime_system.wDay);
 	return (currentDate >= processDate) ? currentDate : processDate;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// NETWORK STATE
+///////////////////////////////////////////////////////////////////////////////
+
+int MUtils::OS::network_status(void)
+{
+	DWORD dwFlags;
+	const BOOL ret = IsNetworkAlive(&dwFlags);
+	if(GetLastError() == 0)
+	{
+		return (ret != FALSE) ? NETWORK_TYPE_YES : NETWORK_TYPE_NON;
+	}
+	return NETWORK_TYPE_ERR;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
