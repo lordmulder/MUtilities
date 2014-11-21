@@ -18,9 +18,15 @@
     <ClCompile Include="src\UpdateChecker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Global.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Mutils\UpdateChecker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MUtils\Global.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

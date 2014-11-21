@@ -20,6 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 #include <MUtils/UpdateChecker.h>
+#include <MUtils/Global.h>
 
 #include <QStringList>
 #include <QFile>
@@ -253,6 +254,7 @@ void UpdateChecker::checkForUpdates(void)
 
 	m_success = false;
 	m_updateInfo->resetInfo();
+	seed_rand();
 	setProgress(0);
 
 	// ----- Test Internet Connection ----- //
@@ -282,18 +284,16 @@ void UpdateChecker::checkForUpdates(void)
 		hostList << QString::fromLatin1(known_hosts[i]);
 	}
 
-	lamexp_seed_rand();
-
 	while(!(hostList.isEmpty() || (connectionScore >= MIN_CONNSCORE) || (maxConnectTries < 1)))
 	{
-		switch(tryContactHost(hostList.takeAt(lamexp_rand() % hostList.count())))
+		switch(tryContactHost(hostList.takeAt(next_rand32() % hostList.count())))
 		{
 			case 01: connectionScore += 1; break;
 			case 02: connectionScore += 2; break;
 			default: maxConnectTries -= 1; break;
 		}
 		setProgress(qBound(1, connectionScore + 1, MIN_CONNSCORE + 1));
-		lamexp_sleep(64);
+		msleep(64);
 	}
 
 	if(connectionScore < MIN_CONNSCORE)
@@ -315,13 +315,12 @@ void UpdateChecker::checkForUpdates(void)
 		mirrorList << QString::fromLatin1(update_mirrors_prim[index]);
 	}
 
-	lamexp_seed_rand();
 	if(const int len = mirrorList.count())
 	{
 		const int rounds = len * 1097;
 		for(int i = 0; i < rounds; i++)
 		{
-			mirrorList.swap(i % len, lamexp_rand() % len);
+			mirrorList.swap(i % len, next_rand32() % len);
 		}
 	}
 
@@ -345,7 +344,7 @@ void UpdateChecker::checkForUpdates(void)
 		}
 		else
 		{
-			lamexp_sleep(64);
+			msleep(64);
 		}
 	}
 	
@@ -389,7 +388,7 @@ void UpdateChecker::testKnownHosts(void)
 		QString currentHost = hostList.takeFirst();
 		qDebug("Testing: %s", currentHost.toLatin1().constData());
 		log("", "Testing:", currentHost, "");
-		QString outFile = QString("%1/%2.htm").arg(lamexp_temp_folder2(), lamexp_rand_str());
+		QString outFile = QString("%1/%2.htm").arg(temp_folder(), rand_str());
 		bool httpOk = false;
 		if(!getFile(currentHost, outFile, 0, &httpOk))
 		{
@@ -440,7 +439,7 @@ void UpdateChecker::log(const QString &str1, const QString &str2, const QString 
 int UpdateChecker::tryContactHost(const QString &url)
 {
 		int result = -1; bool httpOkay = false;
-		const QString outFile = QString("%1/%2.htm").arg(lamexp_temp_folder2(), lamexp_rand_str());
+		const QString outFile = QString("%1/%2.htm").arg(temp_folder(), rand_str());
 		log("", "Testing host:", url);
 
 		if(getFile(url, outFile, 0, &httpOkay))
@@ -471,9 +470,9 @@ bool UpdateChecker::tryUpdateMirror(UpdateCheckerInfo *updateInfo, const QString
 	bool success = false;
 	log("", "Trying mirror:", url);
 
-	const QString randPart = lamexp_rand_str();
-	const QString outFileVers = QString("%1/%2.ver").arg(lamexp_temp_folder2(), randPart);
-	const QString outFileSign = QString("%1/%2.sig").arg(lamexp_temp_folder2(), randPart);
+	const QString randPart = rand_str();
+	const QString outFileVers = QString("%1/%2.ver").arg(temp_folder(), randPart);
+	const QString outFileSign = QString("%1/%2.sig").arg(temp_folder(), randPart);
 
 	if(getUpdateInfo(url, outFileVers, outFileSign))
 	{
@@ -532,7 +531,7 @@ bool UpdateChecker::getFile(const QString &url, const QString &outFile, unsigned
 	}
 
 	QProcess process;
-	lamexp_init_process(process, output.absolutePath());
+	init_process(process, output.absolutePath());
 
 	QStringList args;
 	args << "-T" << "15" << "--no-cache" << "--no-dns-cache" << QString().sprintf("--max-redirect=%u", maxRedir);
@@ -605,7 +604,7 @@ bool UpdateChecker::checkSignature(const QString &file, const QString &signature
 	}
 
 	QProcess process;
-	lamexp_init_process(process, QFileInfo(file).absolutePath());
+	init_process(process, QFileInfo(file).absolutePath());
 
 	QEventLoop loop;
 	connect(&process, SIGNAL(error(QProcess::ProcessError)), &loop, SLOT(quit()));
@@ -708,13 +707,13 @@ bool UpdateChecker::parseVersionInfo(const QString &file, UpdateCheckerInfo *upd
 		log("WARNING: Version info timestamp is missing!");
 		return false;
 	}
-	else if(updateInfoDate.addMonths(VERSION_INFO_EXPIRES_MONTHS) < lamexp_current_date_safe())
+	else if(updateInfoDate.addMonths(VERSION_INFO_EXPIRES_MONTHS) < current_date_safe())
 	{
 		updateInfo->resetInfo();
 		log(QString::fromLatin1("WARNING: This version info has expired at %1!").arg(updateInfoDate.addMonths(VERSION_INFO_EXPIRES_MONTHS).toString(Qt::ISODate)));
 		return false;
 	}
-	else if(lamexp_current_date_safe() < updateInfoDate)
+	else if(current_date_safe() < updateInfoDate)
 	{
 		log("Version info is from the future, take care!");
 		qWarning("Version info is from the future, take care!");

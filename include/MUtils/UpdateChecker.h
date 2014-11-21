@@ -26,8 +26,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-namespace MUtils {
-
+namespace MUtils
+{
 	class UpdateCheckerInfo
 	{
 		friend class UpdateChecker;
