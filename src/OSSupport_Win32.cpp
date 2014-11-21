@@ -24,6 +24,7 @@
 //Internal
 #include <MUtils/Global.h>
 #include <MUtils/OSSupport.h>
+#include "CriticalSection_Win32.h"
 
 //Win32 API
 #define WIN32_LEAN_AND_MEAN 1
@@ -35,6 +36,9 @@
 #include <QReadWriteLock>
 #include <QLibrary>
 #include <QDir>
+
+//Main thread ID
+static const DWORD g_main_thread_id = GetCurrentThreadId();
 
 ///////////////////////////////////////////////////////////////////////////////
 // KNWON FOLDERS
@@ -152,6 +156,49 @@ const QString &MUtils::OS::known_folder(known_folder_t folder_id)
 	//Update cache
 	g_known_folders_map->insert(folderId, folderPath);
 	return g_known_folders_map->operator[](folderId);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// FATAL EXIT
+///////////////////////////////////////////////////////////////////////////////
+
+static CriticalSection g_fatal_exit_lock;
+static volatile bool   g_fatal_exit_flag = true;
+
+static DWORD WINAPI fatal_exit_helper(LPVOID lpParameter)
+{
+	MessageBoxA(NULL, ((LPCSTR) lpParameter), "LameXP - Guru Meditation", MB_OK | MB_ICONERROR | MB_TASKMODAL | MB_TOPMOST | MB_SETFOREGROUND);
+	return 0;
+}
+
+void MUtils::OS::fatal_exit(const char* const errorMessage)
+{
+	g_fatal_exit_lock.enter();
+	
+	if(!g_fatal_exit_flag)
+	{
+		return; /*prevent recursive invocation*/
+	}
+
+	g_fatal_exit_flag = false;
+
+	if(g_main_thread_id != GetCurrentThreadId())
+	{
+		if(HANDLE hThreadMain = OpenThread(THREAD_SUSPEND_RESUME, FALSE, g_main_thread_id))
+		{
+			SuspendThread(hThreadMain); /*stop main thread*/
+		}
+	}
+
+	if(HANDLE hThread = CreateThread(NULL, 0, fatal_exit_helper, (LPVOID) errorMessage, 0, NULL))
+	{
+		WaitForSingleObject(hThread, INFINITE);
+	}
+
+	for(;;)
+	{
+		TerminateProcess(GetCurrentProcess(), 666);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

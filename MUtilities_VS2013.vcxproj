@@ -20,9 +20,11 @@
     <ClCompile Include="src\UpdateChecker.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\MUtils\Exception.h" />
     <ClInclude Include="include\MUtils\Global.h" />
     <ClInclude Include="include\MUtils\OSSupport.h" />
     <ClInclude Include="include\Mutils\UpdateChecker.h" />
+    <ClInclude Include="src\CriticalSection_Win32.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{55405FE1-149F-434C-9D72-4B64348D2A08}</ProjectGuid>

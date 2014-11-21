@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Public Headers">
+      <UniqueIdentifier>{d47fbdba-5e24-460a-bba8-824ea0fe874c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\UpdateChecker.cpp">
@@ -26,14 +29,20 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\Mutils\UpdateChecker.h">
+    <ClInclude Include="src\CriticalSection_Win32.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MUtils\Exception.h">
+      <Filter>Public Headers</Filter>
     </ClInclude>
     <ClInclude Include="include\MUtils\Global.h">
-      <Filter>Header Files</Filter>
+      <Filter>Public Headers</Filter>
     </ClInclude>
     <ClInclude Include="include\MUtils\OSSupport.h">
-      <Filter>Header Files</Filter>
+      <Filter>Public Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Mutils\UpdateChecker.h">
+      <Filter>Public Headers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

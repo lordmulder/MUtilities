@@ -19,8 +19,10 @@
 // http://www.gnu.org/licenses/lgpl-2.1.txt
 //////////////////////////////////////////////////////////////////////////////////
 
-#include <MUtils/UpdateChecker.h>
 #include <MUtils/Global.h>
+#include <MUtils/UpdateChecker.h>
+#include <MUtils/OSSupport.h>
+#include <MUtils/Exception.h>
 
 #include <QStringList>
 #include <QFile>
@@ -213,7 +215,7 @@ UpdateChecker::UpdateChecker(const QString &binWGet, const QString &binGnuPG, co
 
 	if(m_binaryWGet.isEmpty() || m_binaryGnuPG.isEmpty() || m_binaryKeys.isEmpty())
 	{
-		THROW("Tools not initialized correctly!");
+		MUTILS_THROW("Tools not initialized correctly!");
 	}
 }
 
@@ -229,22 +231,7 @@ UpdateChecker::~UpdateChecker(void)
 void UpdateChecker::run(void)
 {
 	qDebug("Update checker thread started!");
-
-	try
-	{
-		m_testMode ? testKnownHosts() : checkForUpdates();
-	}
-	catch(const std::exception &error)
-	{
-		PRINT_ERROR("\nGURU MEDITATION !!!\n\nException error:\n%s\n", error.what());
-		lamexp_fatal_exit("Unhandeled C++ exception error, application will exit!");
-	}
-	catch(...)
-	{
-		PRINT_ERROR("\nGURU MEDITATION !!!\n\nUnknown exception error!\n");
-		lamexp_fatal_exit("Unhandeled C++ exception error, application will exit!");
-	}
-
+	MUTILS_EXCEPTION_HANDLER(m_testMode ? testKnownHosts() : checkForUpdates());
 	qDebug("Update checker thread completed.");
 }
 

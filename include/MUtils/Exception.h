@@ -21,30 +21,37 @@
 
 #pragma once
 
-#include <QString>
+#include <stdexcept>
 
-///////////////////////////////////////////////////////////////////////////////
+#define MUTILS_PRINT_ERROR(FORMAT, ...) do \
+{ \
+	fflush(stdout); \
+	fprintf(stderr, (FORMAT), __VA_ARGS__); \
+	fflush(stderr); \
+} \
+while(0)
 
-namespace MUtils
-{
-	namespace OS
-	{
-		//Known Folders IDs
-		typedef enum
-		{
-			FOLDER_LOCALAPPDATA = 0,
-			FOLDER_PROGRAMFILES = 2,
-			FOLDER_SYSTEMFOLDER = 3,
-			FOLDER_SYSTROOT_DIR = 4
-		}
-		known_folder_t;
-		
-		//Get known Folder
-		const QString &known_folder(known_folder_t folder_id);
+#define MUTILS_EXCEPTION_HANDLER(COMMAND) do \
+{ \
+	try \
+	{ \
+		do { COMMAND; } while(0); \
+	} \
+	catch(const std::exception &error) \
+	{ \
+		MUTILS_PRINT_ERROR("\nGURU MEDITATION !!!\n\nException error:\n%s\n", error.what()); \
+		MUtils::OS::fatal_exit("Unhandeled C++ exception error, application will exit!"); \
+	} \
+	catch(...) \
+	{ \
+		MUTILS_PRINT_ERROR("\nGURU MEDITATION !!!\n\nUnknown exception error!\n"); \
+		MUtils::OS::fatal_exit("Unhandeled C++ exception error, application will exit!"); \
+	} \
+} \
+while(0)
 
-		//Error handling
-		void fatal_exit(const char* const errorMessage);
-	}
-}
-
-///////////////////////////////////////////////////////////////////////////////
+#define MUTILS_THROW(MESSAGE) do \
+{ \
+	throw std::runtime_error((MESSAGE)); \
+} \
+while(0)

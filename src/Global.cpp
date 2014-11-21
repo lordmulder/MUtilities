@@ -102,8 +102,8 @@ QString MUtils::rand_str(const bool &bLong)
 ///////////////////////////////////////////////////////////////////////////////
 
 static QReadWriteLock g_temp_folder_lock;
-static QFile *g_temp_folder_file;
-static QString *g_temp_folder_path = NULL;
+static QFile*         g_temp_folder_file = NULL;
+static QString*       g_temp_folder_path = NULL;
 
 #define INIT_TEMP_FOLDER_RAND(OUT_PTR, FILE_PTR, BASE_DIR) do \
 { \
