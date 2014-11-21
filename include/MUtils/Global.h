@@ -32,4 +32,19 @@ namespace MUtils
 	QString rand_str(const bool &bLong = false);
 	quint32 next_rand32(void);
 	quint64 next_rand64(void);
+
+	//Temp Folder
+	const QString &temp_folder(void);
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+#define MUTILS_DELETE(PTR) do \
+{ \
+	if((PTR)) \
+	{ \
+		delete (PTR); \
+		(PTR) = NULL; \
+	} \
+} \
+while(0)
