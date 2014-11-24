@@ -43,13 +43,33 @@
 static const DWORD g_main_thread_id = GetCurrentThreadId();
 
 ///////////////////////////////////////////////////////////////////////////////
+// SYSTEM MESSAGE
+///////////////////////////////////////////////////////////////////////////////
+
+void MUtils::OS::system_message_nfo(const wchar_t *const title, const wchar_t *const text)
+{
+	MessageBoxW(NULL, text, title, MB_TOPMOST | MB_TASKMODAL | MB_ICONINFORMATION);
+}
+
+void MUtils::OS::system_message_wrn(const wchar_t *const title, const wchar_t *const text)
+{
+	MessageBoxW(NULL, text, title, MB_TOPMOST | MB_TASKMODAL | MB_ICONWARNING);
+}
+
+void MUtils::OS::system_message_err(const wchar_t *const title, const wchar_t *const text)
+{
+	MessageBoxW(NULL, text, title, MB_TOPMOST | MB_TASKMODAL | MB_ICONERROR);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // KNWON FOLDERS
 ///////////////////////////////////////////////////////////////////////////////
 
+typedef QMap<size_t, QString> KFMap;
 typedef HRESULT (WINAPI *SHGetKnownFolderPath_t)(const GUID &rfid, DWORD dwFlags, HANDLE hToken, PWSTR *ppszPath);
 typedef HRESULT (WINAPI *SHGetFolderPath_t)(HWND hwndOwner, int nFolder, HANDLE hToken, DWORD dwFlags, LPWSTR pszPath);
 
-static QMap<size_t, QString>* g_known_folders_map;
+static QScopedPointer<KFMap>  g_known_folders_map;
 static SHGetKnownFolderPath_t g_known_folders_fpGetKnownFolderPath;
 static SHGetFolderPath_t      g_known_folders_fpGetFolderPath;
 static QReadWriteLock         g_known_folders_lock;
@@ -91,7 +111,7 @@ const QString &MUtils::OS::known_folder(known_folder_t folder_id)
 	QReadLocker readLock(&g_known_folders_lock);
 
 	//Already in cache?
-	if(g_known_folders_map)
+	if(!g_known_folders_map.isNull())
 	{
 		if(g_known_folders_map->contains(folderId))
 		{
@@ -104,7 +124,7 @@ const QString &MUtils::OS::known_folder(known_folder_t folder_id)
 	QWriteLocker writeLock(&g_known_folders_lock);
 
 	//Still not in cache?
-	if(g_known_folders_map)
+	if(!g_known_folders_map.isNull())
 	{
 		if(g_known_folders_map->contains(folderId))
 		{
@@ -113,7 +133,7 @@ const QString &MUtils::OS::known_folder(known_folder_t folder_id)
 	}
 
 	//Initialize on first call
-	if(!g_known_folders_map)
+	if(g_known_folders_map.isNull())
 	{
 		QLibrary shell32("shell32.dll");
 		if(shell32.load())
@@ -121,7 +141,7 @@ const QString &MUtils::OS::known_folder(known_folder_t folder_id)
 			g_known_folders_fpGetFolderPath =      (SHGetFolderPath_t)      shell32.resolve("SHGetFolderPathW");
 			g_known_folders_fpGetKnownFolderPath = (SHGetKnownFolderPath_t) shell32.resolve("SHGetKnownFolderPath");
 		}
-		g_known_folders_map = new QMap<size_t, QString>();
+		g_known_folders_map.reset(new QMap<size_t, QString>());
 	}
 
 	QString folderPath;
@@ -244,7 +264,7 @@ static volatile bool   g_fatal_exit_flag = true;
 
 static DWORD WINAPI fatal_exit_helper(LPVOID lpParameter)
 {
-	MessageBoxA(NULL, ((LPCSTR) lpParameter), "Guru Meditation", MB_OK | MB_ICONERROR | MB_TASKMODAL | MB_TOPMOST | MB_SETFOREGROUND);
+	MessageBoxA(NULL, ((LPCSTR) lpParameter), "GURU MEDITATION", MB_OK | MB_ICONERROR | MB_TASKMODAL | MB_TOPMOST | MB_SETFOREGROUND);
 	return 0;
 }
 

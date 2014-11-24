@@ -53,6 +53,11 @@ namespace MUtils
 		}
 		network_type_t;
 		
+		//System message
+		MUTILS_API void system_message_nfo(const wchar_t *const title, const wchar_t *const text);
+		MUTILS_API void system_message_wrn(const wchar_t *const title, const wchar_t *const text);
+		MUTILS_API void system_message_err(const wchar_t *const title, const wchar_t *const text);
+
 		//Get known Folder
 		MUTILS_API const QString &known_folder(known_folder_t folder_id);
 

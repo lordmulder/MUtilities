@@ -33,16 +33,33 @@ class QProcess;
 #	ifdef MUTILS_DLL_EXPORT
 #		define MUTILS_API __declspec(dllexport)
 #	else
-#		define MUTILS_API __declspec(dllimport)
+#		ifndef MUTILS_STATIC_LIB
+#			define MUTILS_API __declspec(dllimport)
+#		else
+#			define MUTILS_API /*static lib*/
+#		endif
 #	endif
 #else
-#		define MUTILS_API
+#	define MUTILS_API
 #endif
 
 //Helper Macros
 #define MUTILS_MAKE_STRING_HELPER(X) #X
 #define MUTILS_MAKE_STRING(X) MUTILS_MAKE_STRING_HELPER(X)
 #define MUTILS_COMPILER_WARNING(TXT) __pragma(message(__FILE__ "(" MUTILS_MAKE_STRING(__LINE__) ") : warning: " TXT))
+
+//Check Debug Flags
+#if defined(_DEBUG) || defined(DEBUG) || (!defined(NDEBUG))
+#	define MUTILS_DEBUG 1
+#	if defined(NDEBUG) || defined(QT_NO_DEBUG) || (!defined(QT_DEBUG))
+#		error Inconsistent DEBUG flags have been detected!
+#	endif
+#else
+#	define MUTILS_DEBUG 0
+#	if (!defined(NDEBUG)) || (!defined(QT_NO_DEBUG)) || defined(QT_DEBUG)
+#		error Inconsistent DEBUG flags have been detected!
+#	endif
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -61,7 +78,14 @@ namespace MUtils
 	MUTILS_API quint64 next_rand64(void);
 
 	//Version
-	MUTILS_API const char* buildDate(void);
+	MUTILS_API const char* mutils_build_date(void);
+	MUTILS_API const char* mutils_build_time(void);
+	//Internal
+	namespace Internal
+	{
+		MUTILS_API int selfTest(const char *const date, const bool debug);
+		static const int g_selfTestRet = selfTest(__DATE__, MUTILS_DEBUG);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -86,6 +110,6 @@ while(0)
 } \
 while(0)
 
-#define MUTILS_QUTF8(STR) ((STR).toUtf8().constData())
 #define MUTILS_QSTR2WCHAR(STR) (reinterpret_cast<const wchar_t*>((STR).utf16()))
+#define MUTILS_QSTR2QUTF8(STR) ((STR).toUtf8().constData())
 #define MUTILS_WCHAR2QSTR(STR) (QString::fromUtf16(reinterpret_cast<const unsigned short*>((STR))))

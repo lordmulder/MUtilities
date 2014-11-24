@@ -102,70 +102,47 @@ QString MUtils::rand_str(const bool &bLong)
 // TEMP FOLDER
 ///////////////////////////////////////////////////////////////////////////////
 
-static QReadWriteLock g_temp_folder_lock;
-static QFile*         g_temp_folder_file = NULL;
-static QString*       g_temp_folder_path = NULL;
+static QScopedPointer<QFile>   g_temp_folder_file;
+static QScopedPointer<QString> g_temp_folder_path;
+static QReadWriteLock          g_temp_folder_lock;
 
-#define INIT_TEMP_FOLDER_RAND(OUT_PTR, FILE_PTR, BASE_DIR) do \
-{ \
-	for(int _i = 0; _i < 128; _i++) \
-	{ \
-		const QString _randDir = QString("%1/%2").arg((BASE_DIR), rand_str()); \
-		if(!QDir(_randDir).exists()) \
-		{ \
-			*(OUT_PTR) = try_init_folder(_randDir, (FILE_PTR)); \
-			if(!(OUT_PTR)->isEmpty()) break; \
-		} \
-	} \
-} \
-while(0)
+static QString try_create_subfolder(const QString &baseDir, const QString &postfix)
+{
+	const QString baseDirPath = QDir(baseDir).absolutePath();
+	for(int i = 0; i < 32; i++)
+	{
+		QDir directory(baseDirPath);
+		if(directory.mkpath(postfix) && directory.cd(postfix))
+		{
+			return directory.canonicalPath();
+		}
+	}
+	return QString();
+}
 
-static QString try_init_folder(const QString &folderPath, QFile *&lockFile)
+static QString try_init_temp_folder(const QString &baseDir)
 {
 	static const char *TEST_DATA = "Lorem ipsum dolor sit amet, consectetur, adipisci velit!";
 	
-	bool success = false;
-
-	const QFileInfo folderInfo(folderPath);
-	const QDir folderDir(folderInfo.absoluteFilePath());
-
-	//Remove existing lock file
-	if(lockFile)
-	{
-		lockFile->remove();
-		MUTILS_DELETE(lockFile);
-	}
-
-	//Create folder, if it does *not* exist yet
-	if(!folderDir.exists())
-	{
-		for(int i = 0; i < 16; i++)
-		{
-			if(folderDir.mkpath(".")) break;
-		}
-	}
-
-	//Make sure folder exists now *and* is writable
-	if(folderDir.exists())
+	QString tempPath = try_create_subfolder(baseDir, MUtils::rand_str());
+	if(!tempPath.isEmpty())
 	{
 		const QByteArray testData = QByteArray(TEST_DATA);
 		for(int i = 0; i < 32; i++)
 		{
-			lockFile = new QFile(folderDir.absoluteFilePath(QString("~%1.tmp").arg(MUtils::rand_str())));
-			if(lockFile->open(QIODevice::ReadWrite | QIODevice::Truncate))
+			g_temp_folder_file.reset(new QFile(QString("%1/~%2.lck").arg(tempPath, MUtils::rand_str())));
+			if(g_temp_folder_file->open(QIODevice::ReadWrite | QIODevice::Truncate))
 			{
-				if(lockFile->write(testData) >= testData.size())
+				if(g_temp_folder_file->write(testData) >= testData.size())
 				{
-					success = true;
-					break;
+					return tempPath;
 				}
-				lockFile->remove();
-				MUTILS_DELETE(lockFile);
+				g_temp_folder_file->remove();
 			}
 		}
 	}
 
-	return (success ? folderDir.canonicalPath() : QString());
+	return QString();
 }
 
 const QString &MUtils::temp_folder(void)
@@ -173,9 +150,9 @@ const QString &MUtils::temp_folder(void)
 	QReadLocker readLock(&g_temp_folder_lock);
 
 	//Already initialized?
-	if(g_temp_folder_path && (!g_temp_folder_path->isEmpty()))
+	if((!g_temp_folder_path.isNull()) && (!g_temp_folder_path->isEmpty()))
 	{
-		return (*g_temp_folder_path);
+		return (*g_temp_folder_path.data());
 	}
 
 	//Obtain the write lock to initilaize
@@ -183,52 +160,41 @@ const QString &MUtils::temp_folder(void)
 	QWriteLocker writeLock(&g_temp_folder_lock);
 	
 	//Still uninitilaized?
-	if(g_temp_folder_path && (!g_temp_folder_path->isEmpty()))
+	if((!g_temp_folder_path.isNull()) && (!g_temp_folder_path->isEmpty()))
 	{
-		return (*g_temp_folder_path);
+		return (*g_temp_folder_path.data());
 	}
-
-	//Create the string, if not done yet
-	if(!g_temp_folder_path)
-	{
-		g_temp_folder_path = new QString();
-	}
-	
-	g_temp_folder_path->clear();
 
 	//Try the %TMP% or %TEMP% directory first
-	QString tempPath = try_init_folder(QDir::temp().absolutePath(), g_temp_folder_file);
+	QString tempPath = try_init_temp_folder(QDir::tempPath());
 	if(!tempPath.isEmpty())
 	{
-		INIT_TEMP_FOLDER_RAND(g_temp_folder_path, g_temp_folder_file, tempPath);
+		g_temp_folder_path.reset(new QString(tempPath));
+		return (*g_temp_folder_path.data());
 	}
 
-	//Otherwise create TEMP folder in %LOCALAPPDATA% or %SYSTEMROOT%
-	if(g_temp_folder_path->isEmpty())
+	qWarning("%%TEMP%% directory not found -> trying fallback mode now!");
+	static const OS::known_folder_t FOLDER_ID[2] = { OS::FOLDER_LOCALAPPDATA, OS::FOLDER_SYSTROOT_DIR };
+	for(size_t id = 0; id < 2; id++)
 	{
-		qWarning("%%TEMP%% directory not found -> trying fallback mode now!");
-		static const OS::known_folder_t folderId[2] = { OS::FOLDER_LOCALAPPDATA, OS::FOLDER_SYSTROOT_DIR };
-		for(size_t id = 0; (g_temp_folder_path->isEmpty() && (id < 2)); id++)
+		const QString &knownFolder = OS::known_folder(FOLDER_ID[id]);
+		if(!knownFolder.isEmpty())
 		{
-			const QString &knownFolder = OS::known_folder(folderId[id]);
-			if(!knownFolder.isEmpty())
+			const QString tempRoot = try_create_subfolder(knownFolder, QLatin1String("TEMP"));
+			if(!tempRoot.isEmpty())
 			{
-				tempPath = try_init_folder(QString("%1/Temp").arg(knownFolder), g_temp_folder_file);
+				tempPath = try_init_temp_folder(tempRoot);
 				if(!tempPath.isEmpty())
 				{
-					INIT_TEMP_FOLDER_RAND(g_temp_folder_path, g_temp_folder_file, tempPath);
+					g_temp_folder_path.reset(new QString(tempPath));
+					return (*g_temp_folder_path.data());
 				}
 			}
 		}
 	}
 
-	//Failed to create TEMP folder?
-	if(g_temp_folder_path->isEmpty())
-	{
-		qFatal("Temporary directory could not be initialized !!!");
-	}
-	
-	return (*g_temp_folder_path);
+	qFatal("Temporary directory could not be initialized !!!");
+	return (*((QString*)NULL));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -278,4 +244,34 @@ void MUtils::init_process(QProcess &process, const QString &wokringDir, const bo
 	process.setProcessChannelMode(QProcess::MergedChannels);
 	process.setReadChannel(QProcess::StandardOutput);
 	process.setProcessEnvironment(env);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// LIB VERSION
+///////////////////////////////////////////////////////////////////////////////
+
+const char* MUtils::mutils_build_date(void)
+{
+	static const char *const BUILD_DATE = __DATE__;
+	return BUILD_DATE;
+}
+
+const char* MUtils::mutils_build_time(void)
+{
+	static const char *const BUILD_TIME = __TIME__;
+	return BUILD_TIME;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// SELF-TEST
+///////////////////////////////////////////////////////////////////////////////
+
+int MUtils::Internal::selfTest(const char *const date, const bool debug)
+{
+	if(strcmp(date, __DATE__) || (MUTILS_DEBUG != debug))
+	{
+		MUtils::OS::system_message_err(L"MUtils", L"FATAL ERROR: MUtils library version mismatch detected!");
+		abort();
+	}
+	return 0;
 }
