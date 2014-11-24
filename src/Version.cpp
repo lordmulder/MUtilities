@@ -26,6 +26,10 @@
 #include <MUtils/Global.h>
 #include <MUtils/Exception.h>
 
+#ifdef _MSC_VER
+#define _snscanf(X, Y, Z, ...) _snscanf_s((X), (Y), (Z), __VA_ARGS__)
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static const char *g_months_lut[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
@@ -46,36 +50,40 @@ static int month2int(const char *str)
 	return ret;
 }
 
-const QDate MUtils::Version::build_date(const char *const raw_date)
+const QDate MUtils::Version::build_date(const char *const date_str)
 {
+	bool ok = true;
 	int date[3] = {0, 0, 0};
-	char temp_m[4], temp_d[3], temp_y[5];
+	char month_s[4];
 
-	temp_m[0] = raw_date[0x0];
-	temp_m[1] = raw_date[0x1];
-	temp_m[2] = raw_date[0x2];
-	temp_m[3] = 0x00;
+	ok = ok && (_snscanf(&date_str[0x0], 3, "%s", &month_s) == 1);
+	ok = ok && ((date[1] = month2int(month_s)) > 0);
+	ok = ok && (_snscanf(&date_str[0x4], 2, "%d", &date[0]) == 1);
+	ok = ok && (_snscanf(&date_str[0x7], 4, "%d", &date[2]) == 1);
 
-	temp_d[0] = raw_date[0x4];
-	temp_d[1] = raw_date[0x5];
-	temp_d[2] = 0x00;
-
-	temp_y[0] = raw_date[0x7];
-	temp_y[1] = raw_date[0x8];
-	temp_y[2] = raw_date[0x9];
-	temp_y[3] = raw_date[0xA];
-	temp_y[4] = 0x00;
-		
-	date[0] = atoi(temp_y);
-	date[1] = month2int(temp_m);
-	date[2] = atoi(temp_d);
-
-	if(!((date[0] > 0) && (date[1] > 0) && (date[2] > 0)))
+	if(!ok)
 	{
 		MUTILS_THROW("Internal error: Date format could not be recognized!");
 	}
 	
 	return QDate(date[0], date[1], date[2]);
+}
+
+static const QTime build_time(const char *const time_str)
+{
+	bool ok = true;
+	int time[3] = {0, 0, 0};
+
+	ok = ok && (_snscanf(&time_str[0x0], 2, "%d", &time[0]) == 1);
+	ok = ok && (_snscanf(&time_str[0x3], 2, "%d", &time[1]) == 1);
+	ok = ok && (_snscanf(&time_str[0x6], 2, "%d", &time[2]) == 1);
+
+	if(!ok)
+	{
+		MUTILS_THROW("Internal error: Time format could not be recognized!");
+	}
+
+	return QTime(time[0], time[1], time[2]);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

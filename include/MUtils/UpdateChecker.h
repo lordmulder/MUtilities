@@ -21,6 +21,10 @@
 
 #pragma once
 
+//MUtils
+#include <MUtils/Global.h>
+
+//Qt
 #include <QThread>
 #include <QDate>
 
@@ -28,7 +32,7 @@
 
 namespace MUtils
 {
-	class UpdateCheckerInfo
+	class MUTILS_API UpdateCheckerInfo
 	{
 		friend class UpdateChecker;
 
@@ -54,7 +58,7 @@ namespace MUtils
 
 	// ----------------------------------------------------------------
 
-	class UpdateChecker : public QThread
+	class MUTILS_API UpdateChecker : public QThread
 	{
 		Q_OBJECT
 

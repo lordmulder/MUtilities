@@ -36,6 +36,9 @@
     <ClCompile Include="src\Version.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\KeccakHash.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\CriticalSection_Win32.h">
@@ -51,6 +54,9 @@
       <Filter>Public Headers</Filter>
     </ClInclude>
     <ClInclude Include="include\MUtils\Version.h">
+      <Filter>Public Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MUtils\KeccakHash.h">
       <Filter>Public Headers</Filter>
     </ClInclude>
   </ItemGroup>

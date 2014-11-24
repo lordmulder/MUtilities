@@ -28,22 +28,40 @@ class QProcess;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+//MUtils API
+#ifdef _MSC_VER
+#	ifdef MUTILS_DLL_EXPORT
+#		define MUTILS_API __declspec(dllexport)
+#	else
+#		define MUTILS_API __declspec(dllimport)
+#	endif
+#else
+#		define MUTILS_API
+#endif
+
+//Helper Macros
+#define MUTILS_MAKE_STRING_HELPER(X) #X
+#define MUTILS_MAKE_STRING(X) MUTILS_MAKE_STRING_HELPER(X)
+#define MUTILS_COMPILER_WARNING(TXT) __pragma(message(__FILE__ "(" MUTILS_MAKE_STRING(__LINE__) ") : warning: " TXT))
+
+///////////////////////////////////////////////////////////////////////////////
+
 namespace MUtils
 {
 	//Temp Folder
-	const QString &temp_folder(void);
+	MUTILS_API const QString& temp_folder(void);
 
 	//Process Utils
-	void init_process(QProcess &process, const QString &wokringDir, const bool bReplaceTempDir = true);
+	MUTILS_API void init_process(QProcess &process, const QString &wokringDir, const bool bReplaceTempDir = true);
 
 	//Random
-	void seed_rand(void);
-	QString rand_str(const bool &bLong = false);
-	quint32 next_rand32(void);
-	quint64 next_rand64(void);
+	MUTILS_API void seed_rand(void);
+	MUTILS_API QString rand_str(const bool &bLong = false);
+	MUTILS_API quint32 next_rand32(void);
+	MUTILS_API quint64 next_rand64(void);
 
 	//Version
-	const char* buildDate(void);
+	MUTILS_API const char* buildDate(void);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

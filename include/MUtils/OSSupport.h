@@ -21,6 +21,10 @@
 
 #pragma once
 
+//MUtils
+#include <MUtils/Global.h>
+
+//Qt
 #include <QString>
 #include <QDate>
 
@@ -50,16 +54,16 @@ namespace MUtils
 		network_type_t;
 		
 		//Get known Folder
-		const QString &known_folder(known_folder_t folder_id);
+		MUTILS_API const QString &known_folder(known_folder_t folder_id);
 
 		//Current Date
-		QDate current_date(void);
+		MUTILS_API QDate current_date(void);
 
 		//Network Status
-		int network_status(void);
+		MUTILS_API int network_status(void);
 
 		//Error handling
-		void fatal_exit(const char* const errorMessage);
+		MUTILS_API void fatal_exit(const char* const errorMessage);
 	}
 }
 
