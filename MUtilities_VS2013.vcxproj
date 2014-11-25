@@ -15,6 +15,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\CPUFeatures_Win32.cpp" />
     <ClCompile Include="src\Global.cpp" />
     <ClCompile Include="src\KeccakHash.cpp" />
     <ClCompile Include="src\OSSupport_Win32.cpp" />
@@ -23,6 +24,7 @@
     <ClCompile Include="tmp\MUtilities_VS2013\MOC_UpdateChecker.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\MUtils\CPUFeatures.h" />
     <ClInclude Include="include\MUtils\Exception.h" />
     <ClInclude Include="include\MUtils\Global.h" />
     <ClInclude Include="include\MUtils\KeccakHash.h" />

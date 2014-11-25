@@ -41,7 +41,7 @@ namespace MUtils
 		MUTILS_API static const QTime build_time(const char *const time_str = build_time_raw());
 
 		//Compiler detection
-		MUTILS_API static const char *const compiler_version(void)
+		static const char *const compiler_version(void)
 		{
 			#if defined(__INTEL_COMPILER)
 				#if (__INTEL_COMPILER >= 1500)
@@ -109,7 +109,7 @@ namespace MUtils
 		}
 
 		//Architecture detection
-		MUTILS_API static const char *const compiler_arch(void)
+		static const char *const compiler_arch(void)
 		{
 			#if defined(_M_X64)
 				static const char *const COMPILER_ARCH = "x64";
