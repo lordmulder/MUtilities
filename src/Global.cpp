@@ -302,28 +302,12 @@ void MUtils::init_process(QProcess &process, const QString &wokringDir, const bo
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// LIB VERSION
-///////////////////////////////////////////////////////////////////////////////
-
-const char* MUtils::mutils_build_date(void)
-{
-	static const char *const BUILD_DATE = __DATE__;
-	return BUILD_DATE;
-}
-
-const char* MUtils::mutils_build_time(void)
-{
-	static const char *const BUILD_TIME = __TIME__;
-	return BUILD_TIME;
-}
-
-///////////////////////////////////////////////////////////////////////////////
 // SELF-TEST
 ///////////////////////////////////////////////////////////////////////////////
 
 int MUtils::Internal::selfTest(const char *const date, const bool debug)
 {
-	if(strcmp(date, __DATE__) || (MUTILS_DEBUG != debug))
+	if(strncmp(date, __DATE__"@"__TIME__, 14) || (MUTILS_DEBUG != debug))
 	{
 		MUtils::OS::system_message_err(L"MUtils", L"FATAL ERROR: MUtils library version mismatch detected!");
 		abort();

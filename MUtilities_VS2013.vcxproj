@@ -20,6 +20,7 @@
     <ClCompile Include="src\Global.cpp" />
     <ClCompile Include="src\KeccakHash.cpp" />
     <ClCompile Include="src\OSSupport_Win32.cpp" />
+    <ClCompile Include="src\Terminal_Win32.cpp" />
     <ClCompile Include="src\UpdateChecker.cpp" />
     <ClCompile Include="src\Version.cpp" />
     <ClCompile Include="tmp\MUtilities_VS2013\MOC_UpdateChecker.cpp" />
@@ -30,6 +31,7 @@
     <ClInclude Include="include\MUtils\Global.h" />
     <ClInclude Include="include\MUtils\KeccakHash.h" />
     <ClInclude Include="include\MUtils\OSSupport.h" />
+    <ClInclude Include="include\MUtils\Terminal.h" />
     <ClInclude Include="src\DirLocker.h" />
     <CustomBuild Include="include\Mutils\UpdateChecker.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe" -o "$(SolutionDir)tmp\$(ProjectName)\MOC_%(Filename).cpp" "%(FullPath)"</Command>

@@ -22,8 +22,10 @@
 #pragma once
 
 //Win32 API
+#ifndef _INC_WINDOWS
 #define WIN32_LEAN_AND_MEAN 1
 #include <Windows.h>
+#endif //_INC_WINDOWS
 
 ///////////////////////////////////////////////////////////////////////////////
 // CRITICAL SECTION

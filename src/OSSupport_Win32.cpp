@@ -32,6 +32,7 @@
 #include <Objbase.h>
 #include <Psapi.h>
 #include <Sensapi.h>
+#include <Shellapi.h>
 
 //Qt
 #include <QMap>
@@ -61,6 +62,52 @@ void MUtils::OS::system_message_wrn(const wchar_t *const title, const wchar_t *c
 void MUtils::OS::system_message_err(const wchar_t *const title, const wchar_t *const text)
 {
 	MessageBoxW(NULL, text, title, g_msgBoxFlags | MB_ICONERROR);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// FETCH CLI ARGUMENTS
+///////////////////////////////////////////////////////////////////////////////
+
+static QReadWriteLock g_arguments_lock;
+static QScopedPointer<QStringList> g_arguments_list;
+
+const QStringList &MUtils::OS::arguments(void)
+{
+	QReadLocker readLock(&g_arguments_lock);
+
+	//Already initialized?
+	if(!g_arguments_list.isNull())
+	{
+		return (*(g_arguments_list.data()));
+	}
+
+	readLock.unlock();
+	QWriteLocker writeLock(&g_arguments_lock);
+
+	//Still not initialized?
+	if(!g_arguments_list.isNull())
+	{
+		return (*(g_arguments_list.data()));
+	}
+
+	g_arguments_list.reset(new QStringList);
+	int nArgs = 0;
+	LPWSTR *szArglist = CommandLineToArgvW(GetCommandLineW(), &nArgs);
+
+	if(NULL != szArglist)
+	{
+		for(int i = 0; i < nArgs; i++)
+		{
+			*(g_arguments_list.data()) << MUTILS_QSTR(szArglist[i]);
+		}
+		LocalFree(szArglist);
+	}
+	else
+	{
+		qWarning("CommandLineToArgvW() has failed !!!");
+	}
+
+	return (*(g_arguments_list.data()));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

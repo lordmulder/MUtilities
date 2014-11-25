@@ -100,6 +100,9 @@ namespace MUtils
 		MUTILS_API void system_message_wrn(const wchar_t *const title, const wchar_t *const text);
 		MUTILS_API void system_message_err(const wchar_t *const title, const wchar_t *const text);
 
+		//CLI Arguments
+		MUTILS_API const QStringList &arguments(void);
+
 		//Get the OS version
 		MUTILS_API const Version::os_version_t &os_version(void);
 		MUTILS_API const char *os_friendly_name(const MUtils::OS::Version::os_version_t &os_version);

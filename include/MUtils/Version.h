@@ -34,11 +34,17 @@ namespace MUtils
 	class Version
 	{
 	public:
-		//Get Build Date
-		MUTILS_API static const QDate build_date(const char *const date_str = build_date_raw());
+		//Get Library Version Numbers
+		MUTILS_API static const quint32 &lib_version_major(void);
+		MUTILS_API static const quint32 &lib_version_minor(void);
 
-		//Get Build Time
-		MUTILS_API static const QTime build_time(const char *const time_str = build_time_raw());
+		//Get Library Build Date/Time
+		MUTILS_API static const QDate lib_build_date(void);
+		MUTILS_API static const QTime lib_build_time(void);
+
+		//Get Application Build Date/Time
+		MUTILS_API static const QDate app_build_date(const char *const date_str = build_date_raw());
+		MUTILS_API static const QTime app_build_time(const char *const time_str = build_time_raw());
 
 		//Compiler detection
 		static const char *const compiler_version(void)

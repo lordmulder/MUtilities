@@ -88,15 +88,11 @@ namespace MUtils
 	MUTILS_API bool remove_file(const QString &fileName);
 	MUTILS_API bool remove_directory(const QString &folderPath);
 
-	//Version
-	MUTILS_API const char* mutils_build_date(void);
-	MUTILS_API const char* mutils_build_time(void);
-
 	//Internal
 	namespace Internal
 	{
-		MUTILS_API int selfTest(const char *const date, const bool debug);
-		static const int g_selfTestRet = selfTest(__DATE__, MUTILS_DEBUG);
+		MUTILS_API int selfTest(const char *const buildKey, const bool debug);
+		static const int g_test = selfTest(__DATE__"@"__TIME__, MUTILS_DEBUG);
 	}
 }
 
