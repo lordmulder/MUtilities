@@ -31,17 +31,17 @@
 
 namespace MUtils
 {
-	class MUTILS_API Version
+	class Version
 	{
 	public:
 		//Get Build Date
-		static const QDate build_date(const char *const date_str = build_date_raw());
+		MUTILS_API static const QDate build_date(const char *const date_str = build_date_raw());
 
 		//Get Build Time
-		static const QTime build_time(const char *const time_str = build_time_raw());
+		MUTILS_API static const QTime build_time(const char *const time_str = build_time_raw());
 
 		//Compiler detection
-		static const char *const compiler_version(void)
+		MUTILS_API static const char *const compiler_version(void)
 		{
 			#if defined(__INTEL_COMPILER)
 				#if (__INTEL_COMPILER >= 1500)
@@ -109,7 +109,7 @@ namespace MUtils
 		}
 
 		//Architecture detection
-		static const char *const compiler_arch(void)
+		MUTILS_API static const char *const compiler_arch(void)
 		{
 			#if defined(_M_X64)
 				static const char *const COMPILER_ARCH = "x64";
@@ -130,7 +130,7 @@ namespace MUtils
 			return RAW_BUILD_DATE;
 		}
 
-		//Raw Build date
+		//Raw Build time
 		static const char *const build_time_raw(void)
 		{
 			static const char *const RAW_BUILD_TIME = __TIME__;

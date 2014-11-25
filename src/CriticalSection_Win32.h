@@ -29,70 +29,76 @@
 // CRITICAL SECTION
 ///////////////////////////////////////////////////////////////////////////////
 
-/*
- * wrapper for native Win32 critical sections
- */
-class CriticalSection
+namespace MUtils
 {
-public:
-	inline CriticalSection(void)
+	namespace Internal
 	{
-		InitializeCriticalSection(&m_win32criticalSection);
-	}
-
-	inline ~CriticalSection(void)
-	{
-		DeleteCriticalSection(&m_win32criticalSection);
-	}
-
-	inline void enter(void)
-	{
-		EnterCriticalSection(&m_win32criticalSection);
-	}
-
-	inline bool tryEnter(void)
-	{
-		return TryEnterCriticalSection(&m_win32criticalSection);
-	}
-
-	inline void leave(void)
-	{
-		LeaveCriticalSection(&m_win32criticalSection);
-	}
-
-protected:
-	CRITICAL_SECTION m_win32criticalSection;
-};
-
-/*
- * RAII-style critical section locker
- */
-class CSLocker
-{
-public:
-	inline CSLocker(CriticalSection &criticalSection)
-	:
-		m_locked(false),
-		m_criticalSection(criticalSection)
-	{
-		m_criticalSection.enter();
-		m_locked = true;
-	}
-
-	inline ~CSLocker(void)
-	{
-		forceUnlock();
-	}
-
-	inline void forceUnlock(void)
-	{
-		if(m_locked)
+		/*
+		 * wrapper for native Win32 critical sections
+		 */
+		class CriticalSection
 		{
-			m_criticalSection.leave();
-			m_locked = false;
-		}
+		public:
+			inline CriticalSection(void)
+			{
+				InitializeCriticalSection(&m_win32criticalSection);
+			}
+
+			inline ~CriticalSection(void)
+			{
+				DeleteCriticalSection(&m_win32criticalSection);
+			}
+
+			inline void enter(void)
+			{
+				EnterCriticalSection(&m_win32criticalSection);
+			}
+
+			inline bool tryEnter(void)
+			{
+				return TryEnterCriticalSection(&m_win32criticalSection);
+			}
+
+			inline void leave(void)
+			{
+				LeaveCriticalSection(&m_win32criticalSection);
+			}
+
+		protected:
+			CRITICAL_SECTION m_win32criticalSection;
+		};
+
+		/*
+		 * RAII-style critical section locker
+		 */
+		class CSLocker
+		{
+		public:
+			inline CSLocker(CriticalSection &criticalSection)
+			:
+				m_locked(false),
+				m_criticalSection(criticalSection)
+			{
+				m_criticalSection.enter();
+				m_locked = true;
+			}
+
+			inline ~CSLocker(void)
+			{
+				forceUnlock();
+			}
+
+			inline void forceUnlock(void)
+			{
+				if(m_locked)
+				{
+					m_criticalSection.leave();
+					m_locked = false;
+				}
+			}
+		protected:
+			volatile bool m_locked;
+			CriticalSection &m_criticalSection;
+		};
 	}
-protected:
-	volatile bool m_locked;
-	CriticalSection &m_criticalSection;
-};
+}

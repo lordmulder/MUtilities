@@ -153,7 +153,7 @@ const QString &MUtils::OS::known_folder(known_folder_t folder_id)
 		if(g_known_folders_fpGetKnownFolderPath(s_folders[folderId].guid, KF_FLAG_CREATE, NULL, &path) == S_OK)
 		{
 			//MessageBoxW(0, path, L"SHGetKnownFolderPath", MB_TOPMOST);
-			QDir folderTemp = QDir(QDir::fromNativeSeparators(MUTILS_WCHAR2QSTR(path)));
+			QDir folderTemp = QDir(QDir::fromNativeSeparators(MUTILS_QSTR(path)));
 			if(folderTemp.exists())
 			{
 				folderPath = folderTemp.canonicalPath();
@@ -167,7 +167,7 @@ const QString &MUtils::OS::known_folder(known_folder_t folder_id)
 		if(g_known_folders_fpGetFolderPath(NULL, s_folders[folderId].csidl | CSIDL_FLAG_CREATE, NULL, NULL, path.data()) == S_OK)
 		{
 			//MessageBoxW(0, path, L"SHGetFolderPathW", MB_TOPMOST);
-			QDir folderTemp = QDir(QDir::fromNativeSeparators(MUTILS_WCHAR2QSTR(path.data())));
+			QDir folderTemp = QDir(QDir::fromNativeSeparators(MUTILS_QSTR(path.data())));
 			if(folderTemp.exists())
 			{
 				folderPath = folderTemp.canonicalPath();
@@ -259,8 +259,8 @@ int MUtils::OS::network_status(void)
 // FATAL EXIT
 ///////////////////////////////////////////////////////////////////////////////
 
-static CriticalSection g_fatal_exit_lock;
-static volatile bool   g_fatal_exit_flag = true;
+static MUtils::Internal::CriticalSection g_fatal_exit_lock;
+static volatile bool g_fatal_exit_flag = true;
 
 static DWORD WINAPI fatal_exit_helper(LPVOID lpParameter)
 {

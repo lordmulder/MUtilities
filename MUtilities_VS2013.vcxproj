@@ -27,6 +27,7 @@
     <ClInclude Include="include\MUtils\Global.h" />
     <ClInclude Include="include\MUtils\KeccakHash.h" />
     <ClInclude Include="include\MUtils\OSSupport.h" />
+    <ClInclude Include="src\DirLocker.h" />
     <CustomBuild Include="include\Mutils\UpdateChecker.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe" -o "$(SolutionDir)tmp\$(ProjectName)\MOC_%(Filename).cpp" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MOC "$(SolutionDir)tmp\$(ProjectName)\MOC_%(Filename).cpp"</Message>

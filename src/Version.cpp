@@ -58,18 +58,19 @@ const QDate MUtils::Version::build_date(const char *const date_str)
 
 	ok = ok && (_snscanf(&date_str[0x0], 3, "%s", &month_s) == 1);
 	ok = ok && ((date[1] = month2int(month_s)) > 0);
-	ok = ok && (_snscanf(&date_str[0x4], 2, "%d", &date[0]) == 1);
-	ok = ok && (_snscanf(&date_str[0x7], 4, "%d", &date[2]) == 1);
+	ok = ok && (_snscanf(&date_str[0x4], 2, "%d", &date[2]) == 1);
+	ok = ok && (_snscanf(&date_str[0x7], 4, "%d", &date[0]) == 1);
 
 	if(!ok)
 	{
 		MUTILS_THROW("Internal error: Date format could not be recognized!");
 	}
 	
+	//qWarning("MUtils::Version::build_date: y=%d, m=%d, d=%d", date[0], date[1], date[2]);
 	return QDate(date[0], date[1], date[2]);
 }
 
-static const QTime build_time(const char *const time_str)
+const QTime MUtils::Version::build_time(const char *const time_str)
 {
 	bool ok = true;
 	int time[3] = {0, 0, 0};
@@ -83,6 +84,7 @@ static const QTime build_time(const char *const time_str)
 		MUTILS_THROW("Internal error: Time format could not be recognized!");
 	}
 
+	//qWarning("MUtils::Version::build_date: h=%d, m=%d, s=%d", time[0], time[1], time[2]);
 	return QTime(time[0], time[1], time[2]);
 }
 

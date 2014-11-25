@@ -23,8 +23,10 @@
 #define _CRT_RAND_S 1
 #endif
 
+//MUtils
 #include <MUtils/Global.h>
 #include <MUtils/OSSupport.h>
+#include "DirLocker.h"
 
 //Qt
 #include <QDir>
@@ -102,9 +104,8 @@ QString MUtils::rand_str(const bool &bLong)
 // TEMP FOLDER
 ///////////////////////////////////////////////////////////////////////////////
 
-static QScopedPointer<QFile>   g_temp_folder_file;
-static QScopedPointer<QString> g_temp_folder_path;
-static QReadWriteLock          g_temp_folder_lock;
+static QScopedPointer<MUtils::Internal::DirLock> g_temp_folder_file;
+static QReadWriteLock g_temp_folder_lock;
 
 static QString try_create_subfolder(const QString &baseDir, const QString &postfix)
 {
@@ -120,29 +121,26 @@ static QString try_create_subfolder(const QString &baseDir, const QString &postf
 	return QString();
 }
 
-static QString try_init_temp_folder(const QString &baseDir)
+static MUtils::Internal::DirLock *try_init_temp_folder(const QString &baseDir)
 {
-	static const char *TEST_DATA = "Lorem ipsum dolor sit amet, consectetur, adipisci velit!";
-	
-	QString tempPath = try_create_subfolder(baseDir, MUtils::rand_str());
+	const QString tempPath = try_create_subfolder(baseDir, MUtils::rand_str());
 	if(!tempPath.isEmpty())
 	{
-		const QByteArray testData = QByteArray(TEST_DATA);
 		for(int i = 0; i < 32; i++)
 		{
-			g_temp_folder_file.reset(new QFile(QString("%1/~%2.lck").arg(tempPath, MUtils::rand_str())));
-			if(g_temp_folder_file->open(QIODevice::ReadWrite | QIODevice::Truncate))
+			MUtils::Internal::DirLock *lockFile = NULL;
+			try
 			{
-				if(g_temp_folder_file->write(testData) >= testData.size())
-				{
-					return tempPath;
-				}
-				g_temp_folder_file->remove();
+				lockFile = new MUtils::Internal::DirLock(tempPath);
+				return lockFile;
+			}
+			catch(MUtils::Internal::DirLockException&)
+			{
+				/*ignore error and try again*/
 			}
 		}
 	}
-
-	return QString();
+	return NULL;
 }
 
 const QString &MUtils::temp_folder(void)
@@ -150,9 +148,9 @@ const QString &MUtils::temp_folder(void)
 	QReadLocker readLock(&g_temp_folder_lock);
 
 	//Already initialized?
-	if((!g_temp_folder_path.isNull()) && (!g_temp_folder_path->isEmpty()))
+	if(!g_temp_folder_file.isNull())
 	{
-		return (*g_temp_folder_path.data());
+		return g_temp_folder_file->path();
 	}
 
 	//Obtain the write lock to initilaize
@@ -160,17 +158,16 @@ const QString &MUtils::temp_folder(void)
 	QWriteLocker writeLock(&g_temp_folder_lock);
 	
 	//Still uninitilaized?
-	if((!g_temp_folder_path.isNull()) && (!g_temp_folder_path->isEmpty()))
+	if(!g_temp_folder_file.isNull())
 	{
-		return (*g_temp_folder_path.data());
+		return g_temp_folder_file->path();
 	}
 
 	//Try the %TMP% or %TEMP% directory first
-	QString tempPath = try_init_temp_folder(QDir::tempPath());
-	if(!tempPath.isEmpty())
+	if(MUtils::Internal::DirLock *lockFile = try_init_temp_folder(QDir::tempPath()))
 	{
-		g_temp_folder_path.reset(new QString(tempPath));
-		return (*g_temp_folder_path.data());
+		g_temp_folder_file.reset(lockFile);
+		return lockFile->path();
 	}
 
 	qWarning("%%TEMP%% directory not found -> trying fallback mode now!");
@@ -183,11 +180,10 @@ const QString &MUtils::temp_folder(void)
 			const QString tempRoot = try_create_subfolder(knownFolder, QLatin1String("TEMP"));
 			if(!tempRoot.isEmpty())
 			{
-				tempPath = try_init_temp_folder(tempRoot);
-				if(!tempPath.isEmpty())
+				if(MUtils::Internal::DirLock *lockFile = try_init_temp_folder(tempRoot))
 				{
-					g_temp_folder_path.reset(new QString(tempPath));
-					return (*g_temp_folder_path.data());
+					g_temp_folder_file.reset(lockFile);
+					return lockFile->path();
 				}
 			}
 		}
@@ -195,6 +191,65 @@ const QString &MUtils::temp_folder(void)
 
 	qFatal("Temporary directory could not be initialized !!!");
 	return (*((QString*)NULL));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// REMOVE DIRECTORY / FILE
+///////////////////////////////////////////////////////////////////////////////
+
+bool MUtils::remove_file(const QString &fileName)
+{
+	QFileInfo fileInfo(fileName);
+	if(!(fileInfo.exists() && fileInfo.isFile()))
+	{
+		return true;
+	}
+
+	for(int i = 0; i < 32; i++)
+	{
+		QFile file(fileName);
+		file.setPermissions(QFile::ReadOther | QFile::WriteOther);
+		if(file.remove())
+		{
+			return true;
+		}
+	}
+
+	qWarning("Could not delete \"%s\"", MUTILS_UTF8(fileName));
+	return false;
+}
+
+bool MUtils::remove_directory(const QString &folderPath)
+{
+	QDir folder(folderPath);
+	if(!folder.exists())
+	{
+		return true;
+	}
+
+	const QFileInfoList entryList = folder.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot | QDir::Hidden);
+	for(int i = 0; i < entryList.count(); i++)
+	{
+		if(entryList.at(i).isDir())
+		{
+			remove_directory(entryList.at(i).canonicalFilePath());
+		}
+		else
+		{
+			remove_file(entryList.at(i).canonicalFilePath());
+		}
+	}
+
+	for(int i = 0; i < 32; i++)
+	{
+		if(folder.rmdir("."))
+		{
+			return true;
+		}
+	}
+	
+	qWarning("Could not rmdir \"%s\"", MUTILS_UTF8(folderPath));
+	return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

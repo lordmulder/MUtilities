@@ -50,15 +50,22 @@ class QProcess;
 
 //Check Debug Flags
 #if defined(_DEBUG) || defined(DEBUG) || (!defined(NDEBUG))
-#	define MUTILS_DEBUG 1
+#	define MUTILS_DEBUG (1)
 #	if defined(NDEBUG) || defined(QT_NO_DEBUG) || (!defined(QT_DEBUG))
 #		error Inconsistent DEBUG flags have been detected!
 #	endif
 #else
-#	define MUTILS_DEBUG 0
+#	define MUTILS_DEBUG (0)
 #	if (!defined(NDEBUG)) || (!defined(QT_NO_DEBUG)) || defined(QT_DEBUG)
 #		error Inconsistent DEBUG flags have been detected!
 #	endif
+#endif
+
+//Check CPU options
+#if defined(_MSC_VER) && (!defined(_M_X64)) && defined(_M_IX86_FP)
+	#if (_M_IX86_FP != 0)
+		#error We should not enabled SSE or SSE2 in release builds!
+	#endif
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -77,9 +84,14 @@ namespace MUtils
 	MUTILS_API quint32 next_rand32(void);
 	MUTILS_API quint64 next_rand64(void);
 
+	//Remove File/Dir
+	MUTILS_API bool remove_file(const QString &fileName);
+	MUTILS_API bool remove_directory(const QString &folderPath);
+
 	//Version
 	MUTILS_API const char* mutils_build_date(void);
 	MUTILS_API const char* mutils_build_time(void);
+
 	//Internal
 	namespace Internal
 	{
@@ -110,6 +122,10 @@ while(0)
 } \
 while(0)
 
-#define MUTILS_QSTR2WCHAR(STR) (reinterpret_cast<const wchar_t*>((STR).utf16()))
-#define MUTILS_QSTR2QUTF8(STR) ((STR).toUtf8().constData())
-#define MUTILS_WCHAR2QSTR(STR) (QString::fromUtf16(reinterpret_cast<const unsigned short*>((STR))))
+//String conversion macros
+#define MUTILS_WCHR(STR) (reinterpret_cast<const wchar_t*>((STR).utf16()))
+#define MUTILS_UTF8(STR) ((STR).toUtf8().constData())
+#define MUTILS_QSTR(STR) (QString::fromUtf16(reinterpret_cast<const unsigned short*>((STR))))
+
+//Boolean helper
+#define MUTILS_BOOL2STR(X) ((X) ? "1" : "0")
