@@ -34,6 +34,48 @@ namespace MUtils
 {
 	namespace OS
 	{
+		namespace Version
+		{
+			//Supported OS types
+			typedef enum
+			{
+				OS_UNKNOWN = 0,
+				OS_WINDOWS = 1
+			}
+			os_type_t;
+
+			//OS version struct
+			typedef struct _os_info_t
+			{
+				unsigned int type;
+				unsigned int versionMajor;
+				unsigned int versionMinor;
+				bool overrideFlag;
+
+				//comparision operators
+				inline bool operator== (const _os_info_t &rhs) const { return (type == rhs.type) && (versionMajor == rhs.versionMajor) && ((versionMinor == rhs.versionMinor)); }
+				inline bool operator!= (const _os_info_t &rhs) const { return (type != rhs.type) || (versionMajor != rhs.versionMajor) || ((versionMinor != rhs.versionMinor)); }
+				inline bool operator>  (const _os_info_t &rhs) const { return (type == rhs.type) && ((versionMajor > rhs.versionMajor) || ((versionMajor == rhs.versionMajor) && (versionMinor >  rhs.versionMinor))); }
+				inline bool operator>= (const _os_info_t &rhs) const { return (type == rhs.type) && ((versionMajor > rhs.versionMajor) || ((versionMajor == rhs.versionMajor) && (versionMinor >= rhs.versionMinor))); }
+				inline bool operator<  (const _os_info_t &rhs) const { return (type == rhs.type) && ((versionMajor < rhs.versionMajor) || ((versionMajor == rhs.versionMajor) && (versionMinor <  rhs.versionMinor))); }
+				inline bool operator<= (const _os_info_t &rhs) const { return (type == rhs.type) && ((versionMajor < rhs.versionMajor) || ((versionMajor == rhs.versionMajor) && (versionMinor <= rhs.versionMinor))); }
+			}
+			os_version_t;
+
+			//Known Windows NT versions
+			static const os_version_t WINDOWS_WIN2K = { OS_WINDOWS, 5, 0 };	// 2000
+			static const os_version_t WINDOWS_WINXP = { OS_WINDOWS, 5, 1 };	// XP
+			static const os_version_t WINDOWS_XPX64 = { OS_WINDOWS, 5, 2 };	// XP_x64
+			static const os_version_t WINDOWS_VISTA = { OS_WINDOWS, 6, 0 };	// Vista
+			static const os_version_t WINDOWS_WIN70 = { OS_WINDOWS, 6, 1 };	// 7
+			static const os_version_t WINDOWS_WIN80 = { OS_WINDOWS, 6, 2 };	// 8
+			static const os_version_t WINDOWS_WIN81 = { OS_WINDOWS, 6, 3 };	// 8.1
+			static const os_version_t WINDOWS_WN100 = { OS_WINDOWS, 6, 4 };	// 10
+
+			//Unknown OS
+			static const os_version_t UNKNOWN_OPSYS = { OS_UNKNOWN, 0, 0 };	// N/A
+		}
+
 		//Known Folders IDs
 		typedef enum
 		{
@@ -52,11 +94,15 @@ namespace MUtils
 			NETWORK_TYPE_YES = 2	/*connected*/
 		}
 		network_type_t;
-		
+				
 		//System message
 		MUTILS_API void system_message_nfo(const wchar_t *const title, const wchar_t *const text);
 		MUTILS_API void system_message_wrn(const wchar_t *const title, const wchar_t *const text);
 		MUTILS_API void system_message_err(const wchar_t *const title, const wchar_t *const text);
+
+		//Get the OS version
+		MUTILS_API const Version::os_version_t &os_version(void);
+		MUTILS_API const char *os_friendly_name(const MUtils::OS::Version::os_version_t &os_version);
 
 		//Get known Folder
 		MUTILS_API const QString &known_folder(known_folder_t folder_id);

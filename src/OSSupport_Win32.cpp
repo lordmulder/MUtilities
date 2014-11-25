@@ -62,6 +62,174 @@ void MUtils::OS::system_message_err(const wchar_t *const title, const wchar_t *c
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// OS VERSION DETECTION
+///////////////////////////////////////////////////////////////////////////////
+
+static bool g_os_version_initialized = false;
+static MUtils::OS::Version::os_version_t g_os_version_info = MUtils::OS::Version::UNKNOWN_OPSYS;
+static QReadWriteLock g_os_version_lock;
+
+//Maps marketing names to the actual Windows NT versions
+static const struct
+{
+	MUtils::OS::Version::os_version_t version;
+	const char friendlyName[64];
+}
+g_os_version_lut[] =
+{
+	{ MUtils::OS::Version::WINDOWS_WIN2K, "Windows 2000"                                  },	//2000
+	{ MUtils::OS::Version::WINDOWS_WINXP, "Windows XP or Windows XP Media Center Edition" },	//XP
+	{ MUtils::OS::Version::WINDOWS_XPX64, "Windows Server 2003 or Windows XP x64"         },	//XP_x64
+	{ MUtils::OS::Version::WINDOWS_VISTA, "Windows Vista or Windows Server 2008"          },	//Vista
+	{ MUtils::OS::Version::WINDOWS_WIN70, "Windows 7 or Windows Server 2008 R2"           },	//7
+	{ MUtils::OS::Version::WINDOWS_WIN80, "Windows 8 or Windows Server 2012"              },	//8
+	{ MUtils::OS::Version::WINDOWS_WIN81, "Windows 8.1 or Windows Server 2012 R2"         },	//8.1
+	{ MUtils::OS::Version::WINDOWS_WN100, "Windows 10 or Windows Server 2014 (Preview)"   },	//10
+	{ MUtils::OS::Version::UNKNOWN_OPSYS, "N/A" }
+};
+
+static bool verify_os_version(const DWORD major, const DWORD minor)
+{
+	OSVERSIONINFOEXW osvi;
+	DWORDLONG dwlConditionMask = 0;
+
+	//Initialize the OSVERSIONINFOEX structure
+	memset(&osvi, 0, sizeof(OSVERSIONINFOEXW));
+	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEXW);
+	osvi.dwMajorVersion = major;
+	osvi.dwMinorVersion = minor;
+	osvi.dwPlatformId = VER_PLATFORM_WIN32_NT;
+
+	//Initialize the condition mask
+	VER_SET_CONDITION(dwlConditionMask, VER_MAJORVERSION, VER_GREATER_EQUAL);
+	VER_SET_CONDITION(dwlConditionMask, VER_MINORVERSION, VER_GREATER_EQUAL);
+	VER_SET_CONDITION(dwlConditionMask, VER_PLATFORMID, VER_EQUAL);
+
+	// Perform the test
+	const BOOL ret = VerifyVersionInfoW(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_PLATFORMID, dwlConditionMask);
+
+	//Error checking
+	if(!ret)
+	{
+		if(GetLastError() != ERROR_OLD_WIN_VERSION)
+		{
+			qWarning("VerifyVersionInfo() system call has failed!");
+		}
+	}
+
+	return (ret != FALSE);
+}
+
+static bool get_real_os_version(unsigned int *major, unsigned int *minor, bool *pbOverride)
+{
+	*major = *minor = 0;
+	*pbOverride = false;
+	
+	//Initialize local variables
+	OSVERSIONINFOEXW osvi;
+	memset(&osvi, 0, sizeof(OSVERSIONINFOEXW));
+	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEXW);
+
+	//Try GetVersionEx() first
+	if(GetVersionExW((LPOSVERSIONINFOW)&osvi) == FALSE)
+	{
+		qWarning("GetVersionEx() has failed, cannot detect Windows version!");
+		return false;
+	}
+
+	//Make sure we are running on NT
+	if(osvi.dwPlatformId == VER_PLATFORM_WIN32_NT)
+	{
+		*major = osvi.dwMajorVersion;
+		*minor = osvi.dwMinorVersion;
+	}
+	else
+	{
+		qWarning("Not running on Windows NT, unsupported operating system!");
+		return false;
+	}
+
+	//Determine the real *major* version first
+	forever
+	{
+		const DWORD nextMajor = (*major) + 1;
+		if(verify_os_version(nextMajor, 0))
+		{
+			*pbOverride = true;
+			*major = nextMajor;
+			*minor = 0;
+			continue;
+		}
+		break;
+	}
+
+	//Now also determine the real *minor* version
+	forever
+	{
+		const DWORD nextMinor = (*minor) + 1;
+		if(verify_os_version((*major), nextMinor))
+		{
+			*pbOverride = true;
+			*minor = nextMinor;
+			continue;
+		}
+		break;
+	}
+
+	return true;
+}
+
+const MUtils::OS::Version::os_version_t &MUtils::OS::os_version(void)
+{
+	QReadLocker readLock(&g_os_version_lock);
+
+	//Already initialized?
+	if(g_os_version_initialized)
+	{
+		return g_os_version_info;
+	}
+	
+	readLock.unlock();
+	QWriteLocker writeLock(&g_os_version_lock);
+
+	//Initialized now?
+	if(g_os_version_initialized)
+	{
+		return g_os_version_info;
+	}
+
+	//Detect OS version
+	unsigned int major, minor; bool overrideFlg;
+	if(get_real_os_version(&major, &minor, &overrideFlg))
+	{
+		g_os_version_info.type = Version::OS_WINDOWS;
+		g_os_version_info.versionMajor = major;
+		g_os_version_info.versionMinor = minor;
+		g_os_version_info.overrideFlag = overrideFlg;
+	}
+	else
+	{
+		qWarning("Failed to determin the operating system version!");
+	}
+
+	g_os_version_initialized = true;
+	return g_os_version_info;
+}
+
+const char *MUtils::OS::os_friendly_name(const MUtils::OS::Version::os_version_t &os_version)
+{
+	for(size_t i = 0; g_os_version_lut[i].version != MUtils::OS::Version::UNKNOWN_OPSYS; i++)
+	{
+		if(os_version == g_os_version_lut[i].version)
+		{
+			return g_os_version_lut[i].friendlyName;
+		}
+	}
+
+	return NULL;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // KNWON FOLDERS
 ///////////////////////////////////////////////////////////////////////////////
 
