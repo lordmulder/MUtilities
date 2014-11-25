@@ -46,19 +46,21 @@ static const DWORD g_main_thread_id = GetCurrentThreadId();
 // SYSTEM MESSAGE
 ///////////////////////////////////////////////////////////////////////////////
 
+static const UINT g_msgBoxFlags = MB_TOPMOST | MB_TASKMODAL | MB_SETFOREGROUND;
+
 void MUtils::OS::system_message_nfo(const wchar_t *const title, const wchar_t *const text)
 {
-	MessageBoxW(NULL, text, title, MB_TOPMOST | MB_TASKMODAL | MB_ICONINFORMATION);
+	MessageBoxW(NULL, text, title, g_msgBoxFlags | MB_ICONINFORMATION);
 }
 
 void MUtils::OS::system_message_wrn(const wchar_t *const title, const wchar_t *const text)
 {
-	MessageBoxW(NULL, text, title, MB_TOPMOST | MB_TASKMODAL | MB_ICONWARNING);
+	MessageBoxW(NULL, text, title, g_msgBoxFlags | MB_ICONWARNING);
 }
 
 void MUtils::OS::system_message_err(const wchar_t *const title, const wchar_t *const text)
 {
-	MessageBoxW(NULL, text, title, MB_TOPMOST | MB_TASKMODAL | MB_ICONERROR);
+	MessageBoxW(NULL, text, title, g_msgBoxFlags | MB_ICONERROR);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -432,11 +434,11 @@ static volatile bool g_fatal_exit_flag = true;
 
 static DWORD WINAPI fatal_exit_helper(LPVOID lpParameter)
 {
-	MessageBoxA(NULL, ((LPCSTR) lpParameter), "GURU MEDITATION", MB_OK | MB_ICONERROR | MB_TASKMODAL | MB_TOPMOST | MB_SETFOREGROUND);
+	MUtils::OS::system_message_err((LPWSTR) lpParameter, L"GURU MEDITATION");
 	return 0;
 }
 
-void MUtils::OS::fatal_exit(const char* const errorMessage)
+void MUtils::OS::fatal_exit(const wchar_t* const errorMessage)
 {
 	g_fatal_exit_lock.enter();
 	

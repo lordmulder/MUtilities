@@ -19,39 +19,25 @@
 // http://www.gnu.org/licenses/lgpl-2.1.txt
 //////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#ifdef _MSC_VER
+#ifndef MUTILS_STATIC_LIB
 
-#include <stdexcept>
+//Win32 API
+#define WIN32_LEAN_AND_MEAN 1
+#include <Windows.h>
 
-#define MUTILS_PRINT_ERROR(FORMAT, ...) do \
-{ \
-	fflush(stdout); \
-	fprintf(stderr, (FORMAT), __VA_ARGS__); \
-	fflush(stderr); \
-} \
-while(0)
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
+{
+	switch (ul_reason_for_call)
+	{
+	case DLL_PROCESS_ATTACH:
+	case DLL_THREAD_ATTACH:
+	case DLL_THREAD_DETACH:
+	case DLL_PROCESS_DETACH:
+		break;
+	}
+	return TRUE;
+}
 
-#define MUTILS_EXCEPTION_HANDLER(COMMAND) do \
-{ \
-	try \
-	{ \
-		do { COMMAND; } while(0); \
-	} \
-	catch(const std::exception &error) \
-	{ \
-		MUTILS_PRINT_ERROR("\nGURU MEDITATION !!!\n\nException error:\n%s\n", error.what()); \
-		MUtils::OS::fatal_exit(L"Unhandeled C++ exception error, application will exit!"); \
-	} \
-	catch(...) \
-	{ \
-		MUTILS_PRINT_ERROR("\nGURU MEDITATION !!!\n\nUnknown exception error!\n"); \
-		MUtils::OS::fatal_exit(L"Unhandeled C++ exception error, application will exit!"); \
-	} \
-} \
-while(0)
-
-#define MUTILS_THROW(MESSAGE) do \
-{ \
-	throw std::runtime_error((MESSAGE)); \
-} \
-while(0)
+#endif //MUTILS_STATIC_LIB
+#endif //_MSC_VER

@@ -16,6 +16,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\CPUFeatures_Win32.cpp" />
+    <ClCompile Include="src\DLLMain.cpp" />
     <ClCompile Include="src\Global.cpp" />
     <ClCompile Include="src\KeccakHash.cpp" />
     <ClCompile Include="src\OSSupport_Win32.cpp" />

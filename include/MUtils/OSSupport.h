@@ -114,7 +114,7 @@ namespace MUtils
 		MUTILS_API int network_status(void);
 
 		//Error handling
-		MUTILS_API void fatal_exit(const char* const errorMessage);
+		MUTILS_API void fatal_exit(const wchar_t* const errorMessage);
 	}
 }
 
