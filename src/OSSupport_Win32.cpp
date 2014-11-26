@@ -481,7 +481,7 @@ static volatile bool g_fatal_exit_flag = true;
 
 static DWORD WINAPI fatal_exit_helper(LPVOID lpParameter)
 {
-	MUtils::OS::system_message_err((LPWSTR) lpParameter, L"GURU MEDITATION");
+	MUtils::OS::system_message_err(L"GURU MEDITATION", (LPWSTR) lpParameter);
 	return 0;
 }
 

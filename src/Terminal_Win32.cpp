@@ -46,6 +46,10 @@
 //Lock
 static MUtils::Internal::CriticalSection g_terminal_lock;
 
+#ifdef _MSC_VER
+#define stricmp(X,Y) _stricmp((X),(Y))
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 // HELPER FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////
@@ -105,7 +109,7 @@ static QScopedPointer<std::filebuf> g_filebufStdOut;
 static QScopedPointer<std::filebuf> g_filebufStdErr;
 static QScopedPointer<QFile> g_log_file;
 
-void MUtils::Terminal::setup(const QStringList &argv, const bool forceEnabled)
+void MUtils::Terminal::setup(int &argc, char **argv, const bool forceEnabled)
 {
 	MUtils::Internal::CSLocker lock(g_terminal_lock);
 	bool enableConsole = (MUTILS_DEBUG) || forceEnabled;
@@ -130,13 +134,13 @@ void MUtils::Terminal::setup(const QStringList &argv, const bool forceEnabled)
 
 	if(!MUTILS_DEBUG)
 	{
-		for(int i = 0; i < argv.count(); i++)
+		for(int i = 0; i < argc; i++)
 		{
-			if(!argv.at(i).compare("--console", Qt::CaseInsensitive))
+			if(!stricmp(argv[i], "--console"))
 			{
 				enableConsole = true;
 			}
-			else if(!argv.at(i).compare("--no-console", Qt::CaseInsensitive))
+			else if(!stricmp(argv[i], "--no-console"))
 			{
 				enableConsole = false;
 			}

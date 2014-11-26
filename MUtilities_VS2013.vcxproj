@@ -17,9 +17,11 @@
   <ItemGroup>
     <ClCompile Include="src\CPUFeatures_Win32.cpp" />
     <ClCompile Include="src\DLLMain.cpp" />
+    <ClCompile Include="src\ErrorHandler_Win32.cpp" />
     <ClCompile Include="src\Global.cpp" />
     <ClCompile Include="src\KeccakHash.cpp" />
     <ClCompile Include="src\OSSupport_Win32.cpp" />
+    <ClCompile Include="src\Startup.cpp" />
     <ClCompile Include="src\Terminal_Win32.cpp" />
     <ClCompile Include="src\UpdateChecker.cpp" />
     <ClCompile Include="src\Version.cpp" />
@@ -27,10 +29,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\MUtils\CPUFeatures.h" />
+    <ClInclude Include="include\MUtils\ErrorHandler.h" />
     <ClInclude Include="include\MUtils\Exception.h" />
     <ClInclude Include="include\MUtils\Global.h" />
     <ClInclude Include="include\MUtils\KeccakHash.h" />
     <ClInclude Include="include\MUtils\OSSupport.h" />
+    <ClInclude Include="include\MUtils\Startup.h" />
     <ClInclude Include="include\MUtils\Terminal.h" />
     <ClInclude Include="src\DirLocker.h" />
     <CustomBuild Include="include\Mutils\UpdateChecker.h">

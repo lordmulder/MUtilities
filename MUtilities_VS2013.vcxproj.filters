@@ -48,6 +48,12 @@
     <ClCompile Include="src\Terminal_Win32.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Startup.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ErrorHandler_Win32.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\CriticalSection_Win32.h">
@@ -75,6 +81,12 @@
       <Filter>Public Headers</Filter>
     </ClInclude>
     <ClInclude Include="include\MUtils\Terminal.h">
+      <Filter>Public Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MUtils\Startup.h">
+      <Filter>Public Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MUtils\ErrorHandler.h">
       <Filter>Public Headers</Filter>
     </ClInclude>
   </ItemGroup>

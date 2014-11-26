@@ -24,21 +24,14 @@
 //MUtils
 #include <MUtils/Global.h>
 
-//Qt
-#include <QString>
-#include <QDate>
-
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace MUtils
 {
-	namespace Terminal
+	namespace ErrorHandler
 	{
-		//Setup terminal
-		MUTILS_API void setup(int &argc, char **argv, const bool forceEnabled);
-
-		//Terminal output
-		MUTILS_API void write(const int &type, const char *const message);
+		//Setup Error Handlers
+		MUTILS_API void initialize(void);
 	}
 }
 
