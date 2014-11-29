@@ -19,26 +19,56 @@
 // http://www.gnu.org/licenses/lgpl-2.1.txt
 //////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#include <MUtils/GUI.h>
 
-//MUtils
-#include <MUtils/Global.h>
+//Qt
+#include <QApplication>
+#include <QWidget>
 
 ///////////////////////////////////////////////////////////////////////////////
+// BROADCAST
+///////////////////////////////////////////////////////////////////////////////
 
-namespace MUtils
+bool MUtils::GUI::broadcast(int eventType, const bool &onlyToVisible)
 {
-	namespace Startup
+	if(QApplication *app = dynamic_cast<QApplication*>(QApplication::instance()))
 	{
-		//Main Function
-		typedef int (main_function_t)(int &argc, char **argv);
+		qDebug("Broadcasting %d", eventType);
+		
+		bool allOk = true;
+		QEvent poEvent(static_cast<QEvent::Type>(eventType));
+		QWidgetList list = app->topLevelWidgets();
 
-		//Startup Application
-		MUTILS_API int startup(int &argc, char **argv, main_function_t *const entry_point);
+		while(!list.isEmpty())
+		{
+			QWidget *widget = list.takeFirst();
+			if(!onlyToVisible || widget->isVisible())
+			{
+				if(!app->sendEvent(widget, &poEvent))
+				{
+					allOk = false;
+				}
+			}
+		}
 
-		//Initialize Qt
-		MUTILS_API bool init_qt(int &argc, char **argv, const QString &appName);
+		qDebug("Broadcast %d done (%s)", eventType, (allOk ? "OK" : "Stopped"));
+		return allOk;
 	}
+	else
+	{
+		qWarning("Broadcast failed, could not get QApplication instance!");
+		return false;
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// BROADCAST
+///////////////////////////////////////////////////////////////////////////////
+
+void MUtils::GUI::force_quit(void)
+{
+	qApp->closeAllWindows();
+	qApp->quit();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

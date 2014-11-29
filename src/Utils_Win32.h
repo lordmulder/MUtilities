@@ -21,24 +21,25 @@
 
 #pragma once
 
-//MUtils
-#include <MUtils/Global.h>
+//Win32 API
+#ifndef _INC_WINDOWS
+#define WIN32_LEAN_AND_MEAN 1
+#include <Windows.h>
+#endif //_INC_WINDOWS
 
 ///////////////////////////////////////////////////////////////////////////////
+// QICON TO HICON
+///////////////////////////////////////////////////////////////////////////////
 
-namespace MUtils
+static HICON qicon_to_hicon(const QIcon &icon, const int w, const int h)
 {
-	namespace Startup
+	if(!icon.isNull())
 	{
-		//Main Function
-		typedef int (main_function_t)(int &argc, char **argv);
-
-		//Startup Application
-		MUTILS_API int startup(int &argc, char **argv, main_function_t *const entry_point);
-
-		//Initialize Qt
-		MUTILS_API bool init_qt(int &argc, char **argv, const QString &appName);
+		QPixmap pixmap = icon.pixmap(w, h);
+		if(!pixmap.isNull())
+		{
+			return pixmap.toWinHICON();
+		}
 	}
+	return NULL;
 }
-
-///////////////////////////////////////////////////////////////////////////////

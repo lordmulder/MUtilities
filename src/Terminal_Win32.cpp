@@ -20,21 +20,24 @@
 // http://www.gnu.org/licenses/gpl-2.0.txt
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <MUtils/Terminal.h>
-
-//Internal
-#include <MUtils/Global.h>
-#include <MUtils/OSSupport.h>
-#include "CriticalSection_Win32.h"
-
 //Windows includes
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN 1
 #include <Windows.h>
 
+
+//Internal
+#include <MUtils/Terminal.h>
+#include <MUtils/Global.h>
+#include <MUtils/OSSupport.h>
+#include "Utils_Win32.h"
+#include "CriticalSection_Win32.h"
+
 //Qt
 #include <QFile>
 #include <QStringList>
+#include <QIcon>
+#include <QLibrary>
 
 //CRT
 #include <iostream>
@@ -182,18 +185,18 @@ void MUtils::Terminal::setup(int &argc, char **argv, const bool forceEnabled)
 				g_filebufStdErr.reset(new std::filebuf(hfStdErr));
 				std::cerr.rdbuf(g_filebufStdErr.data());
 			}
-		}
 
-		HWND hwndConsole = GetConsoleWindow();
-		if((hwndConsole != NULL) && (hwndConsole != INVALID_HANDLE_VALUE))
-		{
-			HMENU hMenu = GetSystemMenu(hwndConsole, 0);
-			EnableMenuItem(hMenu, SC_CLOSE, MF_BYCOMMAND | MF_GRAYED);
-			RemoveMenu(hMenu, SC_CLOSE, MF_BYCOMMAND);
+			const HWND hwndConsole = GetConsoleWindow();
+			if((hwndConsole != NULL) && (hwndConsole != INVALID_HANDLE_VALUE))
+			{
+				HMENU hMenu = GetSystemMenu(hwndConsole, 0);
+				EnableMenuItem(hMenu, SC_CLOSE, MF_BYCOMMAND | MF_GRAYED);
+				RemoveMenu(hMenu, SC_CLOSE, MF_BYCOMMAND);
 
-			SetWindowPos (hwndConsole, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_FRAMECHANGED);
-			SetWindowLong(hwndConsole, GWL_STYLE, GetWindowLong(hwndConsole, GWL_STYLE) & (~WS_MAXIMIZEBOX) & (~WS_MINIMIZEBOX));
-			SetWindowPos (hwndConsole, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_FRAMECHANGED);
+				SetWindowPos (hwndConsole, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_FRAMECHANGED);
+				SetWindowLong(hwndConsole, GWL_STYLE, GetWindowLong(hwndConsole, GWL_STYLE) & (~WS_MAXIMIZEBOX) & (~WS_MINIMIZEBOX));
+				SetWindowPos (hwndConsole, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_FRAMECHANGED);
+			}
 		}
 	}
 }
@@ -325,5 +328,31 @@ void MUtils::Terminal::write(const int &type, const char *const message)
 	if(!g_log_file.isNull())
 	{
 		write_logfile_helper(g_log_file.data(), type, message);
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// TERMINAL ICON
+///////////////////////////////////////////////////////////////////////////////
+
+void MUtils::Terminal::set_icon(const QIcon &icon)
+{
+	MUtils::Internal::CSLocker lock(g_terminal_lock);
+
+	if(!(icon.isNull() || MUtils::OS::running_on_wine()))
+	{
+		QLibrary kernel32("kernel32.dll");
+		if(kernel32.load())
+		{
+			typedef DWORD (__stdcall *SetConsoleIconFun)(HICON);
+			if(SetConsoleIconFun SetConsoleIconPtr = (SetConsoleIconFun) kernel32.resolve("SetConsoleIcon"))
+			{
+				if(HICON hIcon = qicon_to_hicon(icon, 16, 16))
+				{
+					SetConsoleIconPtr(hIcon);
+					DestroyIcon(hIcon);
+				}
+			}
+		}
 	}
 }

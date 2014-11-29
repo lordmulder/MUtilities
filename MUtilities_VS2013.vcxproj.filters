@@ -54,6 +54,9 @@
     <ClCompile Include="src\ErrorHandler_Win32.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\GUI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\CriticalSection_Win32.h">
@@ -88,6 +91,12 @@
     </ClInclude>
     <ClInclude Include="include\MUtils\ErrorHandler.h">
       <Filter>Public Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MUtils\GUI.h">
+      <Filter>Public Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Utils_Win32.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

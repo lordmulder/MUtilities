@@ -106,6 +106,7 @@ namespace MUtils
 		//Get the OS version
 		MUTILS_API const Version::os_version_t &os_version(void);
 		MUTILS_API const char *os_friendly_name(const MUtils::OS::Version::os_version_t &os_version);
+		MUTILS_API const bool &running_on_wine(void);
 
 		//Get known Folder
 		MUTILS_API const QString &known_folder(known_folder_t folder_id);
@@ -113,8 +114,14 @@ namespace MUtils
 		//Current Date
 		MUTILS_API QDate current_date(void);
 
+		//Check for process elevation
+		MUTILS_API bool is_elevated(bool *bIsUacEnabled = NULL);
+
 		//Network Status
 		MUTILS_API int network_status(void);
+
+		//Message handler
+		MUTILS_API bool handle_os_message(const void *const message, long *result);
 
 		//Error handling
 		MUTILS_API void fatal_exit(const wchar_t* const errorMessage);

@@ -28,16 +28,21 @@
 
 namespace MUtils
 {
-	namespace Startup
+	namespace GUI
 	{
-		//Main Function
-		typedef int (main_function_t)(int &argc, char **argv);
+		typedef enum
+		{
+			USER_EVENT = 1000,           /*QEvent::User*/
+			USER_EVENT_QUERYENDSESSION = USER_EVENT + 666,
+			USER_EVENT_ENDSESSION      = USER_EVENT + 667
+		}
+		user_events_t;
 
-		//Startup Application
-		MUTILS_API int startup(int &argc, char **argv, main_function_t *const entry_point);
+		//Broadcast message
+		MUTILS_API bool broadcast(int eventType, const bool &onlyToVisible);
 
-		//Initialize Qt
-		MUTILS_API bool init_qt(int &argc, char **argv, const QString &appName);
+		//Force quit application
+		MUTILS_API void force_quit(void);
 	}
 }
 

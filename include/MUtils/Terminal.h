@@ -25,8 +25,7 @@
 #include <MUtils/Global.h>
 
 //Qt
-#include <QString>
-#include <QDate>
+#include <QIcon>
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -39,6 +38,9 @@ namespace MUtils
 
 		//Terminal output
 		MUTILS_API void write(const int &type, const char *const message);
+
+		//Terminal icon
+		MUTILS_API void set_icon(const QIcon &icon);
 	}
 }
 

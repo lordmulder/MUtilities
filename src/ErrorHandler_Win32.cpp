@@ -66,6 +66,7 @@ void MUtils::ErrorHandler::initialize(void)
 	SetUnhandledExceptionFilter(my_exception_handler);
 	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_ABOVE_NORMAL);
 	_set_invalid_parameter_handler(my_invalid_param_handler);
+	SetDllDirectoryW(L""); /*don'tload DLL from "current" directory*/
 	
 	static const int signal_num[6] = { SIGABRT, SIGFPE, SIGILL, SIGINT, SIGSEGV, SIGTERM };
 
@@ -73,6 +74,7 @@ void MUtils::ErrorHandler::initialize(void)
 	{
 		signal(signal_num[i], my_signal_handler);
 	}
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -21,11 +21,6 @@
 
 #pragma once
 
-//Internal
-#include <MUtils/Global.h>
-#include <MUtils/OSSupport.h>
-#include "CriticalSection_Win32.h"
-
 //Win32 API
 #define WIN32_LEAN_AND_MEAN 1
 #include <Windows.h>
@@ -33,6 +28,12 @@
 #include <Psapi.h>
 #include <Sensapi.h>
 #include <Shellapi.h>
+
+//Internal
+#include <MUtils/Global.h>
+#include <MUtils/OSSupport.h>
+#include <MUtils/GUI.h>
+#include "CriticalSection_Win32.h"
 
 //Qt
 #include <QMap>
@@ -261,6 +262,7 @@ const MUtils::OS::Version::os_version_t &MUtils::OS::os_version(void)
 		qWarning("Failed to determin the operating system version!");
 	}
 
+	//Completed
 	g_os_version_initialized = true;
 	return g_os_version_info;
 }
@@ -276,6 +278,55 @@ const char *MUtils::OS::os_friendly_name(const MUtils::OS::Version::os_version_t
 	}
 
 	return NULL;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// WINE DETECTION
+///////////////////////////////////////////////////////////////////////////////
+
+static bool g_wine_deteced = false;
+static bool g_wine_initialized = false;
+static QReadWriteLock g_wine_lock;
+
+static const bool detect_wine(void)
+{
+	bool is_wine = false;
+	
+	QLibrary ntdll("ntdll.dll");
+	if(ntdll.load())
+	{
+		if(ntdll.resolve("wine_nt_to_unix_file_name") != NULL) is_wine = true;
+		if(ntdll.resolve("wine_get_version")          != NULL) is_wine = true;
+		ntdll.unload();
+	}
+
+	return is_wine;
+}
+
+const bool &MUtils::OS::running_on_wine(void)
+{
+	QReadLocker readLock(&g_wine_lock);
+
+	//Already initialized?
+	if(g_wine_initialized)
+	{
+		return g_wine_deteced;
+	}
+
+	readLock.unlock();
+	QWriteLocker writeLock(&g_wine_lock);
+
+	//Initialized now?
+	if(g_wine_initialized)
+	{
+		return g_wine_deteced;
+	}
+
+	//Try to detect Wine
+	g_wine_deteced = detect_wine();
+	g_wine_initialized = true;
+
+	return g_wine_deteced;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -458,6 +509,62 @@ QDate MUtils::OS::current_date(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// PROCESS ELEVATION
+///////////////////////////////////////////////////////////////////////////////
+
+bool MUtils::OS::is_elevated(bool *bIsUacEnabled)
+{
+	if(bIsUacEnabled)
+	{
+		*bIsUacEnabled = false;
+	}
+
+	bool bIsProcessElevated = false;
+	HANDLE hToken = NULL;
+	
+	if(OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken))
+	{
+		TOKEN_ELEVATION_TYPE tokenElevationType;
+		DWORD returnLength;
+		if(GetTokenInformation(hToken, TokenElevationType, &tokenElevationType, sizeof(TOKEN_ELEVATION_TYPE), &returnLength))
+		{
+			if(returnLength == sizeof(TOKEN_ELEVATION_TYPE))
+			{
+				switch(tokenElevationType)
+				{
+				case TokenElevationTypeDefault:
+					qDebug("Process token elevation type: Default -> UAC is disabled.\n");
+					break;
+				case TokenElevationTypeFull:
+					qWarning("Process token elevation type: Full -> potential security risk!\n");
+					bIsProcessElevated = true;
+					if(bIsUacEnabled) *bIsUacEnabled = true;
+					break;
+				case TokenElevationTypeLimited:
+					qDebug("Process token elevation type: Limited -> not elevated.\n");
+					if(bIsUacEnabled) *bIsUacEnabled = true;
+					break;
+				default:
+					qWarning("Unknown tokenElevationType value: %d", tokenElevationType);
+					break;
+				}
+			}
+			else
+			{
+				qWarning("GetTokenInformation() return an unexpected size!");
+			}
+		}
+		CloseHandle(hToken);
+	}
+	else
+	{
+		qWarning("Failed to open process token!");
+	}
+
+	return bIsProcessElevated;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // NETWORK STATE
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -470,6 +577,36 @@ int MUtils::OS::network_status(void)
 		return (ret != FALSE) ? NETWORK_TYPE_YES : NETWORK_TYPE_NON;
 	}
 	return NETWORK_TYPE_ERR;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// MESSAGE HANDLER
+///////////////////////////////////////////////////////////////////////////////
+
+bool MUtils::OS::handle_os_message(const void *const message, long *result)
+{
+	const MSG *const msg = reinterpret_cast<const MSG*>(message);
+
+	switch(msg->message)
+	{
+	case WM_QUERYENDSESSION:
+		qWarning("WM_QUERYENDSESSION message received!");
+		*result = MUtils::GUI::broadcast(MUtils::GUI::USER_EVENT_QUERYENDSESSION, false) ? TRUE : FALSE;
+		return true;
+	case WM_ENDSESSION:
+		qWarning("WM_ENDSESSION message received!");
+		if(msg->wParam == TRUE)
+		{
+			MUtils::GUI::broadcast(MUtils::GUI::USER_EVENT_ENDSESSION, false);
+			MUtils::GUI::force_quit();
+			exit(1);
+		}
+		*result = 0;
+		return true;
+	default:
+		/*ignore this message and let Qt handle it*/
+		return false;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
