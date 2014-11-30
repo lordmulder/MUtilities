@@ -21,7 +21,7 @@
 
 /***************************************************************************
 **                                                                        **
-**  MUtils::KeccakHash, an API wrapper bringing the optimized implementation of  **
+**  QKeccakHash, an API wrapper bringing the optimized implementation of  **
 **  Keccak (http://keccak.noekeon.org/) to Qt.                            **
 **  Copyright (C) 2013 Emanuel Eichhammer                                 **
 **                                                                        **
@@ -47,17 +47,17 @@
 #include <MUtils/KeccakHash.h>
 #include <QDebug>
 
-#include "3rd_party/keccak_impl.h"
+#include "3rd_party/keccak/include/keccak_impl.h"
 
 MUtils::KeccakHash::KeccakHash()
 {
 	m_initialized = false;
-	m_state = (MUtils::KeccakImpl::hashState*) _aligned_malloc(sizeof(MUtils::KeccakImpl::hashState), 32);
+	m_state = (MUtils::Internal::KeccakImpl::hashState*) _aligned_malloc(sizeof(MUtils::Internal::KeccakImpl::hashState), 32);
 	if(!m_state)
 	{
 		throw "[MUtils::KeccakHash] Error: _aligned_malloc() has failed, probably out of heap space!";
 	}
-	memset(m_state, 0, sizeof(MUtils::KeccakImpl::hashState));
+	memset(m_state, 0, sizeof(MUtils::Internal::KeccakImpl::hashState));
 	m_hashResult.clear();
 }
 
@@ -81,7 +81,7 @@ bool MUtils::KeccakHash::init(HashBits hashBits)
 	}
 
 	m_hashResult.clear();
-	memset(m_state, 0, sizeof(MUtils::KeccakImpl::hashState));
+	memset(m_state, 0, sizeof(MUtils::Internal::KeccakImpl::hashState));
 	int hashBitLength = 0;
 
 	switch (hashBits)
@@ -93,7 +93,7 @@ bool MUtils::KeccakHash::init(HashBits hashBits)
 		default: throw "Invalid hash length!!";
 	}
 
-	if(MUtils::KeccakImpl::Init(m_state, hashBitLength) != MUtils::KeccakImpl::SUCCESS)
+	if(MUtils::Internal::KeccakImpl::Init(m_state, hashBitLength) != MUtils::Internal::KeccakImpl::SUCCESS)
 	{
 		qWarning("KeccakImpl::Init() has failed unexpectedly!");
 		return false;
@@ -118,7 +118,7 @@ bool MUtils::KeccakHash::addData(const char *data, int size)
 		return false;
 	}
 	
-	if(MUtils::KeccakImpl::Update(m_state, (MUtils::KeccakImpl::BitSequence*)data, size*8) != MUtils::KeccakImpl::SUCCESS)
+	if(MUtils::Internal::KeccakImpl::Update(m_state, (MUtils::Internal::KeccakImpl::BitSequence*)data, size*8) != MUtils::Internal::KeccakImpl::SUCCESS)
 	{
 		qWarning("KeccakImpl::Update() has failed unexpectedly!");
 		m_hashResult.clear();
@@ -138,7 +138,7 @@ const QByteArray &MUtils::KeccakHash::finalize()
 		return m_hashResult;
 	}
 
-	if(MUtils::KeccakImpl::Final(m_state, (MUtils::KeccakImpl::BitSequence*)m_hashResult.data()) != MUtils::KeccakImpl::SUCCESS)
+	if(MUtils::Internal::KeccakImpl::Final(m_state, (MUtils::Internal::KeccakImpl::BitSequence*)m_hashResult.data()) != MUtils::Internal::KeccakImpl::SUCCESS)
 	{
 		qWarning("KeccakImpl::Final() has failed unexpectedly!");
 		m_hashResult.clear();

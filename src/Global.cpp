@@ -26,7 +26,10 @@
 //MUtils
 #include <MUtils/Global.h>
 #include <MUtils/OSSupport.h>
+
+//Internal
 #include "DirLocker.h"
+#include "3rd_party/strnatcmp/include/strnatcmp.h"
 
 //Qt
 #include <QDir>
@@ -299,6 +302,25 @@ void MUtils::init_process(QProcess &process, const QString &wokringDir, const bo
 	process.setProcessChannelMode(QProcess::MergedChannels);
 	process.setReadChannel(QProcess::StandardOutput);
 	process.setProcessEnvironment(env);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// NATURAL ORDER STRING COMPARISON
+///////////////////////////////////////////////////////////////////////////////
+
+static bool natural_string_sort_helper(const QString &str1, const QString &str2)
+{
+	return (MUtils::Internal::NaturalSort::strnatcmp(MUTILS_WCHR(str1), MUTILS_WCHR(str2)) < 0);
+}
+
+static bool natural_string_sort_helper_fold_case(const QString &str1, const QString &str2)
+{
+	return (MUtils::Internal::NaturalSort::strnatcasecmp(MUTILS_WCHR(str1), MUTILS_WCHR(str2)) < 0);
+}
+
+void MUtils::natural_string_sort(QStringList &list, const bool bIgnoreCase)
+{
+	qSort(list.begin(), list.end(), bIgnoreCase ? natural_string_sort_helper_fold_case : natural_string_sort_helper);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

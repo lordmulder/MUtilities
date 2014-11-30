@@ -19,6 +19,7 @@
 ***************************************************************************/
 
 namespace MUtils {
+namespace Internal {
 namespace KeccakImpl {
 
 typedef unsigned char UINT8;
@@ -1997,5 +1998,6 @@ HashReturn Hash(int hashbitlen, const BitSequence *data, DataLength databitlen, 
 
 
 } // end of namespace KeccakImpl
+} // end of namespace Internal
 } // end of namespace MUtils
 

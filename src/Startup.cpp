@@ -94,7 +94,7 @@ static int startup_helper(int &argc, char **argv, MUtils::Startup::main_function
 int MUtils::Startup::startup(int &argc, char **argv, main_function_t *const entry_point)
 {
 	int iResult = -1;
-#if(MUTILS_DEBUG)
+#if 1||(MUTILS_DEBUG)
 	iResult = startup_main(argc, argv, entry_point);
 #else //MUTILS_DEBUG
 #ifdef _MSC_VER

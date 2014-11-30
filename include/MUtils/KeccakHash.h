@@ -56,39 +56,42 @@
 
 namespace MUtils
 {
-	// Section from KeccakSponge.h
-	// needed here, since hashState needs to be explicitly 32-byte aligned and therefore can't be
-	// transformed into a class (in order to forward declarate) like in the other hash wrappers.
-	namespace KeccakImpl
+	namespace Internal
 	{
-		#define KeccakPermutationSize 1600
-		#define KeccakPermutationSizeInBytes (KeccakPermutationSize/8)
-		#define KeccakMaximumRate 1536
-		#define KeccakMaximumRateInBytes (KeccakMaximumRate/8)
-
-		#if defined(__GNUC__)
-		#define ALIGN __attribute__ ((aligned(32)))
-		#elif defined(_MSC_VER)
-		#define ALIGN __declspec(align(32))
-		#else
-		#define ALIGN
-		#endif
-
-		ALIGN typedef struct spongeStateStruct
+		// Section from KeccakSponge.h
+		// needed here, since hashState needs to be explicitly 32-byte aligned and therefore can't be
+		// transformed into a class (in order to forward declarate) like in the other hash wrappers.
+		namespace KeccakImpl
 		{
-			ALIGN unsigned char state[KeccakPermutationSizeInBytes];
-			ALIGN unsigned char dataQueue[KeccakMaximumRateInBytes];
-			unsigned int rate;
-			unsigned int capacity;
-			unsigned int bitsInQueue;
-			unsigned int fixedOutputLength;
-			int squeezing;
-			unsigned int bitsAvailableForSqueezing;
+			#define KeccakPermutationSize 1600
+			#define KeccakPermutationSizeInBytes (KeccakPermutationSize/8)
+			#define KeccakMaximumRate 1536
+			#define KeccakMaximumRateInBytes (KeccakMaximumRate/8)
+
+			#if defined(__GNUC__)
+			#define ALIGN __attribute__ ((aligned(32)))
+			#elif defined(_MSC_VER)
+			#define ALIGN __declspec(align(32))
+			#else
+			#define ALIGN
+			#endif
+
+			ALIGN typedef struct spongeStateStruct
+			{
+				ALIGN unsigned char state[KeccakPermutationSizeInBytes];
+				ALIGN unsigned char dataQueue[KeccakMaximumRateInBytes];
+				unsigned int rate;
+				unsigned int capacity;
+				unsigned int bitsInQueue;
+				unsigned int fixedOutputLength;
+				int squeezing;
+				unsigned int bitsAvailableForSqueezing;
+			}
+			spongeState;
+			typedef spongeState hashState;
 		}
-		spongeState;
-		typedef spongeState hashState;
+		// End Section from KeccakSponge.h
 	}
-	// End Section from KeccakSponge.h
 
 	class MUTILS_API KeccakHash
 	{
@@ -107,7 +110,7 @@ namespace MUtils
 
 	protected:
 		bool m_initialized;
-		KeccakImpl::hashState *m_state;
+		Internal::KeccakImpl::hashState *m_state;
 		QByteArray m_hashResult;
 	};
 };

@@ -26,6 +26,7 @@
 //Internal
 #include <MUtils/Global.h>
 #include <MUtils/Exception.h>
+#include <MUtils/OSSupport.h>
 #include "Config.h"
 
 #ifdef _MSC_VER

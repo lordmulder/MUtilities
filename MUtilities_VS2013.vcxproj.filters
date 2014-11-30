@@ -19,6 +19,12 @@
     <Filter Include="Source Files\Generated">
       <UniqueIdentifier>{458f07b7-5414-4e9c-a599-222196e8d2e8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\3rd Party">
+      <UniqueIdentifier>{d5bcdb46-27a3-4772-86b4-1b30e02a30cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\3rd Party">
+      <UniqueIdentifier>{6261ec8d-8041-495b-bddf-6fe07c11c952}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\UpdateChecker.cpp">
@@ -56,6 +62,9 @@
     </ClCompile>
     <ClCompile Include="src\GUI.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\3rd_party\strnatcmp\src\strnatcmp.cpp">
+      <Filter>Source Files\3rd Party</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -97,6 +106,12 @@
     </ClInclude>
     <ClInclude Include="src\Utils_Win32.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_party\strnatcmp\include\strnatcmp.h">
+      <Filter>Header Files\3rd Party</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_party\keccak\include\keccak_impl.h">
+      <Filter>Header Files\3rd Party</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
