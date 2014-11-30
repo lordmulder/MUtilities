@@ -39,7 +39,7 @@
 
 static const char *g_months_lut[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
-static int month2int(const char *str)
+static int month_str2int(const char *str)
 {
 	int ret = 0;
 
@@ -55,16 +55,18 @@ static int month2int(const char *str)
 	return ret;
 }
 
-static const QDate decode_date_str(const char *const date_str)
+static const QDate decode_date_str(const char *const date_str) //Mmm dd yyyy
 {
 	bool ok = true;
 	int date[3] = {0, 0, 0};
-	char month_s[4];
+	char buffer[12];
 
-	ok = ok && (_snscanf(&date_str[0x0], 3, "%s", &month_s) == 1);
-	ok = ok && ((date[1] = month2int(month_s)) > 0);
-	ok = ok && (_snscanf(&date_str[0x4], 2, "%d", &date[2]) == 1);
-	ok = ok && (_snscanf(&date_str[0x7], 4, "%d", &date[0]) == 1);
+	strcpy_s(buffer, 12, date_str);
+	buffer[3] = buffer[6] = '\0';
+
+	ok = ok && ((date[1] = month_str2int(&buffer[0])) > 0);
+	ok = ok && (sscanf_s(&buffer[4], "%d", &date[2]) == 1);
+	ok = ok && (sscanf_s(&buffer[7], "%d", &date[0]) == 1);
 
 	if(!ok)
 	{
@@ -75,14 +77,18 @@ static const QDate decode_date_str(const char *const date_str)
 	return QDate(date[0], date[1], date[2]);
 }
 
-static const QTime decode_time_str(const char *const time_str)
+static const QTime decode_time_str(const char *const time_str) //hh:mm:ss
 {
 	bool ok = true;
 	int time[3] = {0, 0, 0};
+	char buffer[9];
 
-	ok = ok && (_snscanf(&time_str[0x0], 2, "%d", &time[0]) == 1);
-	ok = ok && (_snscanf(&time_str[0x3], 2, "%d", &time[1]) == 1);
-	ok = ok && (_snscanf(&time_str[0x6], 2, "%d", &time[2]) == 1);
+	strcpy_s(buffer, 9, time_str);
+	buffer[2] = buffer[5] = '\0';
+
+	ok = ok && (sscanf_s(&time_str[0], "%d", &time[0]) == 1);
+	ok = ok && (sscanf_s(&time_str[3], "%d", &time[1]) == 1);
+	ok = ok && (sscanf_s(&time_str[6], "%d", &time[2]) == 1);
 
 	if(!ok)
 	{

@@ -41,6 +41,9 @@
 #include <ctime>
 #include <process.h>
 
+//VLD
+#include <vld.h>
+
 ///////////////////////////////////////////////////////////////////////////////
 // Random Support
 ///////////////////////////////////////////////////////////////////////////////
@@ -327,11 +330,15 @@ void MUtils::natural_string_sort(QStringList &list, const bool bIgnoreCase)
 // SELF-TEST
 ///////////////////////////////////////////////////////////////////////////////
 
-int MUtils::Internal::selfTest(const char *const date, const bool debug)
+int MUtils::Internal::selfTest(const char *const buildKey, const bool debug)
 {
-	if(strncmp(date, __DATE__"@"__TIME__, 14) || (MUTILS_DEBUG != debug))
+	static const bool MY_DEBUG_FLAG = MUTILS_DEBUG;
+	static const char *const MY_BUILD_KEY = __DATE__"@"__TIME__;
+
+	if(strncmp(buildKey, MY_BUILD_KEY, 14) || (MY_DEBUG_FLAG != debug))
 	{
 		MUtils::OS::system_message_err(L"MUtils", L"FATAL ERROR: MUtils library version mismatch detected!");
+		MUtils::OS::system_message_wrn(L"MUtils", L"Please re-build the complete solution in order to fix this issue!");
 		abort();
 	}
 	return 0;
