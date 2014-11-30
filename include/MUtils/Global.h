@@ -101,25 +101,12 @@ namespace MUtils
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define MUTILS_DELETE(PTR) do \
-{ \
-	if((PTR)) \
-	{ \
-		delete (PTR); \
-		(PTR) = NULL; \
-	} \
-} \
-while(0)
+//Delete helper
+#define MUTILS_DELETE(PTR) do { if((PTR)) { delete (PTR); (PTR) = NULL; } } while(0)
+#define MUTILS_DELETE_ARRAY(PTR) do { if((PTR)) { delete [] (PTR); (PTR) = NULL; } } while(0)
 
-#define MUTILS_DELETE_ARRAY(PTR) do \
-{ \
-	if((PTR)) \
-	{ \
-		delete [] (PTR); \
-		(PTR) = NULL; \
-	} \
-} \
-while(0)
+//Zero memory
+#define MUTILS_ZERO_MEMORY(PTR) memset(&(PTR), 0, sizeof((PTR)))
 
 //String conversion macros
 #define MUTILS_WCHR(STR) (reinterpret_cast<const wchar_t*>((STR).utf16()))

@@ -610,6 +610,59 @@ bool MUtils::OS::handle_os_message(const void *const message, long *result)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// SLEEP
+///////////////////////////////////////////////////////////////////////////////
+
+void MUtils::OS::sleep_ms(const size_t &duration)
+{
+	Sleep((DWORD) duration);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// DEBUGGER CHECK
+///////////////////////////////////////////////////////////////////////////////
+
+#if (!(MUTILS_DEBUG))
+static __forceinline bool is_debugger_present(void)
+{
+	__try
+	{
+		CloseHandle((HANDLE)((DWORD_PTR)-3));
+	}
+	__except(1)
+	{
+		return true;
+	}
+
+	BOOL bHaveDebugger = FALSE;
+	if(CheckRemoteDebuggerPresent(GetCurrentProcess(), &bHaveDebugger))
+	{
+		if(bHaveDebugger) return true;
+	}
+
+	return IsDebuggerPresent();
+}
+static __forceinline bool check_debugger_helper(void)
+{
+	if(is_debugger_present())
+	{
+		MUtils::OS::fatal_exit(L"Not a debug build. Please unload debugger and try again!");
+		return true;
+	}
+	return false;
+}
+#else
+#define check_debugger_helper() (false)
+#endif
+
+void MUtils::OS::check_debugger(void)
+{
+	check_debugger_helper();
+}
+
+static volatile bool g_debug_check = check_debugger_helper();
+
+///////////////////////////////////////////////////////////////////////////////
 // FATAL EXIT
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -104,6 +104,7 @@ int MUtils::Startup::startup(int &argc, char **argv, main_function_t *const entr
 	__try
 	{
 		MUtils::ErrorHandler::initialize();
+		MUtils::OS::check_debugger();
 		iResult = startup_helper(argc, argv, entry_point);
 	}
 	__except(1)
@@ -113,6 +114,7 @@ int MUtils::Startup::startup(int &argc, char **argv, main_function_t *const entr
 	}
 #else //_MSCVER
 	MUtils::ErrorHandler::initialize();
+	MUtils::OS::check_debugger();
 	iResult = startup_helper(argc, argv, entry_point);
 #endif //_MSCVER
 #endif //MUTILS_DEBUG

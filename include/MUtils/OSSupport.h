@@ -123,6 +123,12 @@ namespace MUtils
 		//Message handler
 		MUTILS_API bool handle_os_message(const void *const message, long *result);
 
+		//Sleep
+		MUTILS_API void sleep_ms(const size_t &duration);
+
+		//Check if debugger is present
+		MUTILS_API void check_debugger(void);
+
 		//Error handling
 		MUTILS_API void fatal_exit(const wchar_t* const errorMessage);
 	}

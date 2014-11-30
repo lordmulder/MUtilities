@@ -55,3 +55,11 @@ while(0)
 	throw std::runtime_error((MESSAGE)); \
 } \
 while(0)
+
+#define MUTILS_THROW_FMT(MESSAGE, ...) do \
+{ \
+	char _message[256]; \
+	_snprintf_s(_message, 256, _TRUNCATE, (MESSAGE), __VA_ARGS__); \
+	throw std::runtime_error(_message); \
+} \
+while(0)
