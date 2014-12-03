@@ -111,11 +111,13 @@ namespace MUtils
 		//Get known Folder
 		MUTILS_API const QString &known_folder(known_folder_t folder_id);
 
-		//Current Date
+		//Current Date & Time
 		MUTILS_API QDate current_date(void);
+		MUTILS_API quint64 current_file_time(void);
 
 		//Check for process elevation
 		MUTILS_API bool is_elevated(bool *bIsUacEnabled = NULL);
+		MUTILS_API bool user_is_admin(void);
 
 		//Network Status
 		MUTILS_API int network_status(void);
@@ -125,6 +127,34 @@ namespace MUtils
 
 		//Sleep
 		MUTILS_API void sleep_ms(const size_t &duration);
+
+		//Is executable file?
+		MUTILS_API bool is_executable_file(const QString &path);
+
+		//Shutdown & Hibernation
+		MUTILS_API bool is_hibernation_supported(void);
+		MUTILS_API bool shutdown_computer(const QString &message, const unsigned long timeout, const bool forceShutdown, const bool hibernate);
+
+		//Free diskspace
+		MUTILS_API bool free_diskspace(const QString &path, quint64 &freeSpace);
+
+		//Shell open
+		MUTILS_API bool shell_open(const QWidget *parent, const QString &url, const bool explore = false);
+		MUTILS_API bool shell_open(const QWidget *parent, const QString &url, const QString &parameters, const QString &directory, const bool explore = false);
+
+		//Open media file
+		MUTILS_API bool open_media_file(const QString &mediaFilePath);
+
+		//Performance counter
+		MUTILS_API qint64 perfcounter_read(void);
+		MUTILS_API qint64 perfcounter_freq(void);
+
+		//Process priority
+		MUTILS_API bool change_process_priority(const int priority);
+		MUTILS_API bool change_process_priority(const QProcess *proc, const int priority);
+
+		//Process ID
+		MUTILS_API quint32 process_id(const QProcess *proc);
 
 		//Check if debugger is present
 		MUTILS_API void check_debugger(void);

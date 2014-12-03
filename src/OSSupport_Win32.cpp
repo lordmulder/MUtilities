@@ -28,6 +28,7 @@
 #include <Psapi.h>
 #include <Sensapi.h>
 #include <Shellapi.h>
+#include <PowrProf.h>
 
 //Internal
 #include <MUtils/Global.h>
@@ -40,6 +41,8 @@
 #include <QReadWriteLock>
 #include <QLibrary>
 #include <QDir>
+#include <QWidget>
+#include <QProcess>
 
 //Main thread ID
 static const DWORD g_main_thread_id = GetCurrentThreadId();
@@ -449,7 +452,7 @@ const QString &MUtils::OS::known_folder(known_folder_t folder_id)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// CURRENT DATA (SAFE)
+// CURRENT DATA & TIME
 ///////////////////////////////////////////////////////////////////////////////
 
 QDate MUtils::OS::current_date(void)
@@ -508,9 +511,77 @@ QDate MUtils::OS::current_date(void)
 	return (currentDate >= processDate) ? currentDate : processDate;
 }
 
+quint64 MUtils::OS::current_file_time(void)
+{
+	FILETIME fileTime;
+	GetSystemTimeAsFileTime(&fileTime);
+
+	ULARGE_INTEGER temp;
+	temp.HighPart = fileTime.dwHighDateTime;
+	temp.LowPart = fileTime.dwLowDateTime;
+
+	return temp.QuadPart;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // PROCESS ELEVATION
 ///////////////////////////////////////////////////////////////////////////////
+
+static bool user_is_admin_helper(void)
+{
+	HANDLE hToken = NULL;
+	if(!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken))
+	{
+		return false;
+	}
+
+	DWORD dwSize = 0;
+	if(!GetTokenInformation(hToken, TokenGroups, NULL, 0, &dwSize))
+	{
+		if(GetLastError() != ERROR_INSUFFICIENT_BUFFER)
+		{
+			CloseHandle(hToken);
+			return false;
+		}
+	}
+
+	PTOKEN_GROUPS lpGroups = (PTOKEN_GROUPS) malloc(dwSize);
+	if(!lpGroups)
+	{
+		CloseHandle(hToken);
+		return false;
+	}
+
+	if(!GetTokenInformation(hToken, TokenGroups, lpGroups, dwSize, &dwSize))
+	{
+		free(lpGroups);
+		CloseHandle(hToken);
+		return false;
+	}
+
+	PSID lpSid = NULL; SID_IDENTIFIER_AUTHORITY Authority = {SECURITY_NT_AUTHORITY};
+	if(!AllocateAndInitializeSid(&Authority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS, 0, 0, 0, 0, 0, 0, &lpSid))
+	{
+		free(lpGroups);
+		CloseHandle(hToken);
+		return false;
+	}
+
+	bool bResult = false;
+	for(DWORD i = 0; i < lpGroups->GroupCount; i++)
+	{
+		if(EqualSid(lpSid, lpGroups->Groups[i].Sid))
+		{
+			bResult = true;
+			break;
+		}
+	}
+
+	FreeSid(lpSid);
+	free(lpGroups);
+	CloseHandle(hToken);
+	return bResult;
+}
 
 bool MUtils::OS::is_elevated(bool *bIsUacEnabled)
 {
@@ -562,6 +633,27 @@ bool MUtils::OS::is_elevated(bool *bIsUacEnabled)
 	}
 
 	return bIsProcessElevated;
+}
+
+bool MUtils::OS::user_is_admin(void)
+{
+	bool isAdmin = false;
+
+	//Check for process elevation and UAC support first!
+	if(MUtils::OS::is_elevated(&isAdmin))
+	{
+		qWarning("Process is elevated -> user is admin!");
+		return true;
+	}
+	
+	//If not elevated and UAC is not available -> user must be in admin group!
+	if(!isAdmin)
+	{
+		qDebug("UAC is disabled/unavailable -> checking for Administrators group");
+		isAdmin = user_is_admin_helper();
+	}
+
+	return isAdmin;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -616,6 +708,253 @@ bool MUtils::OS::handle_os_message(const void *const message, long *result)
 void MUtils::OS::sleep_ms(const size_t &duration)
 {
 	Sleep((DWORD) duration);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// EXECUTABLE CHECK
+///////////////////////////////////////////////////////////////////////////////
+
+bool MUtils::OS::is_executable_file(const QString &path)
+{
+	bool bIsExecutable = false;
+	DWORD binaryType;
+	if(GetBinaryType(MUTILS_WCHR(QDir::toNativeSeparators(path)), &binaryType))
+	{
+		bIsExecutable = (binaryType == SCS_32BIT_BINARY || binaryType == SCS_64BIT_BINARY);
+	}
+	return bIsExecutable;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// HIBERNATION / SHUTDOWN
+///////////////////////////////////////////////////////////////////////////////
+
+bool MUtils::OS::is_hibernation_supported(void)
+{
+	bool hibernationSupported = false;
+
+	SYSTEM_POWER_CAPABILITIES pwrCaps;
+	SecureZeroMemory(&pwrCaps, sizeof(SYSTEM_POWER_CAPABILITIES));
+	
+	if(GetPwrCapabilities(&pwrCaps))
+	{
+		hibernationSupported = pwrCaps.SystemS4 && pwrCaps.HiberFilePresent;
+	}
+
+	return hibernationSupported;
+}
+
+bool MUtils::OS::shutdown_computer(const QString &message, const unsigned long timeout, const bool forceShutdown, const bool hibernate)
+{
+	HANDLE hToken = NULL;
+
+	if(OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken))
+	{
+		TOKEN_PRIVILEGES privileges;
+		memset(&privileges, 0, sizeof(TOKEN_PRIVILEGES));
+		privileges.PrivilegeCount = 1;
+		privileges.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+		
+		if(LookupPrivilegeValue(NULL, SE_SHUTDOWN_NAME, &privileges.Privileges[0].Luid))
+		{
+			if(AdjustTokenPrivileges(hToken, FALSE, &privileges, NULL, NULL, NULL))
+			{
+				if(hibernate)
+				{
+					if(SetSuspendState(TRUE, TRUE, TRUE))
+					{
+						return true;
+					}
+				}
+				const DWORD reason = SHTDN_REASON_MAJOR_APPLICATION | SHTDN_REASON_FLAG_PLANNED;
+				return InitiateSystemShutdownEx(NULL, const_cast<wchar_t*>(MUTILS_WCHR(message)), timeout, forceShutdown ? TRUE : FALSE, FALSE, reason);
+			}
+		}
+	}
+	
+	return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// FREE DISKSPACE
+///////////////////////////////////////////////////////////////////////////////
+
+bool MUtils::OS::free_diskspace(const QString &path, quint64 &freeSpace)
+{
+	ULARGE_INTEGER freeBytesAvailable, totalNumberOfBytes, totalNumberOfFreeBytes;
+	if(GetDiskFreeSpaceExW(reinterpret_cast<const wchar_t*>(QDir::toNativeSeparators(path).utf16()), &freeBytesAvailable, &totalNumberOfBytes, &totalNumberOfFreeBytes))
+	{
+		freeSpace = freeBytesAvailable.QuadPart;
+		return true;;
+	}
+
+	freeSpace = -1;
+	return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// SHELL OPEN
+///////////////////////////////////////////////////////////////////////////////
+
+bool MUtils::OS::shell_open(const QWidget *parent, const QString &url, const QString &parameters, const QString &directory, const bool explore)
+{
+	return ((int) ShellExecuteW((parent ? parent->winId() : NULL), (explore ? L"explore" : L"open"), MUTILS_WCHR(url), ((!parameters.isEmpty()) ? MUTILS_WCHR(parameters) : NULL), ((!directory.isEmpty()) ? MUTILS_WCHR(directory) : NULL), SW_SHOW)) > 32;
+}
+
+bool MUtils::OS::shell_open(const QWidget *parent, const QString &url, const bool explore)
+{
+	return shell_open(parent, url, QString(), QString(), explore);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// OPEN MEDIA FILE
+///////////////////////////////////////////////////////////////////////////////
+
+bool MUtils::OS::open_media_file(const QString &mediaFilePath)
+{
+	const static wchar_t *registryPrefix[2] = { L"SOFTWARE\\", L"SOFTWARE\\Wow6432Node\\" };
+	const static wchar_t *registryKeys[3] = 
+	{
+		L"Microsoft\\Windows\\CurrentVersion\\Uninstall\\{97D341C8-B0D1-4E4A-A49A-C30B52F168E9}",
+		L"Microsoft\\Windows\\CurrentVersion\\Uninstall\\{DB9E4EAB-2717-499F-8D56-4CC8A644AB60}",
+		L"foobar2000"
+	};
+	const static wchar_t *appNames[4] = { L"smplayer_portable.exe", L"smplayer.exe", L"MPUI.exe", L"foobar2000.exe" };
+	const static wchar_t *valueNames[2] = { L"InstallLocation", L"InstallDir" };
+
+	for(size_t i = 0; i < 3; i++)
+	{
+		for(size_t j = 0; j < 2; j++)
+		{
+			QString mplayerPath;
+			HKEY registryKeyHandle = NULL;
+
+			const QString currentKey = MUTILS_QSTR(registryPrefix[j]).append(MUTILS_QSTR(registryKeys[i]));
+			if(RegOpenKeyExW(HKEY_LOCAL_MACHINE, MUTILS_WCHR(currentKey), 0, KEY_READ, &registryKeyHandle) == ERROR_SUCCESS)
+			{
+				for(size_t k = 0; k < 2; k++)
+				{
+					wchar_t Buffer[4096];
+					DWORD BuffSize = sizeof(wchar_t*) * 4096;
+					DWORD DataType = REG_NONE;
+					if(RegQueryValueExW(registryKeyHandle, valueNames[k], 0, &DataType, reinterpret_cast<BYTE*>(Buffer), &BuffSize) == ERROR_SUCCESS)
+					{
+						if((DataType == REG_SZ) || (DataType == REG_EXPAND_SZ) || (DataType == REG_LINK))
+						{
+							mplayerPath = MUTILS_QSTR(Buffer);
+							break;
+						}
+					}
+				}
+				RegCloseKey(registryKeyHandle);
+			}
+
+			if(!mplayerPath.isEmpty())
+			{
+				QDir mplayerDir(mplayerPath);
+				if(mplayerDir.exists())
+				{
+					for(size_t k = 0; k < 4; k++)
+					{
+						if(mplayerDir.exists(MUTILS_QSTR(appNames[k])))
+						{
+							qDebug("Player found at:\n%s\n", MUTILS_UTF8(mplayerDir.absoluteFilePath(MUTILS_QSTR(appNames[k]))));
+							QProcess::startDetached(mplayerDir.absoluteFilePath(MUTILS_QSTR(appNames[k])), QStringList() << QDir::toNativeSeparators(mediaFilePath));
+							return true;
+						}
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// PERFORMANCE COUNTER
+///////////////////////////////////////////////////////////////////////////////
+
+qint64 MUtils::OS::perfcounter_read(void)
+{
+	LARGE_INTEGER counter;
+	if(QueryPerformanceCounter(&counter) == TRUE)
+	{
+		return counter.QuadPart;
+	}
+	return -1;
+}
+
+qint64 MUtils::OS::perfcounter_freq(void)
+{
+	LARGE_INTEGER frequency;
+	if(QueryPerformanceFrequency(&frequency) == TRUE)
+	{
+		return frequency.QuadPart;
+	}
+	return -1;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// DEBUGGER CHECK
+///////////////////////////////////////////////////////////////////////////////
+
+static bool change_process_priority_helper(const HANDLE hProcess, const int priority)
+{
+	bool ok = false;
+
+	switch(qBound(-2, priority, 2))
+	{
+	case 2:
+		ok = (SetPriorityClass(hProcess, HIGH_PRIORITY_CLASS) == TRUE);
+		break;
+	case 1:
+		if(!(ok = (SetPriorityClass(hProcess, ABOVE_NORMAL_PRIORITY_CLASS) == TRUE)))
+		{
+			ok = (SetPriorityClass(hProcess, HIGH_PRIORITY_CLASS) == TRUE);
+		}
+		break;
+	case 0:
+		ok = (SetPriorityClass(hProcess, NORMAL_PRIORITY_CLASS) == TRUE);
+		break;
+	case -1:
+		if(!(ok = (SetPriorityClass(hProcess, BELOW_NORMAL_PRIORITY_CLASS) == TRUE)))
+		{
+			ok = (SetPriorityClass(hProcess, IDLE_PRIORITY_CLASS) == TRUE);
+		}
+		break;
+	case -2:
+		ok = (SetPriorityClass(hProcess, IDLE_PRIORITY_CLASS) == TRUE);
+		break;
+	}
+
+	return ok;
+}
+
+bool MUtils::OS::change_process_priority(const int priority)
+{
+	return change_process_priority_helper(GetCurrentProcess(), priority);
+}
+
+bool MUtils::OS::change_process_priority(const QProcess *proc, const int priority)
+{
+	if(Q_PID qPid = proc->pid())
+	{
+		return change_process_priority_helper(qPid->hProcess, priority);
+	}
+	else
+	{
+		return false;
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// PROCESS ID
+///////////////////////////////////////////////////////////////////////////////
+
+quint32 MUtils::OS::process_id(const QProcess *proc)
+{
+	PROCESS_INFORMATION *procInf = proc->pid();
+	return (procInf) ? procInf->dwProcessId : NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
