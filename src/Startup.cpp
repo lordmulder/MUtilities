@@ -242,6 +242,9 @@ bool MUtils::Startup::init_qt(int &argc, char **argv, const QString &appName)
 		}
 	}
 	
+	//Setup console icon
+	MUtils::Terminal::set_icon(QIcon(":/mutils/icons/bug.png"));
+
 	//Enable larger/smaller font size
 	double fontScaleFactor = 1.0;
 	if(arguments.contains("--huge-font",  Qt::CaseInsensitive)) fontScaleFactor = 1.500;

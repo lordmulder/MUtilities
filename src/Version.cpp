@@ -29,10 +29,6 @@
 #include <MUtils/OSSupport.h>
 #include "Config.h"
 
-#ifdef _MSC_VER
-#define _snscanf(X, Y, Z, ...) _snscanf_s((X), (Y), (Z), __VA_ARGS__)
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 // HELPER FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////
@@ -45,7 +41,7 @@ static int month_str2int(const char *str)
 
 	for(int j = 0; j < 12; j++)
 	{
-		if(!_strcmpi(str, g_months_lut[j]))
+		if(!_strnicmp(str, g_months_lut[j], 3))
 		{
 			ret = j+1;
 			break;
@@ -57,40 +53,27 @@ static int month_str2int(const char *str)
 
 static const QDate decode_date_str(const char *const date_str) //Mmm dd yyyy
 {
-	bool ok = true;
 	int date[3] = {0, 0, 0};
-	char buffer[12];
 
-	strcpy_s(buffer, 12, date_str);
-	buffer[3] = buffer[6] = '\0';
-
-	ok = ok && ((date[1] = month_str2int(&buffer[0])) > 0);
-	ok = ok && (sscanf_s(&buffer[4], "%d", &date[2]) == 1);
-	ok = ok && (sscanf_s(&buffer[7], "%d", &date[0]) == 1);
-
-	if(!ok)
+	if(sscanf_s(date_str, "%*3s %2d %4d", &date[2], &date[0]) != 2)
 	{
 		MUTILS_THROW("Internal error: Date format could not be recognized!");
 	}
-	
+
+	if((date[1] = month_str2int(date_str)) < 1)
+	{
+		MUTILS_THROW("Internal error: Date format could not be recognized!");
+	}
+
 	//qWarning("MUtils::Version::build_date: y=%d, m=%d, d=%d", date[0], date[1], date[2]);
 	return QDate(date[0], date[1], date[2]);
 }
 
 static const QTime decode_time_str(const char *const time_str) //hh:mm:ss
 {
-	bool ok = true;
 	int time[3] = {0, 0, 0};
-	char buffer[9];
 
-	strcpy_s(buffer, 9, time_str);
-	buffer[2] = buffer[5] = '\0';
-
-	ok = ok && (sscanf_s(&time_str[0], "%d", &time[0]) == 1);
-	ok = ok && (sscanf_s(&time_str[3], "%d", &time[1]) == 1);
-	ok = ok && (sscanf_s(&time_str[6], "%d", &time[2]) == 1);
-
-	if(!ok)
+	if(sscanf_s(time_str, "%2d:%2d:%2d", &time[0], &time[1], &time[2]) != 3)
 	{
 		MUTILS_THROW("Internal error: Time format could not be recognized!");
 	}

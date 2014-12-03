@@ -339,7 +339,7 @@ void MUtils::Terminal::set_icon(const QIcon &icon)
 {
 	MUtils::Internal::CSLocker lock(g_terminal_lock);
 
-	if(!(icon.isNull() || MUtils::OS::running_on_wine()))
+	if(g_terminal_attached && (!(icon.isNull() || MUtils::OS::running_on_wine())))
 	{
 		QLibrary kernel32("kernel32.dll");
 		if(kernel32.load())

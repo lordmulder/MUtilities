@@ -36,9 +36,6 @@
     <ClCompile Include="src\OSSupport_Win32.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tmp\MUtilities_VS2013\MOC_UpdateChecker.cpp">
-      <Filter>Source Files\Generated</Filter>
-    </ClCompile>
     <ClCompile Include="src\Version.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -65,6 +62,12 @@
     </ClCompile>
     <ClCompile Include="src\3rd_party\strnatcmp\src\strnatcmp.cpp">
       <Filter>Source Files\3rd Party</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SolutionDir)\tmp\$(ProjectName)\QRC_Resource.cpp">
+      <Filter>Source Files\Generated</Filter>
+    </ClCompile>
+    <ClCompile Include="$(SolutionDir)\tmp\$(ProjectName)\MOC_UpdateChecker.cpp">
+      <Filter>Source Files\Generated</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -117,6 +120,9 @@
   <ItemGroup>
     <CustomBuild Include="include\Mutils\UpdateChecker.h">
       <Filter>Public Headers</Filter>
+    </CustomBuild>
+    <CustomBuild Include="res\Resource.qrc">
+      <Filter>Resource Files</Filter>
     </CustomBuild>
   </ItemGroup>
 </Project>
