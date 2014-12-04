@@ -24,6 +24,10 @@
 //MUtils
 #include <MUtils/Global.h>
 
+//Forward Declaration
+class QIcon;
+class QWidget;
+
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace MUtils
@@ -40,6 +44,8 @@ namespace MUtils
 
 		//Broadcast message
 		MUTILS_API bool broadcast(int eventType, const bool &onlyToVisible);
+
+		MUTILS_API bool set_window_icon(QWidget *window, const QIcon &icon, const bool bIsBigIcon);
 
 		//Force quit application
 		MUTILS_API void force_quit(void);

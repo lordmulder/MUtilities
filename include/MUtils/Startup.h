@@ -34,7 +34,7 @@ namespace MUtils
 		typedef int (main_function_t)(int &argc, char **argv);
 
 		//Startup Application
-		MUTILS_API int startup(int &argc, char **argv, main_function_t *const entry_point);
+		MUTILS_API int startup(int &argc, char **argv, main_function_t *const entry_point, const bool &debugConsole);
 
 		//Initialize Qt
 		MUTILS_API bool init_qt(int &argc, char **argv, const QString &appName);

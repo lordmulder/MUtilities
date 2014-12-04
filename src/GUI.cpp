@@ -21,7 +21,11 @@
 
 #include <MUtils/GUI.h>
 
+//Internal
+#include "Utils_Win32.h"
+
 //Qt
+#include <QIcon>
 #include <QApplication>
 #include <QWidget>
 
@@ -62,7 +66,59 @@ bool MUtils::GUI::broadcast(int eventType, const bool &onlyToVisible)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// BROADCAST
+// WINDOW ICON
+///////////////////////////////////////////////////////////////////////////////
+
+namespace MUtils
+{
+	namespace GUI
+	{
+		namespace Internal
+		{
+			class WindowIconHelper : public QObject
+			{
+			public:
+				WindowIconHelper(QWidget *const parent, const HICON hIcon, const bool &bIsBigIcon)
+				:
+					QObject(parent),
+					m_hIcon(hIcon)
+				{
+					SendMessage(parent->winId(), WM_SETICON, (bIsBigIcon ? ICON_BIG : ICON_SMALL), LPARAM(hIcon));
+				}
+
+				~WindowIconHelper(void)
+				{
+					if(m_hIcon)
+					{
+						DestroyIcon(m_hIcon);
+					}
+				}
+
+			private:
+				const HICON m_hIcon;
+			};
+		}
+	}
+}
+
+bool MUtils::GUI::set_window_icon(QWidget *window, const QIcon &icon, const bool bIsBigIcon)
+{
+	if((!icon.isNull()) && window->winId())
+	{
+		const int extend = (bIsBigIcon ? 32 : 16);
+		if(HICON hIcon = qicon_to_hicon(icon, extend, extend))
+		{
+			if(new Internal::WindowIconHelper(window, hIcon, bIsBigIcon))
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// FORCE QUIT
 ///////////////////////////////////////////////////////////////////////////////
 
 void MUtils::GUI::force_quit(void)

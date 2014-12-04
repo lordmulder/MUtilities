@@ -64,19 +64,19 @@ static bool qt_event_filter(void *message, long *result)
 // STARTUP FUNCTION
 ///////////////////////////////////////////////////////////////////////////////
 
-static int startup_main(int &argc, char **argv, MUtils::Startup::main_function_t *const entry_point)
+static int startup_main(int &argc, char **argv, MUtils::Startup::main_function_t *const entry_point, const bool &debugConsole)
 {
 	qInstallMsgHandler(qt_message_handler);
-	MUtils::Terminal::setup(argc, argv, MUTILS_DEBUG);
+	MUtils::Terminal::setup(argc, argv, MUTILS_DEBUG || debugConsole);
 	return entry_point(argc, argv);
 }
 
-static int startup_helper(int &argc, char **argv, MUtils::Startup::main_function_t *const entry_point)
+static int startup_helper(int &argc, char **argv, MUtils::Startup::main_function_t *const entry_point, const bool &debugConsole)
 {
 	int iResult = -1;
 	try
 	{
-		iResult = startup_main(argc, argv, entry_point);
+		iResult = startup_main(argc, argv, entry_point, debugConsole);
 	}
 	catch(const std::exception &error)
 	{
@@ -91,21 +91,21 @@ static int startup_helper(int &argc, char **argv, MUtils::Startup::main_function
 	return iResult;
 }
 
-int MUtils::Startup::startup(int &argc, char **argv, main_function_t *const entry_point)
+int MUtils::Startup::startup(int &argc, char **argv, main_function_t *const entry_point, const bool &debugConsole)
 {
 	int iResult = -1;
 #if (MUTILS_DEBUG)
 #ifdef _MSC_VER
 	_CrtSetDbgFlag(_CRTDBG_CHECK_ALWAYS_DF || _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG));
 #endif //_MSCVER
-	iResult = startup_main(argc, argv, entry_point);
+	iResult = startup_main(argc, argv, entry_point, debugConsole);
 #else //MUTILS_DEBUG
 #ifdef _MSC_VER
 	__try
 	{
 		MUtils::ErrorHandler::initialize();
 		MUtils::OS::check_debugger();
-		iResult = startup_helper(argc, argv, entry_point);
+		iResult = startup_helper(argc, argv, entry_point, debugConsole);
 	}
 	__except(1)
 	{
@@ -115,7 +115,7 @@ int MUtils::Startup::startup(int &argc, char **argv, main_function_t *const entr
 #else //_MSCVER
 	MUtils::ErrorHandler::initialize();
 	MUtils::OS::check_debugger();
-	iResult = startup_helper(argc, argv, entry_point);
+	iResult = startup_helper(argc, argv, entry_point, debugConsole);
 #endif //_MSCVER
 #endif //MUTILS_DEBUG
 	return iResult;
