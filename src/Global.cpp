@@ -327,6 +327,58 @@ void MUtils::natural_string_sort(QStringList &list, const bool bIgnoreCase)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// CLEAN FILE PATH
+///////////////////////////////////////////////////////////////////////////////
+
+static const struct
+{
+	const char *const search;
+	const char *const replace;
+}
+CLEAN_FILE_NAME[] =
+{
+	{ "\\",  "-"  },
+	{ " / ", ", " },
+	{ "/",   ","  },
+	{ ":",   "-"  },
+	{ "*",   "x"  },
+	{ "?",   "!"  },
+	{ "<",   "["  },
+	{ ">",   "]"  },
+	{ "|",   "!"  },
+	{ "\"",  "'"  },
+	{ NULL,  NULL }
+};
+
+QString MUtils::clean_file_name(const QString &name)
+{
+	QString str = name.simplified();
+
+	for(size_t i = 0; CLEAN_FILE_NAME[i].search; i++) 
+	{
+		str.replace(CLEAN_FILE_NAME[i].search, CLEAN_FILE_NAME[i].replace);
+	}
+	
+	QRegExp regExp("\"(.+)\"");
+	regExp.setMinimal(true);
+	str.replace(regExp, "`\\1´");
+	
+	return str.simplified();
+}
+
+QString MUtils::clean_file_path(const QString &path)
+{
+	QStringList parts = path.simplified().replace("\\", "/").split("/", QString::SkipEmptyParts);
+
+	for(int i = 0; i < parts.count(); i++)
+	{
+		parts[i] = MUtils::clean_file_name(parts[i]);
+	}
+
+	return parts.join("/");
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // SELF-TEST
 ///////////////////////////////////////////////////////////////////////////////
 

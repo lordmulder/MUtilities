@@ -91,6 +91,10 @@ namespace MUtils
 	//String sorting
 	MUTILS_API void natural_string_sort(QStringList &list, const bool bIgnoreCase);
 
+	//Clean file path
+	MUTILS_API QString clean_file_name(const QString &name);
+	MUTILS_API QString clean_file_path(const QString &path);
+
 	//Internal
 	namespace Internal
 	{

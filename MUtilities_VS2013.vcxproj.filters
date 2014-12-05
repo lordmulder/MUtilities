@@ -69,6 +69,9 @@
     <ClCompile Include="$(SolutionDir)\tmp\$(ProjectName)\MOC_UpdateChecker.cpp">
       <Filter>Source Files\Generated</Filter>
     </ClCompile>
+    <ClCompile Include="src\Sound_Win32.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\CriticalSection_Win32.h">
@@ -115,6 +118,9 @@
     </ClInclude>
     <ClInclude Include="src\3rd_party\keccak\include\keccak_impl.h">
       <Filter>Header Files\3rd Party</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MUtils\Sound.h">
+      <Filter>Public Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
