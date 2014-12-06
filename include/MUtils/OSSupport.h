@@ -145,10 +145,6 @@ namespace MUtils
 		//Open media file
 		MUTILS_API bool open_media_file(const QString &mediaFilePath);
 
-		//Performance counter
-		MUTILS_API qint64 perfcounter_read(void);
-		MUTILS_API qint64 perfcounter_freq(void);
-
 		//Process priority
 		MUTILS_API bool change_process_priority(const int priority);
 		MUTILS_API bool change_process_priority(const QProcess *proc, const int priority);

@@ -871,30 +871,6 @@ bool MUtils::OS::open_media_file(const QString &mediaFilePath)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// PERFORMANCE COUNTER
-///////////////////////////////////////////////////////////////////////////////
-
-qint64 MUtils::OS::perfcounter_read(void)
-{
-	LARGE_INTEGER counter;
-	if(QueryPerformanceCounter(&counter) == TRUE)
-	{
-		return counter.QuadPart;
-	}
-	return -1;
-}
-
-qint64 MUtils::OS::perfcounter_freq(void)
-{
-	LARGE_INTEGER frequency;
-	if(QueryPerformanceFrequency(&frequency) == TRUE)
-	{
-		return frequency.QuadPart;
-	}
-	return -1;
-}
-
-///////////////////////////////////////////////////////////////////////////////
 // DEBUGGER CHECK
 ///////////////////////////////////////////////////////////////////////////////
 
