@@ -29,6 +29,7 @@
 #include <Sensapi.h>
 #include <Shellapi.h>
 #include <PowrProf.h>
+#include <Mmsystem.h>
 
 //Internal
 #include <MUtils/Global.h>
@@ -931,6 +932,20 @@ quint32 MUtils::OS::process_id(const QProcess *proc)
 {
 	PROCESS_INFORMATION *procInf = proc->pid();
 	return (procInf) ? procInf->dwProcessId : NULL;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// SYSTEM TIMER
+///////////////////////////////////////////////////////////////////////////////
+
+bool MUtils::OS::setup_timer_resolution(const quint32 &interval)
+{
+	return timeBeginPeriod(interval) == TIMERR_NOERROR;
+}
+
+bool MUtils::OS::reset_timer_resolution(const quint32 &interval)
+{
+	return timeEndPeriod(interval) == TIMERR_NOERROR;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

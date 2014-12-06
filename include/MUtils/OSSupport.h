@@ -152,6 +152,10 @@ namespace MUtils
 		//Process ID
 		MUTILS_API quint32 process_id(const QProcess *proc);
 
+		//System timer resolution
+		MUTILS_API bool setup_timer_resolution(const quint32 &interval = 1);
+		MUTILS_API bool reset_timer_resolution(const quint32 &interval = 1);
+
 		//Check if debugger is present
 		MUTILS_API void check_debugger(void);
 
