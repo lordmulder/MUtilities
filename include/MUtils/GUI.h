@@ -24,6 +24,9 @@
 //MUtils
 #include <MUtils/Global.h>
 
+//Qt
+#include <QColor>
+
 //Forward Declaration
 class QIcon;
 class QWidget;
@@ -41,11 +44,45 @@ namespace MUtils
 			USER_EVENT_ENDSESSION      = USER_EVENT + 667
 		}
 		user_events_t;
+		
+		typedef enum
+		{
+			SYSCOLOR_TEXT       = 1,
+			SYSCOLOR_BACKGROUND = 2,
+			SYSCOLOR_CAPTION    = 3
+		}
+		system_color_t;
 
 		//Broadcast message
 		MUTILS_API bool broadcast(int eventType, const bool &onlyToVisible);
 
-		MUTILS_API bool set_window_icon(QWidget *window, const QIcon &icon, const bool bIsBigIcon);
+		//Window icon
+		MUTILS_API bool set_window_icon(QWidget *const window, const QIcon &icon, const bool bIsBigIcon);
+
+		//Theme support
+		MUTILS_API bool themes_enabled(void);
+
+		//System menu
+		MUTILS_API bool sysmenu_append(const QWidget *const win, const unsigned int identifier, const QString &text);
+		MUTILS_API bool sysmenu_update(const QWidget *const win, const unsigned int identifier, const QString &text);
+		MUTILS_API bool sysmenu_check_msg(void *const message, const unsigned int &identifier);
+
+		//Close button
+		MUTILS_API bool enable_close_button(const QWidget *const win, const bool &bEnable);
+
+		//Bring to front
+		MUTILS_API bool bring_to_front(const QWidget *const window);
+		MUTILS_API bool bring_to_front(const unsigned long pid);
+
+		//Sheet of glass
+		MUTILS_API bool sheet_of_glass(QWidget *const window);
+		MUTILS_API bool sheet_of_glass_update(QWidget *const window);
+
+		//System colors
+		MUTILS_API QColor system_color(const int &color_id);
+
+		//Blink window
+		MUTILS_API void blink_window(QWidget *const poWindow, const unsigned int &count = 10, const unsigned int &delay = 150);
 
 		//Force quit application
 		MUTILS_API void force_quit(void);

@@ -23,6 +23,8 @@
     <ClCompile Include="src\ErrorHandler_Win32.cpp" />
     <ClCompile Include="src\Global.cpp" />
     <ClCompile Include="src\GUI.cpp" />
+    <ClCompile Include="src\GUI_Win32.cpp" />
+    <ClCompile Include="src\JobObject_Win32.cpp" />
     <ClCompile Include="src\KeccakHash.cpp" />
     <ClCompile Include="src\OSSupport_Win32.cpp" />
     <ClCompile Include="src\Sound_Win32.cpp" />
@@ -37,6 +39,7 @@
     <ClInclude Include="include\MUtils\Exception.h" />
     <ClInclude Include="include\MUtils\Global.h" />
     <ClInclude Include="include\MUtils\GUI.h" />
+    <ClInclude Include="include\MUtils\JobObject.h" />
     <ClInclude Include="include\MUtils\KeccakHash.h" />
     <ClInclude Include="include\MUtils\OSSupport.h" />
     <ClInclude Include="include\MUtils\Sound.h" />

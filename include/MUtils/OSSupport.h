@@ -156,6 +156,8 @@ namespace MUtils
 		MUTILS_API bool setup_timer_resolution(const quint32 &interval = 1);
 		MUTILS_API bool reset_timer_resolution(const quint32 &interval = 1);
 
+		MUTILS_API bool check_key_state_esc(void);
+
 		//Check if debugger is present
 		MUTILS_API void check_debugger(void);
 

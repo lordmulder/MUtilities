@@ -19,7 +19,9 @@
 // http://www.gnu.org/licenses/lgpl-2.1.txt
 //////////////////////////////////////////////////////////////////////////////////
 
+//MUtils
 #include <MUtils/GUI.h>
+#include <MUtils/OSSupport.h>
 
 //Internal
 #include "Utils_Win32.h"
@@ -28,6 +30,7 @@
 #include <QIcon>
 #include <QApplication>
 #include <QWidget>
+#include <QMutex>
 
 ///////////////////////////////////////////////////////////////////////////////
 // BROADCAST
@@ -101,7 +104,7 @@ namespace MUtils
 	}
 }
 
-bool MUtils::GUI::set_window_icon(QWidget *window, const QIcon &icon, const bool bIsBigIcon)
+bool MUtils::GUI::set_window_icon(QWidget *const window, const QIcon &icon, const bool bIsBigIcon)
 {
 	if((!icon.isNull()) && window->winId())
 	{
@@ -115,6 +118,58 @@ bool MUtils::GUI::set_window_icon(QWidget *window, const QIcon &icon, const bool
 		}
 	}
 	return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// BLINK WINDOW
+///////////////////////////////////////////////////////////////////////////////
+
+static QMutex g_blinkMutex;
+
+void MUtils::GUI::blink_window(QWidget *const poWindow, const unsigned int &count, const unsigned int &delay)
+{
+	const double maxOpac = 1.0;
+	const double minOpac = 0.3;
+	const double delOpac = 0.1;
+
+	if(!g_blinkMutex.tryLock())
+	{
+		qWarning("Blinking is already in progress, skipping!");
+		return;
+	}
+	
+	try
+	{
+		const int steps = static_cast<int>(ceil(maxOpac - minOpac) / delOpac);
+		const int sleep = static_cast<int>(floor(static_cast<double>(delay) / static_cast<double>(steps)));
+		const double opacity = poWindow->windowOpacity();
+	
+		for(unsigned int i = 0; i < count; i++)
+		{
+			for(double x = maxOpac; x >= minOpac; x -= delOpac)
+			{
+				poWindow->setWindowOpacity(x);
+				QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+				MUtils::OS::sleep_ms(sleep);
+			}
+
+			for(double x = minOpac; x <= maxOpac; x += delOpac)
+			{
+				poWindow->setWindowOpacity(x);
+				QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+				MUtils::OS::sleep_ms(sleep);
+			}
+		}
+
+		poWindow->setWindowOpacity(opacity);
+		QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+	}
+	catch(...)
+	{
+		qWarning("Exception error while blinking!");
+	}
+
+	g_blinkMutex.unlock();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
