@@ -84,6 +84,8 @@ MUtils::JobObject::~JobObject(void)
 		CloseHandle(p->m_hJobObject);
 		p->m_hJobObject = NULL;
 	}
+
+	delete p;
 }
 
 bool MUtils::JobObject::addProcessToJob(const QProcess *proc)

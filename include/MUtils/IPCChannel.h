@@ -23,22 +23,36 @@
 
 #include <MUtils/Global.h>
 
-class QProcess;
-
 namespace MUtils
 {
-	class MUTILS_API JobObject_Private;
+	typedef enum
+	{
+		IPC_RET_SUCCESS_MASTER = 0,
+		IPC_RET_SUCCESS_SLAVE = 1,
+		IPC_RET_ALREADY_INITIALIZED = 2,
+		IPC_RET_FAILURE = 3
+	}
+	ipc_result_t;
+	
+	class MUTILS_API IPCChannel_Private;
 
-	class MUTILS_API JobObject
+	class MUTILS_API IPCChannel
 	{
 	public:
-		JobObject(void);
-		~JobObject(void);
+		IPCChannel(const QString &applicationId, const QString &channelId);
+		~IPCChannel(void);
 
-		bool addProcessToJob(const QProcess *proc);
-		bool terminateJob(unsigned int exitCode);
+		int initialize(void);
+
+		bool send(const unsigned int &command, const char *const message);
+		bool read(unsigned int &command, char *const message, const size_t &buffSize);
 
 	private:
-		JobObject_Private *const p;
+		IPCChannel(const IPCChannel&) : p(NULL) {}
+		IPCChannel &operator=(const IPCChannel&) { return *this; }
+
+		IPCChannel_Private *const p;
+		const QString m_applicationId;
+		const QString m_channelId;
 	};
 }
