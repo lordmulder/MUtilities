@@ -43,29 +43,31 @@ misrepresented as being the original software.
 
 #include "../include/strnatcmp.h"
 
+typedef MUtils::Internal::NaturalSort::nat_char nat_char;
+
 /* These are defined as macros to make it easier to adapt this code to
 * different characters types or comparison functions. */
-static inline int nat_isdigit(MUtils::Internal::NaturalSort::nat_char a)
+static inline int nat_isdigit(nat_char a)
 {
 	return iswdigit(a);
 }
 
-static inline int nat_isspace(MUtils::Internal::NaturalSort::nat_char a)
+static inline int nat_isspace(nat_char a)
 {
 	return iswspace(a);
 }
 
-static inline MUtils::Internal::NaturalSort::nat_char nat_isdecpoint(MUtils::Internal::NaturalSort::nat_char a)
+static inline nat_char nat_isdecpoint(nat_char a)
 {
 	return (a == L'.') || (a == L',');
 }
 
-static inline MUtils::Internal::NaturalSort::nat_char nat_toupper(MUtils::Internal::NaturalSort::nat_char a)
+static inline nat_char nat_toupper(nat_char a)
 {
 	return towupper(a);
 }
 
-static int compare_right(MUtils::Internal::NaturalSort::nat_char const *a, MUtils::Internal::NaturalSort::nat_char const *b)
+static int compare_right(nat_char const *a, nat_char const *b)
 {
 	int bias = 0;
 
@@ -98,7 +100,7 @@ static int compare_right(MUtils::Internal::NaturalSort::nat_char const *a, MUtil
 	return 0;
 }
 
-static int compare_left(MUtils::Internal::NaturalSort::nat_char const *a, MUtils::Internal::NaturalSort::nat_char const *b)
+static int compare_left(nat_char const *a,nat_char const *b)
 {
 	/* Compare two left-aligned numbers: the first to have a
 	different value wins. */
@@ -119,10 +121,10 @@ static int compare_left(MUtils::Internal::NaturalSort::nat_char const *a, MUtils
 	return 0;
 }
 
-static int strnatcmp0(MUtils::Internal::NaturalSort::nat_char const *a, MUtils::Internal::NaturalSort::nat_char const *b, const bool fold_case)
+static int strnatcmp0(nat_char const *a, nat_char const *b, const bool fold_case)
 {
 	int ai, bi;
-	MUtils::Internal::NaturalSort::nat_char ca, cb;
+	nat_char ca, cb;
 	int result;
 	bool fractional;
 	int sa, sb;

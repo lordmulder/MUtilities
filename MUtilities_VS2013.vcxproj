@@ -17,6 +17,7 @@
   <ItemGroup>
     <ClCompile Include="$(SolutionDir)\tmp\$(ProjectName)\QRC_Resource.cpp" />
     <ClCompile Include="$(SolutionDir)\tmp\$(ProjectName)\MOC_UpdateChecker.cpp" />
+    <ClCompile Include="src\3rd_party\adler32\src\adler32.cpp" />
     <ClCompile Include="src\3rd_party\strnatcmp\src\strnatcmp.cpp" />
     <ClCompile Include="src\CPUFeatures_Win32.cpp" />
     <ClCompile Include="src\DLLMain.cpp" />
@@ -47,6 +48,7 @@
     <ClInclude Include="include\MUtils\Sound.h" />
     <ClInclude Include="include\MUtils\Startup.h" />
     <ClInclude Include="include\MUtils\Terminal.h" />
+    <ClInclude Include="src\3rd_party\adler32\include\adler32.h" />
     <ClInclude Include="src\3rd_party\keccak\include\keccak_impl.h" />
     <ClInclude Include="src\3rd_party\strnatcmp\include\strnatcmp.h" />
     <ClInclude Include="src\DirLocker.h" />

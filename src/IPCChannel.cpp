@@ -23,11 +23,21 @@
 #include <MUtils/IPCChannel.h>
 #include <MUtils/Exception.h>
 
+//Internal
+#include "3rd_party/adler32/include/adler32.h"
+
 //Qt includes
 #include <QRegExp>
 #include <QSharedMemory>
 #include <QSystemSemaphore>
+#include <QMutex>
 #include <QWriteLocker>
+#include <QCryptographicHash>
+
+//CRT
+#include <cassert>
+
+static const quint32 ADLER_SEED = 0x5D90C356;
 
 ///////////////////////////////////////////////////////////////////////////////
 // TYPES
@@ -35,39 +45,58 @@
 
 namespace MUtils
 {
-	static const size_t IPC_SLOTS = 128;
-	static const size_t MAX_MESSAGE_LEN = 4096;
-
-	typedef struct
+	namespace Internal
 	{
-		unsigned int command;
-		unsigned int reserved_1;
-		unsigned int reserved_2;
-		char parameter[MAX_MESSAGE_LEN];
-	}
-	ipc_data_t;
+		static const size_t HDR_LEN = 40;
+		static const size_t IPC_SLOTS = 128;
 
-	typedef struct
-	{
-		unsigned int pos_wr;
-		unsigned int pos_rd;
-		ipc_data_t data[IPC_SLOTS];
+		typedef struct
+		{
+			quint32 command_id;
+			quint32 flags;
+			char    param[MUtils::IPCChannel::MAX_MESSAGE_LEN];
+			quint64 timestamp;
+		}
+		ipc_data_t;
+
+		typedef struct
+		{
+			ipc_data_t payload;
+			quint32    checksum;
+		}
+		ipc_msg_t;
+
+		typedef struct
+		{
+			char      header[HDR_LEN];
+			quint64   counter;
+			quint32   pos_wr;
+			quint32   pos_rd;
+			ipc_msg_t data[IPC_SLOTS];
+		}
+		ipc_t;
 	}
-	ipc_t;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // UTILITIES
 ///////////////////////////////////////////////////////////////////////////////
 
-static inline QString ESCAPE(QString str)
-{
-	return str.replace(QRegExp("[^A-Za-z0-9_]"), "_").toLower();
-}
+static QScopedPointer<QRegExp> g_escape_regexp;
+static QMutex g_escape_lock;
 
-static QString MAKE_ID(const QString &applicationId, const QString &channelId, const QString &itemId)
+#define ESCAPE(STR) (QString((STR)).replace(*g_escape_regexp, QLatin1String("_")).toLower())
+
+static QString MAKE_ID(const QString &applicationId, const unsigned int &appVersionNo, const QString &channelId, const QString &itemId)
 {
-	return QString("ipc://mutilities.muldersoft.com:37402/%1/%2/%3").arg(ESCAPE(applicationId), ESCAPE(channelId), ESCAPE(itemId));
+	QMutexLocker locker(&g_escape_lock);
+
+	if(g_escape_regexp.isNull())
+	{
+		g_escape_regexp.reset(new QRegExp(QLatin1String("[^A-Za-z0-9_\\-]")));
+	}
+
+	return QString("com.muldersoft.mutilities.ipc.%1.r%2.%3.%4").arg(ESCAPE(applicationId), QString::number(appVersionNo, 16).toUpper(), ESCAPE(channelId), ESCAPE(itemId));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -93,12 +122,15 @@ namespace MUtils
 // CONSTRUCTOR & DESTRUCTOR
 ///////////////////////////////////////////////////////////////////////////////
 
-MUtils::IPCChannel::IPCChannel(const QString &applicationId, const QString &channelId)
+MUtils::IPCChannel::IPCChannel(const QString &applicationId, const quint32 &appVersionNo, const QString &channelId)
 :
 	p(new IPCChannel_Private()),
 	m_applicationId(applicationId),
-	m_channelId(channelId)
+	m_channelId(channelId),
+	m_appVersionNo(appVersionNo),
+	m_headerStr(QCryptographicHash::hash(MAKE_ID(applicationId, appVersionNo, channelId, "header").toLatin1(), QCryptographicHash::Sha1).toHex())
 {
+	assert(m_headerStr.length() == HDR_LEN);
 	p->initialized = false;
 }
 
@@ -125,28 +157,28 @@ int MUtils::IPCChannel::initialize(void)
 	
 	if(p->initialized)
 	{
-		return IPC_RET_ALREADY_INITIALIZED;
+		return RET_ALREADY_INITIALIZED;
 	}
 
-	p->sharedmem.reset(new QSharedMemory(MAKE_ID(m_applicationId, m_channelId, "sharedmem"), NULL));
-	p->semaphore_rd.reset(new QSystemSemaphore(MAKE_ID(m_applicationId, m_channelId, "semaphore_rd"), 0));
-	p->semaphore_wr.reset(new QSystemSemaphore(MAKE_ID(m_applicationId, m_channelId, "semaphore_wr"), 0));
+	p->sharedmem.   reset(new QSharedMemory   (MAKE_ID(m_applicationId, m_appVersionNo, m_channelId, "sharedmem"), 0));
+	p->semaphore_rd.reset(new QSystemSemaphore(MAKE_ID(m_applicationId, m_appVersionNo, m_channelId, "semaph_rd"), 0));
+	p->semaphore_wr.reset(new QSystemSemaphore(MAKE_ID(m_applicationId, m_appVersionNo, m_channelId, "semaph_wr"), 0));
 
 	if(p->semaphore_rd->error() != QSystemSemaphore::NoError)
 	{
 		const QString errorMessage = p->semaphore_rd->errorString();
 		qWarning("Failed to create system smaphore: %s", MUTILS_UTF8(errorMessage));
-		return IPC_RET_FAILURE;
+		return RET_FAILURE;
 	}
 
 	if(p->semaphore_wr->error() != QSystemSemaphore::NoError)
 	{
 		const QString errorMessage = p->semaphore_wr->errorString();
 		qWarning("Failed to create system smaphore: %s", MUTILS_UTF8(errorMessage));
-		return IPC_RET_FAILURE;
+		return RET_FAILURE;
 	}
 	
-	if(!p->sharedmem->create(sizeof(ipc_t)))
+	if(!p->sharedmem->create(sizeof(Internal::ipc_t)))
 	{
 		if(p->sharedmem->error() == QSharedMemory::AlreadyExists)
 		{
@@ -154,22 +186,41 @@ int MUtils::IPCChannel::initialize(void)
 			{
 				const QString errorMessage = p->sharedmem->errorString();
 				qWarning("Failed to attach to shared memory: %s", MUTILS_UTF8(errorMessage));
-				return IPC_RET_FAILURE;
+				return RET_FAILURE;
 			}
 			if(p->sharedmem->error() != QSharedMemory::NoError)
 			{
 				const QString errorMessage = p->sharedmem->errorString();
 				qWarning("Failed to attach to shared memory: %s", MUTILS_UTF8(errorMessage));
-				return IPC_RET_FAILURE;
+				return RET_FAILURE;
+			}
+			if(p->sharedmem->size() < sizeof(Internal::ipc_t))
+			{
+				qWarning("Failed to attach to shared memory: Size verification has failed!");
+				return RET_FAILURE;
+			}
+			if(Internal::ipc_t *const ptr = reinterpret_cast<Internal::ipc_t*>(p->sharedmem->data()))
+			{
+				if(memcmp(&ptr->header[0], m_headerStr.constData(), Internal::HDR_LEN) != 0)
+				{
+					qWarning("Failed to attach to shared memory: Header verification has failed!");
+					return RET_FAILURE;
+				}
+			}
+			else
+			{
+				const QString errorMessage = p->sharedmem->errorString();
+				qWarning("Failed to access shared memory: %s", MUTILS_UTF8(errorMessage));
+				return RET_FAILURE;
 			}
 			p->initialized = true;
-			return IPC_RET_SUCCESS_SLAVE;
+			return RET_SUCCESS_SLAVE;
 		}
 		else
 		{
 			const QString errorMessage = p->sharedmem->errorString();
 			qWarning("Failed to create shared memory: %s", MUTILS_UTF8(errorMessage));
-			return IPC_RET_FAILURE;
+			return RET_FAILURE;
 		}
 	}
 	
@@ -177,30 +228,41 @@ int MUtils::IPCChannel::initialize(void)
 	{
 		const QString errorMessage = p->sharedmem->errorString();
 		qWarning("Failed to create shared memory: %s", MUTILS_UTF8(errorMessage));
-		return IPC_RET_FAILURE;
+		return RET_FAILURE;
 	}
 
-	if(void *const data = p->sharedmem->data())
+	if(Internal::ipc_t *const ptr = reinterpret_cast<Internal::ipc_t*>(p->sharedmem->data()))
 	{
-		memset(data, 0, sizeof(ipc_t));
+		memset(ptr, 0, sizeof(Internal::ipc_t));
+		memcpy(&ptr->header[0], m_headerStr.constData(), Internal::HDR_LEN);
+	}
+	else
+	{
+		const QString errorMessage = p->sharedmem->errorString();
+		qWarning("Failed to access shared memory: %s", MUTILS_UTF8(errorMessage));
+		return RET_FAILURE;
 	}
 
-	if(!p->semaphore_wr->release(IPC_SLOTS))
+	if(!p->semaphore_wr->release(Internal::IPC_SLOTS))
 	{
 		const QString errorMessage = p->semaphore_wr->errorString();
 		qWarning("Failed to release system semaphore: %s", MUTILS_UTF8(errorMessage));
-		return IPC_RET_FAILURE;
+		return RET_FAILURE;
 	}
 	
+	//qDebug("IPC KEY #1: %s", MUTILS_UTF8(p->sharedmem->key()));
+	//qDebug("IPC KEY #2: %s", MUTILS_UTF8(p->semaphore_rd->key()));
+	//qDebug("IPC KEY #3: %s", MUTILS_UTF8(p->semaphore_wr->key()));
+
 	p->initialized = true;
-	return IPC_RET_SUCCESS_MASTER;
+	return RET_SUCCESS_MASTER;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // SEND MESSAGE
 ///////////////////////////////////////////////////////////////////////////////
 
-bool MUtils::IPCChannel::send(const unsigned int &command, const char *const message)
+bool MUtils::IPCChannel::send(const quint32 &command, const quint32 &flags, const char *const message)
 {
 	bool success = false;
 	QReadLocker readLock(&p->lock);
@@ -208,15 +270,6 @@ bool MUtils::IPCChannel::send(const unsigned int &command, const char *const mes
 	if(!p->initialized)
 	{
 		MUTILS_THROW("Shared memory for IPC not initialized yet.");
-	}
-
-	ipc_data_t ipc_data;
-	memset(&ipc_data, 0, sizeof(ipc_data_t));
-	ipc_data.command = command;
-	
-	if(message)
-	{
-		strncpy_s(ipc_data.parameter, MAX_MESSAGE_LEN, message, _TRUNCATE);
 	}
 
 	if(!p->semaphore_wr->acquire())
@@ -233,11 +286,23 @@ bool MUtils::IPCChannel::send(const unsigned int &command, const char *const mes
 		return false;
 	}
 
-	if(ipc_t *const ptr = reinterpret_cast<ipc_t*>(p->sharedmem->data()))
+	if(Internal::ipc_t *const ptr = reinterpret_cast<Internal::ipc_t*>(p->sharedmem->data()))
 	{
+		Internal::ipc_msg_t ipc_msg;
+		memset(&ipc_msg, 0, sizeof(Internal::ipc_msg_t));
+
+		ipc_msg.payload.command_id = command;
+		ipc_msg.payload.flags = flags;
+		if(message)
+		{
+			strncpy_s(ipc_msg.payload.param, MAX_MESSAGE_LEN, message, _TRUNCATE);
+		}
+		ipc_msg.payload.timestamp = ptr->counter++;
+		ipc_msg.checksum = Internal::adler32(ADLER_SEED, &ipc_msg.payload, sizeof(Internal::ipc_data_t));
+
+		memcpy(&ptr->data[ptr->pos_wr], &ipc_msg, sizeof(Internal::ipc_msg_t));
+		ptr->pos_wr = (ptr->pos_wr + 1) % Internal::IPC_SLOTS;
 		success = true;
-		memcpy(&ptr->data[ptr->pos_wr], &ipc_data, sizeof(ipc_data_t));
-		ptr->pos_wr = (ptr->pos_wr + 1) % IPC_SLOTS;
 	}
 	else
 	{
@@ -247,15 +312,13 @@ bool MUtils::IPCChannel::send(const unsigned int &command, const char *const mes
 	if(!p->sharedmem->unlock())
 	{
 		const QString errorMessage = p->sharedmem->errorString();
-		qWarning("Failed to unlock shared memory: %s", MUTILS_UTF8(errorMessage));
-		return false;
+		qFatal("Failed to unlock shared memory: %s", MUTILS_UTF8(errorMessage));
 	}
 
 	if(!p->semaphore_rd->release())
 	{
 		const QString errorMessage = p->semaphore_rd->errorString();
-		qWarning("Failed to acquire release semaphore: %s", MUTILS_UTF8(errorMessage));
-		return false;
+		qWarning("Failed to release system semaphore: %s", MUTILS_UTF8(errorMessage));
 	}
 
 	return success;
@@ -265,7 +328,7 @@ bool MUtils::IPCChannel::send(const unsigned int &command, const char *const mes
 // READ MESSAGE
 ///////////////////////////////////////////////////////////////////////////////
 
-bool MUtils::IPCChannel::read(unsigned int &command, char *const message, const size_t &buffSize)
+bool MUtils::IPCChannel::read(quint32 &command, quint32 &flags, char *const message, const size_t &buffSize)
 {
 	bool success = false;
 	QReadLocker readLock(&p->lock);
@@ -281,8 +344,8 @@ bool MUtils::IPCChannel::read(unsigned int &command, char *const message, const 
 		MUTILS_THROW("Shared memory for IPC not initialized yet.");
 	}
 
-	ipc_data_t ipc_data;
-	memset(&ipc_data, 0, sizeof(ipc_data_t));
+	Internal::ipc_msg_t ipc_msg;
+	memset(&ipc_msg, 0, sizeof(Internal::ipc_msg_t));
 
 	if(!p->semaphore_rd->acquire())
 	{
@@ -298,20 +361,22 @@ bool MUtils::IPCChannel::read(unsigned int &command, char *const message, const 
 		return false;
 	}
 
-	if(ipc_t *const ptr = reinterpret_cast<ipc_t*>(p->sharedmem->data()))
+	if(Internal::ipc_t *const ptr = reinterpret_cast<Internal::ipc_t*>(p->sharedmem->data()))
 	{
-			success = true;
-		memcpy(&ipc_data, &ptr->data[ptr->pos_rd], sizeof(ipc_data_t));
-		ptr->pos_rd = (ptr->pos_rd + 1) % IPC_SLOTS;
+		success = true;
+		memcpy(&ipc_msg, &ptr->data[ptr->pos_rd], sizeof(Internal::ipc_msg_t));
+		ptr->pos_rd = (ptr->pos_rd + 1) % Internal::IPC_SLOTS;
 
-		if(!(ipc_data.reserved_1 || ipc_data.reserved_2))
+		const quint32 expected_checksum = Internal::adler32(ADLER_SEED, &ipc_msg.payload, sizeof(Internal::ipc_data_t));
+		if((expected_checksum == ipc_msg.checksum) || (ipc_msg.payload.timestamp < ptr->counter))
 		{
-			command = ipc_data.command;
-			strncpy_s(message, buffSize, ipc_data.parameter, _TRUNCATE);
+			command = ipc_msg.payload.command_id;
+			flags = ipc_msg.payload.flags;
+			strncpy_s(message, buffSize, ipc_msg.payload.param, _TRUNCATE);
 		}
 		else
 		{
-			qWarning("Malformed IPC message, will be ignored");
+			qWarning("Malformed or corrupted IPC message, will be ignored");
 		}
 	}
 	else
@@ -322,15 +387,13 @@ bool MUtils::IPCChannel::read(unsigned int &command, char *const message, const 
 	if(!p->sharedmem->unlock())
 	{
 		const QString errorMessage = p->sharedmem->errorString();
-		qWarning("Failed to unlock shared memory: %s", MUTILS_UTF8(errorMessage));
-		return false;
+		qFatal("Failed to unlock shared memory: %s", MUTILS_UTF8(errorMessage));
 	}
 
 	if(!p->semaphore_wr->release())
 	{
 		const QString errorMessage = p->semaphore_wr->errorString();
-		qWarning("Failed to acquire release semaphore: %s", MUTILS_UTF8(errorMessage));
-		return false;
+		qWarning("Failed to release system semaphore: %s", MUTILS_UTF8(errorMessage));
 	}
 
 	return success;

@@ -81,6 +81,9 @@
     <ClCompile Include="src\IPCChannel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\3rd_party\adler32\src\adler32.cpp">
+      <Filter>Source Files\3rd Party</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\CriticalSection_Win32.h">
@@ -136,6 +139,9 @@
     </ClInclude>
     <ClInclude Include="include\MUtils\IPCChannel.h">
       <Filter>Public Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_party\adler32\include\adler32.h">
+      <Filter>Header Files\3rd Party</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
