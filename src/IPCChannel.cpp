@@ -52,27 +52,40 @@ namespace MUtils
 
 		typedef struct
 		{
+			quint64 counter;
+			quint32 pos_wr;
+			quint32 pos_rd;
+		}
+		ipc_status_data_t;
+
+		typedef struct
+		{
+			ipc_status_data_t payload;
+			quint32           checksum;
+		}
+		ipc_status_t;
+
+		typedef struct
+		{
 			quint32 command_id;
 			quint32 flags;
 			char    param[MUtils::IPCChannel::MAX_MESSAGE_LEN];
 			quint64 timestamp;
 		}
-		ipc_data_t;
+		ipc_msg_data_t;
 
 		typedef struct
 		{
-			ipc_data_t payload;
-			quint32    checksum;
+			ipc_msg_data_t payload;
+			quint32        checksum;
 		}
 		ipc_msg_t;
 
 		typedef struct
 		{
-			char      header[HDR_LEN];
-			quint64   counter;
-			quint32   pos_wr;
-			quint32   pos_rd;
-			ipc_msg_t data[IPC_SLOTS];
+			char         header[HDR_LEN];
+			ipc_status_t status;
+			ipc_msg_t    data[IPC_SLOTS];
 		}
 		ipc_t;
 	}
@@ -130,8 +143,11 @@ MUtils::IPCChannel::IPCChannel(const QString &applicationId, const quint32 &appV
 	m_appVersionNo(appVersionNo),
 	m_headerStr(QCryptographicHash::hash(MAKE_ID(applicationId, appVersionNo, channelId, "header").toLatin1(), QCryptographicHash::Sha1).toHex())
 {
-	assert(m_headerStr.length() == HDR_LEN);
 	p->initialized = false;
+	if(m_headerStr.length() != Internal::HDR_LEN)
+	{
+		MUTILS_THROW("Invalid header length has been detected!");
+	}
 }
 
 MUtils::IPCChannel::~IPCChannel(void)
@@ -235,6 +251,7 @@ int MUtils::IPCChannel::initialize(void)
 	{
 		memset(ptr, 0, sizeof(Internal::ipc_t));
 		memcpy(&ptr->header[0], m_headerStr.constData(), Internal::HDR_LEN);
+		ptr->status.checksum = Internal::adler32(ADLER_SEED, &ptr->status.payload, sizeof(Internal::ipc_status_data_t));
 	}
 	else
 	{
@@ -288,21 +305,31 @@ bool MUtils::IPCChannel::send(const quint32 &command, const quint32 &flags, cons
 
 	if(Internal::ipc_t *const ptr = reinterpret_cast<Internal::ipc_t*>(p->sharedmem->data()))
 	{
-		Internal::ipc_msg_t ipc_msg;
-		memset(&ipc_msg, 0, sizeof(Internal::ipc_msg_t));
-
-		ipc_msg.payload.command_id = command;
-		ipc_msg.payload.flags = flags;
-		if(message)
+		const quint32 status_checksum = Internal::adler32(ADLER_SEED, &ptr->status.payload, sizeof(Internal::ipc_status_data_t));
+		if(status_checksum == ptr->status.checksum)
 		{
-			strncpy_s(ipc_msg.payload.param, MAX_MESSAGE_LEN, message, _TRUNCATE);
-		}
-		ipc_msg.payload.timestamp = ptr->counter++;
-		ipc_msg.checksum = Internal::adler32(ADLER_SEED, &ipc_msg.payload, sizeof(Internal::ipc_data_t));
+			Internal::ipc_msg_t ipc_msg;
+			memset(&ipc_msg, 0, sizeof(Internal::ipc_msg_t));
 
-		memcpy(&ptr->data[ptr->pos_wr], &ipc_msg, sizeof(Internal::ipc_msg_t));
-		ptr->pos_wr = (ptr->pos_wr + 1) % Internal::IPC_SLOTS;
-		success = true;
+			ipc_msg.payload.command_id = command;
+			ipc_msg.payload.flags = flags;
+			if(message)
+			{
+				strncpy_s(ipc_msg.payload.param, MAX_MESSAGE_LEN, message, _TRUNCATE);
+			}
+			ipc_msg.payload.timestamp = ptr->status.payload.counter++;
+			ipc_msg.checksum = Internal::adler32(ADLER_SEED, &ipc_msg.payload, sizeof(Internal::ipc_msg_data_t));
+
+			memcpy(&ptr->data[ptr->status.payload.pos_wr], &ipc_msg, sizeof(Internal::ipc_msg_t));
+			ptr->status.payload.pos_wr = (ptr->status.payload.pos_wr + 1) % Internal::IPC_SLOTS;
+			ptr->status.checksum = Internal::adler32(ADLER_SEED, &ptr->status.payload, sizeof(Internal::ipc_status_data_t));
+
+			success = true;
+		}
+		else
+		{
+			qWarning("Corrupted IPC status detected -> skipping!");
+		}
 	}
 	else
 	{
@@ -363,25 +390,34 @@ bool MUtils::IPCChannel::read(quint32 &command, quint32 &flags, char *const mess
 
 	if(Internal::ipc_t *const ptr = reinterpret_cast<Internal::ipc_t*>(p->sharedmem->data()))
 	{
-		success = true;
-		memcpy(&ipc_msg, &ptr->data[ptr->pos_rd], sizeof(Internal::ipc_msg_t));
-		ptr->pos_rd = (ptr->pos_rd + 1) % Internal::IPC_SLOTS;
-
-		const quint32 expected_checksum = Internal::adler32(ADLER_SEED, &ipc_msg.payload, sizeof(Internal::ipc_data_t));
-		if((expected_checksum == ipc_msg.checksum) || (ipc_msg.payload.timestamp < ptr->counter))
+		const quint32 status_checksum = Internal::adler32(ADLER_SEED, &ptr->status.payload, sizeof(Internal::ipc_status_data_t));
+		if(status_checksum == ptr->status.checksum)
 		{
-			command = ipc_msg.payload.command_id;
-			flags = ipc_msg.payload.flags;
-			strncpy_s(message, buffSize, ipc_msg.payload.param, _TRUNCATE);
+			memcpy(&ipc_msg, &ptr->data[ptr->status.payload.pos_rd], sizeof(Internal::ipc_msg_t));
+			ptr->status.payload.pos_rd = (ptr->status.payload.pos_rd + 1) % Internal::IPC_SLOTS;
+			ptr->status.checksum = Internal::adler32(ADLER_SEED, &ptr->status.payload, sizeof(Internal::ipc_status_data_t));
+
+			const quint32 msg_checksum = Internal::adler32(ADLER_SEED, &ipc_msg.payload, sizeof(Internal::ipc_msg_data_t));
+			if((msg_checksum == ipc_msg.checksum) || (ipc_msg.payload.timestamp < ptr->status.payload.counter))
+			{
+				command = ipc_msg.payload.command_id;
+				flags = ipc_msg.payload.flags;
+				strncpy_s(message, buffSize, ipc_msg.payload.param, _TRUNCATE);
+				success = true;
+			}
+			else
+			{
+				qWarning("Malformed or corrupted IPC message, will be ignored!");
+			}
 		}
 		else
 		{
-			qWarning("Malformed or corrupted IPC message, will be ignored");
+			qWarning("Corrupted IPC status detected -> skipping!");
 		}
 	}
 	else
 	{
-		qWarning("Shared memory pointer is NULL -> unable to write data!");
+		qWarning("Shared memory pointer is NULL -> unable to read data!");
 	}
 
 	if(!p->sharedmem->unlock())
