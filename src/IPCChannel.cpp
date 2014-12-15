@@ -37,7 +37,29 @@
 //CRT
 #include <cassert>
 
-static const quint32 ADLER_SEED = 0x5D90C356;
+///////////////////////////////////////////////////////////////////////////////
+// UTILITIES
+///////////////////////////////////////////////////////////////////////////////
+
+namespace MUtils
+{
+	namespace Internal
+	{
+		static const quint32 ADLER_SEED = 0x5D90C356;
+
+		template<class T>
+		static inline void UPDATE_CHECKSUM(T &data)
+		{
+			data.checksum = Internal::adler32(ADLER_SEED, &data.payload, sizeof(data.payload));
+		}
+
+		template<class T>
+		static inline bool VERIFY_CHECKSUM(const T &data)
+		{
+			return (data.checksum == Internal::adler32(ADLER_SEED, &data.payload, sizeof(data.payload)));
+		}
+	}
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // TYPES
@@ -251,7 +273,7 @@ int MUtils::IPCChannel::initialize(void)
 	{
 		memset(ptr, 0, sizeof(Internal::ipc_t));
 		memcpy(&ptr->header[0], m_headerStr.constData(), Internal::HDR_LEN);
-		ptr->status.checksum = Internal::adler32(ADLER_SEED, &ptr->status.payload, sizeof(Internal::ipc_status_data_t));
+		UPDATE_CHECKSUM(ptr->status);
 	}
 	else
 	{
@@ -305,8 +327,7 @@ bool MUtils::IPCChannel::send(const quint32 &command, const quint32 &flags, cons
 
 	if(Internal::ipc_t *const ptr = reinterpret_cast<Internal::ipc_t*>(p->sharedmem->data()))
 	{
-		const quint32 status_checksum = Internal::adler32(ADLER_SEED, &ptr->status.payload, sizeof(Internal::ipc_status_data_t));
-		if(status_checksum == ptr->status.checksum)
+		if(VERIFY_CHECKSUM(ptr->status))
 		{
 			Internal::ipc_msg_t ipc_msg;
 			memset(&ipc_msg, 0, sizeof(Internal::ipc_msg_t));
@@ -318,11 +339,11 @@ bool MUtils::IPCChannel::send(const quint32 &command, const quint32 &flags, cons
 				strncpy_s(ipc_msg.payload.param, MAX_MESSAGE_LEN, message, _TRUNCATE);
 			}
 			ipc_msg.payload.timestamp = ptr->status.payload.counter++;
-			ipc_msg.checksum = Internal::adler32(ADLER_SEED, &ipc_msg.payload, sizeof(Internal::ipc_msg_data_t));
+			UPDATE_CHECKSUM(ipc_msg);
 
 			memcpy(&ptr->data[ptr->status.payload.pos_wr], &ipc_msg, sizeof(Internal::ipc_msg_t));
 			ptr->status.payload.pos_wr = (ptr->status.payload.pos_wr + 1) % Internal::IPC_SLOTS;
-			ptr->status.checksum = Internal::adler32(ADLER_SEED, &ptr->status.payload, sizeof(Internal::ipc_status_data_t));
+			UPDATE_CHECKSUM(ptr->status);
 
 			success = true;
 		}
@@ -390,15 +411,13 @@ bool MUtils::IPCChannel::read(quint32 &command, quint32 &flags, char *const mess
 
 	if(Internal::ipc_t *const ptr = reinterpret_cast<Internal::ipc_t*>(p->sharedmem->data()))
 	{
-		const quint32 status_checksum = Internal::adler32(ADLER_SEED, &ptr->status.payload, sizeof(Internal::ipc_status_data_t));
-		if(status_checksum == ptr->status.checksum)
+		if(VERIFY_CHECKSUM(ptr->status))
 		{
 			memcpy(&ipc_msg, &ptr->data[ptr->status.payload.pos_rd], sizeof(Internal::ipc_msg_t));
 			ptr->status.payload.pos_rd = (ptr->status.payload.pos_rd + 1) % Internal::IPC_SLOTS;
-			ptr->status.checksum = Internal::adler32(ADLER_SEED, &ptr->status.payload, sizeof(Internal::ipc_status_data_t));
+			UPDATE_CHECKSUM(ptr->status);
 
-			const quint32 msg_checksum = Internal::adler32(ADLER_SEED, &ipc_msg.payload, sizeof(Internal::ipc_msg_data_t));
-			if((msg_checksum == ipc_msg.checksum) || (ipc_msg.payload.timestamp < ptr->status.payload.counter))
+			if(VERIFY_CHECKSUM(ipc_msg) || (ipc_msg.payload.timestamp < ptr->status.payload.counter))
 			{
 				command = ipc_msg.payload.command_id;
 				flags = ipc_msg.payload.flags;
