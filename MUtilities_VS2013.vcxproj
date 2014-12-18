@@ -31,6 +31,7 @@
     <ClCompile Include="src\OSSupport_Win32.cpp" />
     <ClCompile Include="src\Sound_Win32.cpp" />
     <ClCompile Include="src\Startup.cpp" />
+    <ClCompile Include="src\Taskbar7_Win32.cpp" />
     <ClCompile Include="src\Terminal_Win32.cpp" />
     <ClCompile Include="src\UpdateChecker.cpp" />
     <ClCompile Include="src\Version.cpp" />
@@ -47,6 +48,7 @@
     <ClInclude Include="include\MUtils\OSSupport.h" />
     <ClInclude Include="include\MUtils\Sound.h" />
     <ClInclude Include="include\MUtils\Startup.h" />
+    <ClInclude Include="include\MUtils\Taskbar7.h" />
     <ClInclude Include="include\MUtils\Terminal.h" />
     <ClInclude Include="src\3rd_party\adler32\include\adler32.h" />
     <ClInclude Include="src\3rd_party\keccak\include\keccak_impl.h" />
