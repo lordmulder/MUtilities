@@ -35,6 +35,7 @@
 #include <QDir>
 #include <QReadWriteLock>
 #include <QProcess>
+#include <QTextCodec>
 
 //CRT
 #include <cstdlib>
@@ -376,6 +377,38 @@ QString MUtils::clean_file_path(const QString &path)
 	}
 
 	return parts.join("/");
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// AVAILABLE CODEPAGES
+///////////////////////////////////////////////////////////////////////////////
+
+QStringList MUtils::available_codepages(const bool &noAliases)
+{
+	QStringList codecList;
+	QList<QByteArray> availableCodecs = QTextCodec::availableCodecs();
+
+	while(!availableCodecs.isEmpty())
+	{
+		const QByteArray current = availableCodecs.takeFirst();
+		if(!current.toLower().startsWith("system"))
+		{
+			codecList << QString::fromLatin1(current.constData(), current.size());
+			if(noAliases)
+			{
+				if(QTextCodec *const currentCodec = QTextCodec::codecForName(current.constData()))
+				{
+					const QList<QByteArray> aliases = currentCodec->aliases();
+					for(QList<QByteArray>::ConstIterator iter = aliases.constBegin(); iter != aliases.constEnd(); iter++)
+					{
+						availableCodecs.removeAll(*iter);
+					}
+				}
+			}
+		}
+	}
+
+	return codecList;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -95,6 +95,8 @@ namespace MUtils
 	MUTILS_API QString clean_file_name(const QString &name);
 	MUTILS_API QString clean_file_path(const QString &path);
 
+	MUTILS_API QStringList available_codepages(const bool &noAliases = true);
+
 	//Internal
 	namespace Internal
 	{
