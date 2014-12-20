@@ -56,16 +56,16 @@ namespace MUtils
 			:
 				m_dirPath(dirPath)
 			{
+				bool okay = false;
+				const QByteArray testData = QByteArray(TEST_DATA);
 				if(m_dirPath.isEmpty())
 				{
 					throw DirLockException("Path must not be empty!");
 				}
-				const QByteArray testData = QByteArray(TEST_DATA);
-				bool okay = false;
 				for(int i = 0; i < 32; i++)
 				{
 					m_lockFile.reset(new QFile(QString("%1/~%2.lck").arg(m_dirPath, MUtils::rand_str())));
-					if(m_lockFile->open(QIODevice::WriteOnly | QIODevice::Truncate))
+					if(m_lockFile->open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Unbuffered))
 					{
 						if(m_lockFile->write(testData) >= testData.size())
 						{
@@ -83,20 +83,34 @@ namespace MUtils
 
 			~DirLock(void)
 			{
+				bool okay = false;
 				if(!m_lockFile.isNull())
 				{
-					m_lockFile->remove();
+					for(int i = 0; i < 8; i++)
+					{
+						if(m_lockFile->remove())
+						{
+							break;
+						}
+						OS::sleep_ms(1);
+					}
 				}
 				for(int i = 0; i < 8; i++)
 				{
 					if(MUtils::remove_directory(m_dirPath))
 					{
+						okay = true;
 						break;
 					}
+					OS::sleep_ms(1);
+				}
+				if(!okay)
+				{
+					OS::system_message_wrn(L"Directory Lock", L"Warning: Not all temporary files could be removed!");
 				}
 			}
 
-			inline const QString &path(void) const
+			inline const QString &getPath(void) const
 			{
 				return m_dirPath;
 			}

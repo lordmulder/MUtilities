@@ -125,20 +125,19 @@ int MUtils::Startup::startup(int &argc, char **argv, main_function_t *const entr
 // QT INITIALIZATION
 ///////////////////////////////////////////////////////////////////////////////
 
-static QMutex g_qt_lock;
-static QScopedPointer<QApplication> g_application;
-
+static QMutex g_init_lock;
 static const char *const g_imageformats[] = {"bmp", "png", "jpg", "gif", "ico", "xpm", "svg", NULL};
 
-bool MUtils::Startup::init_qt(int &argc, char **argv, const QString &appName)
+QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &appName)
 {
-	QMutexLocker lock(&g_qt_lock);
+	QMutexLocker lock(&g_init_lock);
 	const QStringList &arguments = MUtils::OS::arguments();
 
 	//Don't initialized again, if done already
-	if(!g_application.isNull())
+	if(QApplication::instance() != NULL)
 	{
-		return true;
+		qWarning("Qt is already initialized!");
+		return NULL;
 	}
 
 	//Extract executable name from argv[] array
@@ -205,7 +204,7 @@ bool MUtils::Startup::init_qt(int &argc, char **argv, const QString &appName)
 		if(!arguments.contains("--ignore-compat-mode", Qt::CaseInsensitive))
 		{
 			qFatal("%s", QApplication::tr("Executable '%1' doesn't support Windows compatibility mode.").arg(executableName).toLatin1().constData());
-			return false;
+			return NULL;
 		}
 	}
 
@@ -219,17 +218,17 @@ bool MUtils::Startup::init_qt(int &argc, char **argv, const QString &appName)
 	QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
 
 	//Create Qt application instance
-	g_application.reset(new QApplication(argc, argv));
+	QApplication *application = new QApplication(argc, argv);
 
 	//Load plugins from application directory
 	QCoreApplication::setLibraryPaths(QStringList() << QApplication::applicationDirPath());
 	qDebug("Library Path:\n%s\n", MUTILS_UTF8(QApplication::libraryPaths().first()));
 
 	//Set application properties
-	g_application->setApplicationName(appName);
-	g_application->setOrganizationName("LoRd_MuldeR");
-	g_application->setOrganizationDomain("mulder.at.gg");
-	g_application->setEventFilter(qt_event_filter);
+	application->setApplicationName(appName);
+	application->setOrganizationName("LoRd_MuldeR");
+	application->setOrganizationDomain("mulder.at.gg");
+	application->setEventFilter(qt_event_filter);
 
 	//Check for supported image formats
 	QList<QByteArray> supportedFormats = QImageReader::supportedImageFormats();
@@ -238,7 +237,8 @@ bool MUtils::Startup::init_qt(int &argc, char **argv, const QString &appName)
 		if(!supportedFormats.contains(g_imageformats[i]))
 		{
 			qFatal("Qt initialization error: QImageIOHandler for '%s' missing!", g_imageformats[i]);
-			return false;
+			MUTILS_DELETE(application);
+			return NULL;
 		}
 	}
 	
@@ -254,9 +254,9 @@ bool MUtils::Startup::init_qt(int &argc, char **argv, const QString &appName)
 	if(!qFuzzyCompare(fontScaleFactor, 1.0))
 	{
 		qWarning("Application font scale factor set to: %.3f\n", fontScaleFactor);
-		QFont appFont = g_application->font();
+		QFont appFont = application->font();
 		appFont.setPointSizeF(appFont.pointSizeF() * fontScaleFactor);
-		g_application->setFont(appFont);
+		application->setFont(appFont);
 	}
 
 	//Check for process elevation
@@ -267,12 +267,14 @@ bool MUtils::Startup::init_qt(int &argc, char **argv, const QString &appName)
 		messageBox.addButton("Ignore", QMessageBox::NoRole);
 		if(messageBox.exec() == 0)
 		{
+			MUTILS_DELETE(application);
 			return NULL;
 		}
 	}
 
-	//Successful
-	return g_application.data();
+	//Qt created successfully
+	return application;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+

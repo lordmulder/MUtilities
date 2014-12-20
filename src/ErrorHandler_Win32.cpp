@@ -19,8 +19,6 @@
 // http://www.gnu.org/licenses/lgpl-2.1.txt
 //////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
-
 //MUtils
 #include <MUtils/ErrorHandler.h>
 #include <MUtils/OSSupport.h>

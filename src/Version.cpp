@@ -19,14 +19,14 @@
 // http://www.gnu.org/licenses/lgpl-2.1.txt
 //////////////////////////////////////////////////////////////////////////////////
 
-#define MUTILS_INC_CONFIG 1
-
+//MUtils
 #include <MUtils/Version.h>
-
-//Internal
 #include <MUtils/Global.h>
 #include <MUtils/Exception.h>
 #include <MUtils/OSSupport.h>
+
+//Internal
+#define MUTILS_INC_CONFIG 1
 #include "Config.h"
 
 ///////////////////////////////////////////////////////////////////////////////

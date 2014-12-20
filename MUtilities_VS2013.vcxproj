@@ -33,6 +33,7 @@
     <ClCompile Include="src\Startup.cpp" />
     <ClCompile Include="src\Taskbar7_Win32.cpp" />
     <ClCompile Include="src\Terminal_Win32.cpp" />
+    <ClCompile Include="src\Translation.cpp" />
     <ClCompile Include="src\UpdateChecker.cpp" />
     <ClCompile Include="src\Version.cpp" />
   </ItemGroup>
@@ -50,6 +51,7 @@
     <ClInclude Include="include\MUtils\Startup.h" />
     <ClInclude Include="include\MUtils\Taskbar7.h" />
     <ClInclude Include="include\MUtils\Terminal.h" />
+    <ClInclude Include="include\MUtils\Translation.h" />
     <ClInclude Include="src\3rd_party\adler32\include\adler32.h" />
     <ClInclude Include="src\3rd_party\keccak\include\keccak_impl.h" />
     <ClInclude Include="src\3rd_party\strnatcmp\include\strnatcmp.h" />
@@ -149,6 +151,9 @@
       <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
       <AdditionalIncludeDirectories>$(ProjectDir)\include;$(QTDIR)\include;$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(SolutionDir)\..\Prerequisites\VisualLeakDetector\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

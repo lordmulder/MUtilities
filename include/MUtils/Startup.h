@@ -24,6 +24,9 @@
 //MUtils
 #include <MUtils/Global.h>
 
+//Forward Declarations
+class QApplication;
+
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace MUtils
@@ -37,7 +40,7 @@ namespace MUtils
 		MUTILS_API int startup(int &argc, char **argv, main_function_t *const entry_point, const bool &debugConsole);
 
 		//Initialize Qt
-		MUTILS_API bool init_qt(int &argc, char **argv, const QString &appName);
+		MUTILS_API QApplication *create_qt(int &argc, char **argv, const QString &appName);
 	}
 }
 

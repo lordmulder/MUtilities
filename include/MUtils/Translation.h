@@ -19,25 +19,38 @@
 // http://www.gnu.org/licenses/lgpl-2.1.txt
 //////////////////////////////////////////////////////////////////////////////////
 
-#ifdef _MSC_VER
-#ifndef MUTILS_STATIC_LIB
+#pragma once
 
-//Win32 API
-#define WIN32_LEAN_AND_MEAN 1
-#include <Windows.h>
+//MUtils
+#include <MUtils/Global.h>
 
-BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
+//Qt
+#include <QtGlobal>
+
+///////////////////////////////////////////////////////////////////////////////
+
+namespace MUtils
 {
-	switch (ul_reason_for_call)
+	namespace Translation
 	{
-	case DLL_PROCESS_ATTACH:
-	case DLL_PROCESS_DETACH:
-	case DLL_THREAD_ATTACH:
-	case DLL_THREAD_DETACH:
-		break;
-	};
-	return TRUE;
+		//Register new translation
+		MUTILS_API bool insert(const QString &langId, const QString &qmFile, const QString &langName, const quint32 &systemId, const quint32 &country);
+
+		//Enumerate translations
+		MUTILS_API int enumerate(QStringList &list);
+
+		//Get translation info
+		MUTILS_API QString get_name   (const QString &langId);
+		MUTILS_API quint32 get_sysid  (const QString &langId);
+		MUTILS_API quint32 get_country(const QString &langId);
+
+		//Install translator
+		MUTILS_API bool install_translator(const QString &langId);
+		MUTILS_API bool install_translator_from_file(const QString &qmFile);
+
+		//Constant
+		MUTILS_API extern const char *const DEFAULT_LANGID;
+	}
 }
 
-#endif //MUTILS_STATIC_LIB
-#endif //_MSC_VER
+///////////////////////////////////////////////////////////////////////////////

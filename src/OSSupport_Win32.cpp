@@ -19,8 +19,6 @@
 // http://www.gnu.org/licenses/lgpl-2.1.txt
 //////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
-
 //Win32 API
 #define WIN32_LEAN_AND_MEAN 1
 #include <Windows.h>

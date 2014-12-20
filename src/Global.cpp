@@ -43,7 +43,9 @@
 #include <process.h>
 
 //VLD
+#ifdef _MSC_VER
 #include <vld.h>
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 // Random Support
@@ -112,7 +114,7 @@ QString MUtils::rand_str(const bool &bLong)
 ///////////////////////////////////////////////////////////////////////////////
 
 static QScopedPointer<MUtils::Internal::DirLock> g_temp_folder_file;
-static QReadWriteLock g_temp_folder_lock;
+static QReadWriteLock                            g_temp_folder_lock;
 
 static QString try_create_subfolder(const QString &baseDir, const QString &postfix)
 {
@@ -150,6 +152,17 @@ static MUtils::Internal::DirLock *try_init_temp_folder(const QString &baseDir)
 	return NULL;
 }
 
+static void temp_folder_cleaup(void)
+{
+	QWriteLocker writeLock(&g_temp_folder_lock);
+	
+	//Clean the directory
+	while(!g_temp_folder_file.isNull())
+	{
+		g_temp_folder_file.reset(NULL);
+	}
+}
+
 const QString &MUtils::temp_folder(void)
 {
 	QReadLocker readLock(&g_temp_folder_lock);
@@ -157,7 +170,7 @@ const QString &MUtils::temp_folder(void)
 	//Already initialized?
 	if(!g_temp_folder_file.isNull())
 	{
-		return g_temp_folder_file->path();
+		return g_temp_folder_file->getPath();
 	}
 
 	//Obtain the write lock to initilaize
@@ -167,14 +180,15 @@ const QString &MUtils::temp_folder(void)
 	//Still uninitilaized?
 	if(!g_temp_folder_file.isNull())
 	{
-		return g_temp_folder_file->path();
+		return g_temp_folder_file->getPath();
 	}
 
 	//Try the %TMP% or %TEMP% directory first
 	if(MUtils::Internal::DirLock *lockFile = try_init_temp_folder(QDir::tempPath()))
 	{
 		g_temp_folder_file.reset(lockFile);
-		return lockFile->path();
+		atexit(temp_folder_cleaup);
+		return lockFile->getPath();
 	}
 
 	qWarning("%%TEMP%% directory not found -> trying fallback mode now!");
@@ -190,7 +204,8 @@ const QString &MUtils::temp_folder(void)
 				if(MUtils::Internal::DirLock *lockFile = try_init_temp_folder(tempRoot))
 				{
 					g_temp_folder_file.reset(lockFile);
-					return lockFile->path();
+					atexit(temp_folder_cleaup);
+					return lockFile->getPath();
 				}
 			}
 		}

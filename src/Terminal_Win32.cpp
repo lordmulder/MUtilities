@@ -25,7 +25,6 @@
 #define WIN32_LEAN_AND_MEAN 1
 #include <Windows.h>
 
-
 //Internal
 #include <MUtils/Terminal.h>
 #include <MUtils/Global.h>
@@ -162,7 +161,7 @@ void MUtils::Terminal::setup(int &argc, char **argv, const bool forceEnabled)
 				g_terminal_attached = true;
 			}
 		}
-		
+
 		if(g_terminal_attached)
 		{
 			//-------------------------------------------------------------------
@@ -184,6 +183,7 @@ void MUtils::Terminal::setup(int &argc, char **argv, const bool forceEnabled)
 				*stderr = *hfStdErr;
 				g_filebufStdErr.reset(new std::filebuf(hfStdErr));
 				std::cerr.rdbuf(g_filebufStdErr.data());
+				std::cerr.rdbuf(new std::filebuf(hfStdErr));
 			}
 
 			const HWND hwndConsole = GetConsoleWindow();

@@ -46,7 +46,7 @@ static QReadWriteLock g_themes_lock;
 static bool g_themes_initialized = false;
 static bool g_themes_enabled = false;
 
-typedef int (WINAPI *IsAppThemedFunction)(void);
+typedef int (WINAPI IsAppThemedFunction)(void);
 
 bool MUtils::GUI::themes_enabled(void)
 {
@@ -68,18 +68,16 @@ bool MUtils::GUI::themes_enabled(void)
 	const MUtils::OS::Version::os_version_t &osVersion = MUtils::OS::os_version();
 	if(osVersion >= MUtils::OS::Version::WINDOWS_WINXP)
 	{
-		IsAppThemedFunction IsAppThemedPtr = NULL;
 		QLibrary uxTheme("UxTheme.dll");
 		if(uxTheme.load())
 		{
-			IsAppThemedPtr = (IsAppThemedFunction) uxTheme.resolve("IsAppThemed");
-		}
-		if(IsAppThemedPtr)
-		{
-			g_themes_enabled = IsAppThemedPtr();
-			if(!g_themes_enabled)
+			if(IsAppThemedFunction *const IsAppThemedPtr = (IsAppThemedFunction*) uxTheme.resolve("IsAppThemed"))
 			{
-				qWarning("Theme support is disabled for this process!");
+				g_themes_enabled = IsAppThemedPtr();
+				if(!g_themes_enabled)
+				{
+					qWarning("Theme support is disabled for this process!");
+				}
 			}
 		}
 	}
