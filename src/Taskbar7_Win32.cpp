@@ -136,7 +136,19 @@ bool MUtils::Taskbar7::setTaskbarProgress(const quint64 &currentValue, const qui
 bool MUtils::Taskbar7::setOverlayIcon(const QIcon *const icon, const QString &info)
 {
 	INITIALIZE_TASKBAR();
-	const HRESULT result = p->taskbarList->SetOverlayIcon(m_window->winId(), (icon ? icon->pixmap(16,16).toWinHICON() : NULL), MUTILS_WCHR(info));
+	HRESULT result = HRESULT(-1);
+	if(icon)
+	{
+		if(const HICON hIcon = icon->pixmap(16,16).toWinHICON())
+		{
+			result = p->taskbarList->SetOverlayIcon(m_window->winId(), hIcon, MUTILS_WCHR(info));
+			DestroyIcon(hIcon);
+		}
+	}
+	else
+	{
+		result = p->taskbarList->SetOverlayIcon(m_window->winId(), NULL, MUTILS_WCHR(info));
+	}
 	return SUCCEEDED(result);
 }
 

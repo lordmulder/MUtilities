@@ -38,16 +38,16 @@ namespace MUtils
 		};
 
 		//Simple beep
-		MUTILS_API bool beep(beep_t beepType);
+		MUTILS_API bool beep(const beep_t &beepType);
 
 		//Play built-in sound by name
-		MUTILS_API bool play_sound(const QString &name, const bool bAsync);
+		MUTILS_API bool play_sound(const QString &name, const bool &bAsync);
 
 		//Play system sound by name
-		MUTILS_API bool play_system_sound(const QString &alias, const bool bAsync);
+		MUTILS_API bool play_system_sound(const QString &alias, const bool &bAsync);
 
 		//Play sound from file
-		MUTILS_API bool play_sound_file(const QString &library, const unsigned short uiSoundIdx);
+		MUTILS_API bool play_sound_file(const QString &library, const unsigned short uiSoundIdx, const bool &bAsync);
 	}
 }
 

@@ -39,7 +39,7 @@
 // BEEP
 ///////////////////////////////////////////////////////////////////////////////
 
-bool MUtils::Sound::beep(MUtils::Sound::beep_t beepType)
+bool MUtils::Sound::beep(const MUtils::Sound::beep_t &beepType)
 {
 	switch(beepType)
 	{
@@ -97,7 +97,7 @@ static const unsigned char *get_sound_from_cache(const QString &name)
 	return NULL;
 }
 
-bool MUtils::Sound::play_sound(const QString &name, const bool bAsync)
+bool MUtils::Sound::play_sound(const QString &name, const bool &bAsync)
 {
 	if(!name.isEmpty())
 	{
@@ -110,12 +110,12 @@ bool MUtils::Sound::play_sound(const QString &name, const bool bAsync)
 	return false;
 }
 
-bool MUtils::Sound::play_system_sound(const QString &alias, const bool bAsync)
+bool MUtils::Sound::play_system_sound(const QString &alias, const bool &bAsync)
 {
 	return PlaySound(MUTILS_WCHR(alias), GetModuleHandle(NULL), (SND_ALIAS | (bAsync ? SND_ASYNC : SND_SYNC))) != FALSE;
 }
 
-bool MUtils::Sound::play_sound_file(const QString &library, const unsigned short uiSoundIdx)
+bool MUtils::Sound::play_sound_file(const QString &library, const unsigned short uiSoundIdx, const bool &bAsync)
 {
 	bool result = false;
 
@@ -131,9 +131,13 @@ bool MUtils::Sound::play_sound_file(const QString &library, const unsigned short
 
 	if(libraryFile.exists() && libraryFile.isFile())
 	{
-		if(const HMODULE module = LoadLibraryW(MUTILS_WCHR(QDir::toNativeSeparators(libraryFile.canonicalFilePath()))))
+		if(const HMODULE module = GetModuleHandleW(MUTILS_WCHR(QDir::toNativeSeparators(libraryFile.canonicalFilePath()))))
 		{
-			result = (PlaySound(MAKEINTRESOURCE(uiSoundIdx), module, (SND_RESOURCE | SND_SYNC)) != FALSE);
+			result = (PlaySound(MAKEINTRESOURCE(uiSoundIdx), module, (SND_RESOURCE | (bAsync ? SND_ASYNC : SND_SYNC))) != FALSE);
+		}
+		else if(const HMODULE module = LoadLibraryW(MUTILS_WCHR(QDir::toNativeSeparators(libraryFile.canonicalFilePath()))))
+		{
+			result = (PlaySound(MAKEINTRESOURCE(uiSoundIdx), module, (SND_RESOURCE | (bAsync ? SND_ASYNC : SND_SYNC))) != FALSE);
 			FreeLibrary(module);
 		}
 	}
