@@ -45,9 +45,6 @@
 #include <fcntl.h>
 #include <ctime>
 
-//Lock
-static MUtils::Internal::CriticalSection g_terminal_lock;
-
 #ifdef _MSC_VER
 #define stricmp(X,Y) _stricmp((X),(Y))
 #endif
@@ -103,15 +100,78 @@ static const char *clean_str(char *str)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// HELPER MACROS
+///////////////////////////////////////////////////////////////////////////////
+
+#define REPLACE_STANDARD_STREAM(TYPE, HANDLE) do \
+{ \
+	const int fd_##TYPE = _open_osfhandle((intptr_t)GetStdHandle(HANDLE), flags); \
+	FILE *const file_##TYPE = (fd_##TYPE >= 0) ? _fdopen(fd_##TYPE, "wb") : NULL; \
+	if(file_##TYPE) \
+	{ \
+		g_terminal_backup_file_##TYPE = *(std##TYPE); \
+		*(std##TYPE) = *(file_##TYPE); \
+		g_terminal_filebuf_##TYPE.reset(new std::filebuf(file_##TYPE)); \
+		g_terminal_backup_fbuf_##TYPE = std::c##TYPE.rdbuf(); \
+		std::c##TYPE.rdbuf(g_terminal_filebuf_##TYPE.data()); \
+	} \
+} \
+while(0)
+
+#define RESTORE_STANDARD_STREAM(TYPE) do \
+{ \
+	if(!g_terminal_filebuf_##TYPE.isNull()) \
+	{ \
+		*(std##TYPE) = g_terminal_backup_file_##TYPE; \
+		std::c##TYPE.rdbuf(g_terminal_backup_fbuf_##TYPE); \
+		g_terminal_filebuf_##TYPE.reset(NULL); \
+	} \
+} \
+while(0)
+
+///////////////////////////////////////////////////////////////////////////////
+// TERMINAL VARIABLES
+///////////////////////////////////////////////////////////////////////////////
+
+//Critical section
+static MUtils::Internal::CriticalSection g_terminal_lock;
+
+//Terminal replacement streams
+static bool                         g_terminal_attached = false;
+static QScopedPointer<std::filebuf> g_terminal_filebuf_out;
+static QScopedPointer<std::filebuf> g_terminal_filebuf_err;
+
+//Backup of original streams
+static FILE                         g_terminal_backup_file_out;
+static FILE                         g_terminal_backup_file_err;
+static std::streambuf*              g_terminal_backup_fbuf_out;
+static std::streambuf*              g_terminal_backup_fbuf_err;
+
+//The log file
+static QScopedPointer<QFile>        g_terminal_log_file;
+
+///////////////////////////////////////////////////////////////////////////////
+// TERMINAL EXIT
+///////////////////////////////////////////////////////////////////////////////
+
+static void terminal_restore(void)
+{
+	MUtils::Internal::CSLocker lock(g_terminal_lock);
+
+	if(g_terminal_attached)
+	{
+		RESTORE_STANDARD_STREAM(out);
+		RESTORE_STANDARD_STREAM(err);
+		FreeConsole();
+		g_terminal_attached = false;
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // TERMINAL SETUP
 ///////////////////////////////////////////////////////////////////////////////
 
-static bool g_terminal_attached = false;
-static QScopedPointer<std::filebuf> g_filebufStdOut;
-static QScopedPointer<std::filebuf> g_filebufStdErr;
-static QScopedPointer<QFile> g_log_file;
-
-void MUtils::Terminal::setup(int &argc, char **argv, const bool forceEnabled)
+void MUtils::Terminal::setup(int &argc, char **argv, const char* const appName, const bool forceEnabled)
 {
 	MUtils::Internal::CSLocker lock(g_terminal_lock);
 	bool enableConsole = (MUTILS_DEBUG) || forceEnabled;
@@ -123,11 +183,11 @@ void MUtils::Terminal::setup(int &argc, char **argv, const bool forceEnabled)
 		{
 			if(logfile && (logfile_len > 0))
 			{
-				g_log_file.reset(new QFile(MUTILS_QSTR(logfile)));
-				if(g_log_file->open(QIODevice::WriteOnly))
+				g_terminal_log_file.reset(new QFile(MUTILS_QSTR(logfile)));
+				if(g_terminal_log_file->open(QIODevice::WriteOnly))
 				{
 					static const char MARKER[3] = { char(0xEF), char(0xBB), char(0xBF) };
-					g_log_file->write(MARKER, 3);
+					g_terminal_log_file->write(MARKER, 3);
 				}
 				free(logfile);
 			}
@@ -155,9 +215,14 @@ void MUtils::Terminal::setup(int &argc, char **argv, const bool forceEnabled)
 		{
 			if(AllocConsole() != FALSE)
 			{
-				SetConsoleCtrlHandler(NULL, TRUE);
-				SetConsoleTitle(L"LameXP - Audio Encoder Front-End | Debug Console");
 				SetConsoleOutputCP(CP_UTF8);
+				SetConsoleCtrlHandler(NULL, TRUE);
+				if(appName && appName[0])
+				{
+					char title[128];
+					_snprintf_s(title, 128, _TRUNCATE, "%s | Debug Console", appName);
+					SetConsoleTitleA(title);
+				}
 				g_terminal_attached = true;
 			}
 		}
@@ -168,23 +233,9 @@ void MUtils::Terminal::setup(int &argc, char **argv, const bool forceEnabled)
 			//See: http://support.microsoft.com/default.aspx?scid=kb;en-us;105305
 			//-------------------------------------------------------------------
 			const int flags = _O_WRONLY | _O_U8TEXT;
-			const int hCrtStdOut = _open_osfhandle((intptr_t) GetStdHandle(STD_OUTPUT_HANDLE), flags);
-			const int hCrtStdErr = _open_osfhandle((intptr_t) GetStdHandle(STD_ERROR_HANDLE ), flags);
-			FILE *const hfStdOut = (hCrtStdOut >= 0) ? _fdopen(hCrtStdOut, "wb") : NULL;
-			FILE *const hfStdErr = (hCrtStdErr >= 0) ? _fdopen(hCrtStdErr, "wb") : NULL;
-			if(hfStdOut)
-			{
-				*stdout = *hfStdOut;
-				g_filebufStdOut.reset(new std::filebuf(hfStdOut));
-				std::cout.rdbuf(g_filebufStdOut.data());
-			}
-			if(hfStdErr)
-			{
-				*stderr = *hfStdErr;
-				g_filebufStdErr.reset(new std::filebuf(hfStdErr));
-				std::cerr.rdbuf(g_filebufStdErr.data());
-				std::cerr.rdbuf(new std::filebuf(hfStdErr));
-			}
+			REPLACE_STANDARD_STREAM(out, STD_OUTPUT_HANDLE);
+			REPLACE_STANDARD_STREAM(err, STD_ERROR_HANDLE );
+			atexit(terminal_restore);
 
 			const HWND hwndConsole = GetConsoleWindow();
 			if((hwndConsole != NULL) && (hwndConsole != INVALID_HANDLE_VALUE))
@@ -325,9 +376,9 @@ void MUtils::Terminal::write(const int &type, const char *const message)
 		write_debugger_helper(type, message);
 	}
 
-	if(!g_log_file.isNull())
+	if(!g_terminal_log_file.isNull())
 	{
-		write_logfile_helper(g_log_file.data(), type, message);
+		write_logfile_helper(g_terminal_log_file.data(), type, message);
 	}
 }
 

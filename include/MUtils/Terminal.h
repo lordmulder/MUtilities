@@ -34,7 +34,7 @@ namespace MUtils
 	namespace Terminal
 	{
 		//Setup terminal
-		MUTILS_API void setup(int &argc, char **argv, const bool forceEnabled);
+		MUTILS_API void setup(int &argc, char **argv, const char* const appName, const bool forceEnabled);
 
 		//Terminal output
 		MUTILS_API void write(const int &type, const char *const message);
