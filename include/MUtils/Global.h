@@ -95,6 +95,11 @@ namespace MUtils
 	MUTILS_API QString clean_file_name(const QString &name);
 	MUTILS_API QString clean_file_path(const QString &path);
 
+	//Regular expressions
+	MUTILS_API bool regexp_parse_uint32(const QRegExp &regexp, quint32 &value);
+	MUTILS_API bool regexp_parse_uint32(const QRegExp &regexp, quint32 *values, const size_t &count);
+
+	//Internationalization
 	MUTILS_API QStringList available_codepages(const bool &noAliases = true);
 
 	//Internal

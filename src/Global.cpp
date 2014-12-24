@@ -395,6 +395,37 @@ QString MUtils::clean_file_path(const QString &path)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// REGULAR EXPESSION HELPER
+///////////////////////////////////////////////////////////////////////////////
+
+bool MUtils::regexp_parse_uint32(const QRegExp &regexp, quint32 &value)
+{
+	return regexp_parse_uint32(regexp, &value, 1);
+}
+
+bool MUtils::regexp_parse_uint32(const QRegExp &regexp, quint32 *values, const size_t &count)
+{
+	const QStringList caps = regexp.capturedTexts();
+	
+	if(caps.isEmpty() || (quint32(caps.count()) <= count))
+	{
+		return false;
+	}
+
+	for(size_t i = 0; i < count; i++)
+	{
+		bool ok = false;
+		values[i] = caps[i+1].toUInt(&ok);
+		if(!ok)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // AVAILABLE CODEPAGES
 ///////////////////////////////////////////////////////////////////////////////
 
