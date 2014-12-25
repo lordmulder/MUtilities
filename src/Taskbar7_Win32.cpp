@@ -20,8 +20,9 @@
 // http://www.gnu.org/licenses/gpl-2.0.txt
 ///////////////////////////////////////////////////////////////////////////////
 
-//Internal
+//MUtils
 #include <MUtils/Taskbar7.h>
+#include <MUtils/OSSupport.h>
 #include <MUtils/Exception.h>
 
 //Qt
@@ -40,7 +41,11 @@
 
 #define INITIALIZE_TASKBAR() do \
 { \
-	if(!initialize()) \
+	if(!p->supported) \
+	{ \
+		return false; \
+	} \
+	if(!(p->initialized || initialize())) \
 	{ \
 		qWarning("Taskbar initialization failed!"); \
 		return false; \
@@ -59,7 +64,15 @@ namespace MUtils
 		friend class Taskbar7;
 
 	protected:
+		Taskbar7_Private(void)
+		{
+			taskbarList = NULL;
+			supported   = false;
+			initialized = false;
+		}
+
 		ITaskbarList3 *taskbarList;
+		volatile bool supported;
 		volatile bool initialized;
 	};
 }
@@ -73,12 +86,13 @@ MUtils::Taskbar7::Taskbar7(QWidget *const window)
 	p(new Taskbar7_Private()),
 	m_window(window)
 {
-	p->taskbarList = NULL;
-	p->initialized = false;
-
 	if(!m_window)
 	{
 		MUTILS_THROW("Taskbar7: Window pointer must not be NULL!");
+	}
+	if(!(p->supported = (OS::os_version() >= OS::Version::WINDOWS_WIN70)))
+	{
+		qWarning("Taskbar7: Taskbar progress not supported on this platform.");
 	}
 }
 

@@ -52,28 +52,27 @@ namespace MUtils
 				unsigned int versionMinor;
 				bool overrideFlag;
 
-				//comparision operators
-				inline bool operator== (const _os_info_t &rhs) const { return (type == rhs.type) && (versionMajor == rhs.versionMajor) && ((versionMinor == rhs.versionMinor)); }
-				inline bool operator!= (const _os_info_t &rhs) const { return (type != rhs.type) || (versionMajor != rhs.versionMajor) || ((versionMinor != rhs.versionMinor)); }
-				inline bool operator>  (const _os_info_t &rhs) const { return (type == rhs.type) && ((versionMajor > rhs.versionMajor) || ((versionMajor == rhs.versionMajor) && (versionMinor >  rhs.versionMinor))); }
-				inline bool operator>= (const _os_info_t &rhs) const { return (type == rhs.type) && ((versionMajor > rhs.versionMajor) || ((versionMajor == rhs.versionMajor) && (versionMinor >= rhs.versionMinor))); }
-				inline bool operator<  (const _os_info_t &rhs) const { return (type == rhs.type) && ((versionMajor < rhs.versionMajor) || ((versionMajor == rhs.versionMajor) && (versionMinor <  rhs.versionMinor))); }
-				inline bool operator<= (const _os_info_t &rhs) const { return (type == rhs.type) && ((versionMajor < rhs.versionMajor) || ((versionMajor == rhs.versionMajor) && (versionMinor <= rhs.versionMinor))); }
+				MUTILS_API bool operator== (const _os_info_t &rhs) const;
+				MUTILS_API bool operator!= (const _os_info_t &rhs) const;
+				MUTILS_API bool operator>  (const _os_info_t &rhs) const;
+				MUTILS_API bool operator>= (const _os_info_t &rhs) const;
+				MUTILS_API bool operator<  (const _os_info_t &rhs) const;
+				MUTILS_API bool operator<= (const _os_info_t &rhs) const;
 			}
 			os_version_t;
 
 			//Known Windows NT versions
-			static const os_version_t WINDOWS_WIN2K = { OS_WINDOWS, 5, 0 };	// 2000
-			static const os_version_t WINDOWS_WINXP = { OS_WINDOWS, 5, 1 };	// XP
-			static const os_version_t WINDOWS_XPX64 = { OS_WINDOWS, 5, 2 };	// XP_x64
-			static const os_version_t WINDOWS_VISTA = { OS_WINDOWS, 6, 0 };	// Vista
-			static const os_version_t WINDOWS_WIN70 = { OS_WINDOWS, 6, 1 };	// 7
-			static const os_version_t WINDOWS_WIN80 = { OS_WINDOWS, 6, 2 };	// 8
-			static const os_version_t WINDOWS_WIN81 = { OS_WINDOWS, 6, 3 };	// 8.1
-			static const os_version_t WINDOWS_WN100 = { OS_WINDOWS, 6, 4 };	// 10
+			MUTILS_API extern const os_version_t WINDOWS_WIN2K;	// 2000
+			MUTILS_API extern const os_version_t WINDOWS_WINXP;	// XP
+			MUTILS_API extern const os_version_t WINDOWS_XPX64;	// XP_x64
+			MUTILS_API extern const os_version_t WINDOWS_VISTA;	// Vista
+			MUTILS_API extern const os_version_t WINDOWS_WIN70;	// 7
+			MUTILS_API extern const os_version_t WINDOWS_WIN80;	// 8
+			MUTILS_API extern const os_version_t WINDOWS_WIN81;	// 8.1
+			MUTILS_API extern const os_version_t WINDOWS_WN100;	// 10
 
 			//Unknown OS
-			static const os_version_t UNKNOWN_OPSYS = { OS_UNKNOWN, 0, 0 };	// N/A
+			MUTILS_API extern const os_version_t UNKNOWN_OPSYS;	// N/A
 		}
 
 		//Known Folders IDs

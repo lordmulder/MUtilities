@@ -140,6 +140,37 @@ g_os_version_lut[] =
 	{ MUtils::OS::Version::UNKNOWN_OPSYS, "N/A" }
 };
 
+//OS version data dtructures
+namespace MUtils
+{
+	namespace OS
+	{
+		namespace Version
+		{
+			//Comparision operators for os_version_t
+			bool os_version_t::operator== (const os_version_t &rhs) const { return (type == rhs.type) && (versionMajor == rhs.versionMajor) && ((versionMinor == rhs.versionMinor)); }
+			bool os_version_t::operator!= (const os_version_t &rhs) const { return (type != rhs.type) || (versionMajor != rhs.versionMajor) || ((versionMinor != rhs.versionMinor)); }
+			bool os_version_t::operator>  (const os_version_t &rhs) const { return (type == rhs.type) && ((versionMajor > rhs.versionMajor) || ((versionMajor == rhs.versionMajor) && (versionMinor >  rhs.versionMinor))); }
+			bool os_version_t::operator>= (const os_version_t &rhs) const { return (type == rhs.type) && ((versionMajor > rhs.versionMajor) || ((versionMajor == rhs.versionMajor) && (versionMinor >= rhs.versionMinor))); }
+			bool os_version_t::operator<  (const os_version_t &rhs) const { return (type == rhs.type) && ((versionMajor < rhs.versionMajor) || ((versionMajor == rhs.versionMajor) && (versionMinor <  rhs.versionMinor))); }
+			bool os_version_t::operator<= (const os_version_t &rhs) const { return (type == rhs.type) && ((versionMajor < rhs.versionMajor) || ((versionMajor == rhs.versionMajor) && (versionMinor <= rhs.versionMinor))); }
+
+			//Known Windows NT versions
+			const os_version_t WINDOWS_WIN2K = { OS_WINDOWS, 5, 0 };	// 2000
+			const os_version_t WINDOWS_WINXP = { OS_WINDOWS, 5, 1 };	// XP
+			const os_version_t WINDOWS_XPX64 = { OS_WINDOWS, 5, 2 };	// XP_x64
+			const os_version_t WINDOWS_VISTA = { OS_WINDOWS, 6, 0 };	// Vista
+			const os_version_t WINDOWS_WIN70 = { OS_WINDOWS, 6, 1 };	// 7
+			const os_version_t WINDOWS_WIN80 = { OS_WINDOWS, 6, 2 };	// 8
+			const os_version_t WINDOWS_WIN81 = { OS_WINDOWS, 6, 3 };	// 8.1
+			const os_version_t WINDOWS_WN100 = { OS_WINDOWS, 6, 4 };	// 10
+
+			//Unknown OS
+			const os_version_t UNKNOWN_OPSYS = { OS_UNKNOWN, 0, 0 };	// N/A
+		}
+	}
+}
+
 static bool verify_os_version(const DWORD major, const DWORD minor)
 {
 	OSVERSIONINFOEXW osvi;
