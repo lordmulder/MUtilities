@@ -15,7 +15,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="$(SolutionDir)\tmp\$(ProjectName)\QRC_Resource.cpp" />
+    <ClCompile Include="$(SolutionDir)\tmp\$(ProjectName)\QRC_MUtilsData.cpp" />
     <ClCompile Include="$(SolutionDir)\tmp\$(ProjectName)\MOC_UpdateChecker.cpp" />
     <ClCompile Include="src\3rd_party\adler32\src\adler32.cpp" />
     <ClCompile Include="src\3rd_party\strnatcmp\src\strnatcmp.cpp" />
@@ -72,7 +72,7 @@
     <ClInclude Include="src\CriticalSection_Win32.h" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="res\Resource.qrc">
+    <CustomBuild Include="res\MUtilsData.qrc">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\rcc.exe" -o "$(SolutionDir)tmp\$(ProjectName)\QRC_%(Filename).cpp" -name "%(Filename)" "%(FullPath)"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release_Static|Win32'">"$(QTDIR)\bin\rcc.exe" -o "$(SolutionDir)tmp\$(ProjectName)\QRC_%(Filename).cpp" -name "%(Filename)" "%(FullPath)"</Command>

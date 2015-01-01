@@ -38,10 +38,11 @@
 #include <QtPlugin>
 
 ///////////////////////////////////////////////////////////////////////////////
-// Qt Plugin Initialization
+// Qt Static Initialization
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef QT_NODLL
+
 #if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 Q_IMPORT_PLUGIN(qico)
 Q_IMPORT_PLUGIN(qsvg)
@@ -49,7 +50,43 @@ Q_IMPORT_PLUGIN(qsvg)
 Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin)
 Q_IMPORT_PLUGIN(QICOPlugin)
 #endif
-#endif
+
+static void doInitializeResources(void)
+{
+	Q_INIT_RESOURCE(MUtilsData);
+}
+
+static void doCleanupResources(void)
+{
+	Q_CLEANUP_RESOURCE(MUtilsData);
+}
+
+namespace MUtils
+{
+	namespace Startup
+	{
+		namespace Internal
+		{
+			class ResourceInitializer
+			{
+			public:
+				ResourceInitializer(void)
+				{
+					doInitializeResources();
+				}
+
+				~ResourceInitializer(void)
+				{
+					doCleanupResources();
+				}
+			};
+
+			static ResourceInitializer resourceInitializer;
+		}
+	}
+}
+
+#endif //QT_NODLL
 
 ///////////////////////////////////////////////////////////////////////////////
 // MESSAGE HANDLER
