@@ -86,23 +86,24 @@ namespace MUtils
 				bool okay = false;
 				if(!m_lockFile.isNull())
 				{
-					for(int i = 0; i < 8; i++)
+					for(int i = 0; i < 16; i++)
 					{
 						if(m_lockFile->remove())
 						{
 							break;
 						}
-						OS::sleep_ms(1);
+						OS::sleep_ms(125);
 					}
+					m_lockFile.reset(NULL);
 				}
-				for(int i = 0; i < 8; i++)
+				for(int i = 0; i < 16; i++)
 				{
-					if(MUtils::remove_directory(m_dirPath))
+					if(MUtils::remove_directory(m_dirPath, true))
 					{
 						okay = true;
 						break;
 					}
-					OS::sleep_ms(1);
+					OS::sleep_ms(125);
 				}
 				if(!okay)
 				{

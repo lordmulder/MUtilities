@@ -102,6 +102,9 @@ namespace MUtils
 		//CLI Arguments
 		MUTILS_API const QStringList &arguments(void);
 
+		//Copy file
+		MUTILS_API bool copy_file(const QString &sourcePath, const QString &outputPath, const bool &overwrite = true);
+
 		//Get the OS version
 		MUTILS_API const Version::os_version_t &os_version(void);
 		MUTILS_API const char *os_friendly_name(const MUtils::OS::Version::os_version_t &os_version);

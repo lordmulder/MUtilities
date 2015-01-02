@@ -231,17 +231,34 @@ bool MUtils::remove_file(const QString &fileName)
 	{
 		QFile file(fileName);
 		file.setPermissions(QFile::ReadOther | QFile::WriteOther);
-		if(file.remove())
+		if((!(fileInfo.exists() && fileInfo.isFile())) || file.remove())
 		{
 			return true;
 		}
+		fileInfo.refresh();
 	}
 
 	qWarning("Could not delete \"%s\"", MUTILS_UTF8(fileName));
 	return false;
 }
 
-bool MUtils::remove_directory(const QString &folderPath)
+static bool remove_directory_helper(QDir folder)
+{
+	if(!folder.exists())
+	{
+		return true;
+	}
+	
+	const QString dirName = folder.dirName();
+	if(dirName.isEmpty() || (!folder.cdUp()))
+	{
+		return false;
+	}
+
+	return folder.rmdir(dirName);
+}
+
+bool MUtils::remove_directory(const QString &folderPath, const bool &recursive)
 {
 	QDir folder(folderPath);
 	if(!folder.exists())
@@ -249,25 +266,41 @@ bool MUtils::remove_directory(const QString &folderPath)
 		return true;
 	}
 
-	const QFileInfoList entryList = folder.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot | QDir::Hidden);
-	for(int i = 0; i < entryList.count(); i++)
+	if(recursive)
 	{
-		if(entryList.at(i).isDir())
+		const QFileInfoList entryList = folder.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot | QDir::Hidden);
+		for(QFileInfoList::ConstIterator iter = entryList.constBegin(); iter != entryList.constEnd(); iter++)
 		{
-			remove_directory(entryList.at(i).canonicalFilePath());
-		}
-		else
-		{
-			remove_file(entryList.at(i).canonicalFilePath());
+			if(iter->isDir())
+			{
+				remove_directory(iter->canonicalFilePath(), true);
+			}
+			else if(iter->isFile())
+			{
+				remove_file(iter->canonicalFilePath());
+			}
 		}
 	}
 
 	for(int i = 0; i < 32; i++)
 	{
-		if(folder.rmdir("."))
+		if(!folder.exists())
 		{
 			return true;
 		}
+		const QString dirName = folder.dirName();
+		if(!dirName.isEmpty())
+		{
+			QDir parent(folder);
+			if(parent.cdUp())
+			{
+				if(parent.rmdir(dirName))
+				{
+					return true;
+				}
+			}
+		}
+		folder.refresh();
 	}
 	
 	qWarning("Could not rmdir \"%s\"", MUTILS_UTF8(folderPath));

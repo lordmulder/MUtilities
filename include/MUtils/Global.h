@@ -86,7 +86,7 @@ namespace MUtils
 
 	//Remove File/Dir
 	MUTILS_API bool remove_file(const QString &fileName);
-	MUTILS_API bool remove_directory(const QString &folderPath);
+	MUTILS_API bool remove_directory(const QString &folderPath, const bool &recursive);
 
 	//String sorting
 	MUTILS_API void natural_string_sort(QStringList &list, const bool bIgnoreCase);

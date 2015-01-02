@@ -114,6 +114,23 @@ const QStringList &MUtils::OS::arguments(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// COPY FILE
+///////////////////////////////////////////////////////////////////////////////
+
+MUTILS_API bool MUtils::OS::copy_file(const QString &sourcePath, const QString &outputPath, const bool &overwrite)
+{
+	const BOOL result = CopyFileW(MUTILS_WCHR(QDir::toNativeSeparators(sourcePath)), MUTILS_WCHR(QDir::toNativeSeparators(outputPath)), overwrite ? FALSE : TRUE);
+
+	if(result == FALSE)
+	{
+		const DWORD errorCode = GetLastError();
+		qWarning("CopyFile() failed with error code 0x%08X!", errorCode);
+	}
+
+	return (result != FALSE);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // OS VERSION DETECTION
 ///////////////////////////////////////////////////////////////////////////////
 
