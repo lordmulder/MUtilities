@@ -180,6 +180,27 @@ int MUtils::Startup::startup(int &argc, char **argv, main_function_t *const entr
 static QMutex g_init_lock;
 static const char *const g_imageformats[] = {"bmp", "png", "jpg", "gif", "ico", "xpm", "svg", NULL};
 
+static QString getExecutableName(int &argc, char **argv)
+{
+	if(argc >= 1)
+	{
+		const char *argv0 = argv[0];
+		if(const char *const ptr = strrchr(argv0, '/'))
+		{
+			argv0 = ptr + 1;
+		}
+		if(const char *const ptr = strrchr(argv0, '\\'))
+		{
+			argv0 = ptr + 1;
+		}
+		if(strlen(argv0) > 1)
+		{
+			QString::fromLatin1(argv0);
+		}
+	}
+	return QLatin1String("Program.exe");
+}
+
 QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &appName)
 {
 	QMutexLocker lock(&g_init_lock);
@@ -193,22 +214,7 @@ QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &
 	}
 
 	//Extract executable name from argv[] array
-	QString executableName = QLatin1String("LameXP.exe");
-	if(arguments.count() > 0)
-	{
-		static const char *delimiters = "\\/:?";
-		executableName = arguments[0].trimmed();
-		for(int i = 0; delimiters[i]; i++)
-		{
-			int temp = executableName.lastIndexOf(QChar(delimiters[i]));
-			if(temp >= 0) executableName = executableName.mid(temp + 1);
-		}
-		executableName = executableName.trimmed();
-		if(executableName.isEmpty())
-		{
-			executableName = QLatin1String("LameXP.exe");
-		}
-	}
+	const QString executableName = getExecutableName(argc, argv);
 
 	//Check Qt version
 #ifdef QT_BUILD_KEY

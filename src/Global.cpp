@@ -157,6 +157,7 @@ static void temp_folder_cleanup_helper(const QString &tempPath)
 	bool okay = false;
 	for(int i = 0; i < 32; i++)
 	{
+		QDir::setCurrent(QDir::rootPath());
 		if(MUtils::remove_directory(tempPath, true))
 		{
 			okay = true;
