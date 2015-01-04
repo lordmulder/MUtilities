@@ -55,6 +55,6 @@ namespace MUtils
 		}
 		cpu_info_t;
 
-		MUTILS_API cpu_info_t detect(const QStringList &argv);
+		MUTILS_API cpu_info_t detect(void);
 	}
 }

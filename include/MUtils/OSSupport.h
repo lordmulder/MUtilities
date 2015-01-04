@@ -26,6 +26,7 @@
 
 //Qt
 #include <QString>
+#include <QMap>
 #include <QDate>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -100,7 +101,8 @@ namespace MUtils
 		MUTILS_API void system_message_err(const wchar_t *const title, const wchar_t *const text);
 
 		//CLI Arguments
-		MUTILS_API const QStringList &arguments(void);
+		typedef QMap<QString,QString> ArgumentMap;
+		MUTILS_API const ArgumentMap &arguments(void);
 
 		//Copy file
 		MUTILS_API bool copy_file(const QString &sourcePath, const QString &outputPath, const bool &overwrite = true);

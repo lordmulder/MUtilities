@@ -152,6 +152,24 @@ static MUtils::Internal::DirLock *try_init_temp_folder(const QString &baseDir)
 	return NULL;
 }
 
+static void temp_folder_cleanup_helper(const QString &tempPath)
+{
+	bool okay = false;
+	for(int i = 0; i < 32; i++)
+	{
+		if(MUtils::remove_directory(tempPath, true))
+		{
+			okay = true;
+			break;
+		}
+		MUtils::OS::sleep_ms(125);
+	}
+	if(!okay)
+	{
+		MUtils::OS::system_message_wrn(L"Temp Cleaner", L"Warning: Not all temporary files could be removed!");
+	}
+}
+
 static void temp_folder_cleaup(void)
 {
 	QWriteLocker writeLock(&g_temp_folder_lock);
@@ -159,7 +177,9 @@ static void temp_folder_cleaup(void)
 	//Clean the directory
 	while(!g_temp_folder_file.isNull())
 	{
+		const QString tempPath = g_temp_folder_file->getPath();
 		g_temp_folder_file.reset(NULL);
+		temp_folder_cleanup_helper(tempPath);
 	}
 }
 

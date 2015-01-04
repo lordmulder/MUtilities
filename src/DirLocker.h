@@ -69,8 +69,11 @@ namespace MUtils
 					{
 						if(m_lockFile->write(testData) >= testData.size())
 						{
-							okay = true;
-							break;
+							if(m_lockFile->error() == QFile::NoError)
+							{
+								okay = true;
+								break;
+							}
 						}
 						m_lockFile->remove();
 					}
@@ -88,26 +91,17 @@ namespace MUtils
 				{
 					for(int i = 0; i < 16; i++)
 					{
-						if(m_lockFile->remove())
+						if(m_lockFile->remove() || (!m_lockFile->exists()))
 						{
+							okay = true;
 							break;
 						}
 						OS::sleep_ms(125);
 					}
-					m_lockFile.reset(NULL);
-				}
-				for(int i = 0; i < 16; i++)
-				{
-					if(MUtils::remove_directory(m_dirPath, true))
-					{
-						okay = true;
-						break;
-					}
-					OS::sleep_ms(125);
 				}
 				if(!okay)
 				{
-					OS::system_message_wrn(L"Directory Lock", L"Warning: Not all temporary files could be removed!");
+					qWarning("DirLock: The lock file could not be removed!");
 				}
 			}
 

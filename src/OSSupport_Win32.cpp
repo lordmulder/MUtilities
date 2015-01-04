@@ -71,10 +71,10 @@ void MUtils::OS::system_message_err(const wchar_t *const title, const wchar_t *c
 // FETCH CLI ARGUMENTS
 ///////////////////////////////////////////////////////////////////////////////
 
-static QReadWriteLock g_arguments_lock;
-static QScopedPointer<QStringList> g_arguments_list;
+static QReadWriteLock                          g_arguments_lock;
+static QScopedPointer<MUtils::OS::ArgumentMap> g_arguments_list;
 
-const QStringList &MUtils::OS::arguments(void)
+const MUtils::OS::ArgumentMap &MUtils::OS::arguments(void)
 {
 	QReadLocker readLock(&g_arguments_lock);
 
@@ -93,15 +93,35 @@ const QStringList &MUtils::OS::arguments(void)
 		return (*(g_arguments_list.data()));
 	}
 
-	g_arguments_list.reset(new QStringList);
+	g_arguments_list.reset(new ArgumentMap());
 	int nArgs = 0;
 	LPWSTR *szArglist = CommandLineToArgvW(GetCommandLineW(), &nArgs);
 
 	if(NULL != szArglist)
 	{
+		const QChar separator = QLatin1Char('=');
+		const QString argPrefix = QLatin1String("--");
 		for(int i = 0; i < nArgs; i++)
 		{
-			*(g_arguments_list.data()) << MUTILS_QSTR(szArglist[i]);
+			const QString argStr = MUTILS_QSTR(szArglist[i]).trimmed();
+			if(argStr.startsWith(argPrefix))
+			{
+				const QString argData = argStr.mid(2).trimmed();
+				if(argData.length() > 0)
+				{
+					const int separatorIndex = argData.indexOf(separator);
+					if(separatorIndex > 0)
+					{
+						const QString argKey = argData.left(separatorIndex).trimmed();
+						const QString argVal = argData.mid(separatorIndex + 1).trimmed();
+						g_arguments_list->insertMulti(argKey.toLower(), argVal);
+					}
+					else
+					{
+						g_arguments_list->insertMulti(argData.toLower(), QString());
+					}
+				}
+			}
 		}
 		LocalFree(szArglist);
 	}

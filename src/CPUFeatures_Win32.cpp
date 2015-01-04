@@ -25,12 +25,14 @@
 
 //MUtils
 #include <MUtils/CPUFeatures.h>
+#include <MUtils/OSSupport.h>
 
 //Qt
 #include <QLibrary>
 
-MUtils::CPUFetaures::cpu_info_t MUtils::CPUFetaures::detect(const QStringList &argv)
+MUtils::CPUFetaures::cpu_info_t MUtils::CPUFetaures::detect(void)
 {
+	const OS::ArgumentMap &args = OS::arguments();
 	typedef BOOL (WINAPI *IsWow64ProcessFun)(__in HANDLE hProcess, __out PBOOL Wow64Process);
 
 	cpu_info_t features;
@@ -119,16 +121,14 @@ MUtils::CPUFetaures::cpu_info_t MUtils::CPUFetaures::detect(const QStringList &a
 		features.count = qBound(1UL, systemInfo.dwNumberOfProcessors, 64UL);
 	}
 
-	if(argv.count() > 0)
+	bool flag = false;
+	if(args.contains("force-cpu-no-64bit")) { flag = true; features.x64 = false; }
+	if(args.contains("force-cpu-no-sse"  )) { flag = true; features.features &= (~(FLAG_SSE | FLAG_SSE2 | FLAG_SSE3 | FLAG_SSSE3 | FLAG_SSE4 | FLAG_SSE42)); }
+	if(args.contains("force-cpu-no-intel")) { flag = true; features.intel = false; }
+
+	if(flag)
 	{
-		bool flag = false;
-		for(int i = 0; i < argv.count(); i++)
-		{
-			if(!argv[i].compare("--force-cpu-no-64bit", Qt::CaseInsensitive)) { flag = true; features.x64 = false; }
-			if(!argv[i].compare("--force-cpu-no-sse",   Qt::CaseInsensitive)) { flag = true; features.features &= (~(FLAG_SSE | FLAG_SSE2 | FLAG_SSE3 | FLAG_SSSE3 | FLAG_SSE4 | FLAG_SSE42)); }
-			if(!argv[i].compare("--force-cpu-no-intel", Qt::CaseInsensitive)) { flag = true; features.intel = false; }
-		}
-		if(flag) qWarning("CPU flags overwritten by user-defined parameters. Take care!\n");
+		qWarning("CPU flags overwritten by user-defined parameters. Take care!\n");
 	}
 
 	return features;

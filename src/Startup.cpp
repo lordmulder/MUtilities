@@ -183,7 +183,7 @@ static const char *const g_imageformats[] = {"bmp", "png", "jpg", "gif", "ico", 
 QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &appName)
 {
 	QMutexLocker lock(&g_init_lock);
-	const QStringList &arguments = MUtils::OS::arguments();
+	const OS::ArgumentMap &arguments = MUtils::OS::arguments();
 
 	//Don't initialized again, if done already
 	if(QApplication::instance() != NULL)
@@ -253,7 +253,7 @@ QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &
 	if(osVersion.overrideFlag && (osVersion <= MUtils::OS::Version::WINDOWS_WN100))
 	{
 		qWarning("Windows compatibility mode detected!");
-		if(!arguments.contains("--ignore-compat-mode", Qt::CaseInsensitive))
+		if(!arguments.contains("ignore-compat-mode"))
 		{
 			qFatal("%s", QApplication::tr("Executable '%1' doesn't support Windows compatibility mode.").arg(executableName).toLatin1().constData());
 			return NULL;
@@ -299,10 +299,10 @@ QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &
 
 	//Enable larger/smaller font size
 	double fontScaleFactor = 1.0;
-	if(arguments.contains("--huge-font",  Qt::CaseInsensitive)) fontScaleFactor = 1.500;
-	if(arguments.contains("--big-font",   Qt::CaseInsensitive)) fontScaleFactor = 1.250;
-	if(arguments.contains("--small-font", Qt::CaseInsensitive)) fontScaleFactor = 0.875;
-	if(arguments.contains("--tiny-font",  Qt::CaseInsensitive)) fontScaleFactor = 0.750;
+	if(arguments.contains("huge-font" )) fontScaleFactor = 1.500;
+	if(arguments.contains("big-font"  )) fontScaleFactor = 1.250;
+	if(arguments.contains("small-font")) fontScaleFactor = 0.875;
+	if(arguments.contains("tiny-font" )) fontScaleFactor = 0.750;
 	if(!qFuzzyCompare(fontScaleFactor, 1.0))
 	{
 		qWarning("Application font scale factor set to: %.3f\n", fontScaleFactor);
