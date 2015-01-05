@@ -240,6 +240,8 @@ const QString &MUtils::temp_folder(void)
 // REMOVE DIRECTORY / FILE
 ///////////////////////////////////////////////////////////////////////////////
 
+static const QFile::Permissions FILE_PERMISSIONS_NONE = QFile::ReadOther | QFile::WriteOther;
+
 bool MUtils::remove_file(const QString &fileName)
 {
 	QFileInfo fileInfo(fileName);
@@ -251,7 +253,7 @@ bool MUtils::remove_file(const QString &fileName)
 	for(int i = 0; i < 32; i++)
 	{
 		QFile file(fileName);
-		file.setPermissions(QFile::ReadOther | QFile::WriteOther);
+		file.setPermissions(FILE_PERMISSIONS_NONE);
 		if((!(fileInfo.exists() && fileInfo.isFile())) || file.remove())
 		{
 			return true;
@@ -263,20 +265,26 @@ bool MUtils::remove_file(const QString &fileName)
 	return false;
 }
 
-static bool remove_directory_helper(QDir folder)
+static bool remove_directory_helper(const QDir &folder)
 {
 	if(!folder.exists())
 	{
 		return true;
 	}
-	
 	const QString dirName = folder.dirName();
-	if(dirName.isEmpty() || (!folder.cdUp()))
+	if(!dirName.isEmpty())
 	{
-		return false;
+		QDir parent(folder);
+		if(parent.cdUp())
+		{
+			QFile::setPermissions(folder.absolutePath(), FILE_PERMISSIONS_NONE);
+			if(parent.rmdir(dirName))
+			{
+				return true;
+			}
+		}
 	}
-
-	return folder.rmdir(dirName);
+	return false;
 }
 
 bool MUtils::remove_directory(const QString &folderPath, const bool &recursive)
@@ -305,21 +313,9 @@ bool MUtils::remove_directory(const QString &folderPath, const bool &recursive)
 
 	for(int i = 0; i < 32; i++)
 	{
-		if(!folder.exists())
+		if(remove_directory_helper(folder))
 		{
 			return true;
-		}
-		const QString dirName = folder.dirName();
-		if(!dirName.isEmpty())
-		{
-			QDir parent(folder);
-			if(parent.cdUp())
-			{
-				if(parent.rmdir(dirName))
-				{
-					return true;
-				}
-			}
 		}
 		folder.refresh();
 	}
