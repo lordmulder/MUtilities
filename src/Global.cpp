@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // MuldeR's Utilities for Qt
-// Copyright (C) 2004-2014 LoRd_MuldeR <MuldeR2@GMX.de>
+// Copyright (C) 2004-2015 LoRd_MuldeR <MuldeR2@GMX.de>
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -152,22 +152,26 @@ static MUtils::Internal::DirLock *try_init_temp_folder(const QString &baseDir)
 	return NULL;
 }
 
-static void temp_folder_cleanup_helper(const QString &tempPath)
+static bool temp_folder_cleanup_helper(const QString &tempPath)
 {
-	bool okay = false;
-	for(int i = 0; i < 32; i++)
+	size_t delay = 1;
+	static const size_t MAX_DELAY = 8192;
+	forever
 	{
 		QDir::setCurrent(QDir::rootPath());
 		if(MUtils::remove_directory(tempPath, true))
 		{
-			okay = true;
-			break;
+			return true;
 		}
-		MUtils::OS::sleep_ms(125);
-	}
-	if(!okay)
-	{
-		MUtils::OS::system_message_wrn(L"Temp Cleaner", L"Warning: Not all temporary files could be removed!");
+		else
+		{
+			if(delay > MAX_DELAY)
+			{
+				return false;
+			}
+			MUtils::OS::sleep_ms(delay);
+			delay *= 2;
+		}
 	}
 }
 
@@ -180,7 +184,10 @@ static void temp_folder_cleaup(void)
 	{
 		const QString tempPath = g_temp_folder_file->getPath();
 		g_temp_folder_file.reset(NULL);
-		temp_folder_cleanup_helper(tempPath);
+		if(!temp_folder_cleanup_helper(tempPath))
+		{
+			MUtils::OS::system_message_wrn(L"Temp Cleaner", L"Warning: Not all temporary files could be removed!");
+		}
 	}
 }
 
