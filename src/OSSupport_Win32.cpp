@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // MuldeR's Utilities for Qt
-// Copyright (C) 2004-2014 LoRd_MuldeR <MuldeR2@GMX.de>
+// Copyright (C) 2004-2015 LoRd_MuldeR <MuldeR2@GMX.de>
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -193,14 +193,14 @@ namespace MUtils
 			bool os_version_t::operator<= (const os_version_t &rhs) const { return (type == rhs.type) && ((versionMajor < rhs.versionMajor) || ((versionMajor == rhs.versionMajor) && (versionMinor <= rhs.versionMinor))); }
 
 			//Known Windows NT versions
-			const os_version_t WINDOWS_WIN2K = { OS_WINDOWS, 5, 0 };	// 2000
-			const os_version_t WINDOWS_WINXP = { OS_WINDOWS, 5, 1 };	// XP
-			const os_version_t WINDOWS_XPX64 = { OS_WINDOWS, 5, 2 };	// XP_x64
-			const os_version_t WINDOWS_VISTA = { OS_WINDOWS, 6, 0 };	// Vista
-			const os_version_t WINDOWS_WIN70 = { OS_WINDOWS, 6, 1 };	// 7
-			const os_version_t WINDOWS_WIN80 = { OS_WINDOWS, 6, 2 };	// 8
-			const os_version_t WINDOWS_WIN81 = { OS_WINDOWS, 6, 3 };	// 8.1
-			const os_version_t WINDOWS_WN100 = { OS_WINDOWS, 6, 4 };	// 10
+			const os_version_t WINDOWS_WIN2K = { OS_WINDOWS,  5, 0 };	// 2000
+			const os_version_t WINDOWS_WINXP = { OS_WINDOWS,  5, 1 };	// XP
+			const os_version_t WINDOWS_XPX64 = { OS_WINDOWS,  5, 2 };	// XP_x64
+			const os_version_t WINDOWS_VISTA = { OS_WINDOWS,  6, 0 };	// Vista
+			const os_version_t WINDOWS_WIN70 = { OS_WINDOWS,  6, 1 };	// 7
+			const os_version_t WINDOWS_WIN80 = { OS_WINDOWS,  6, 2 };	// 8
+			const os_version_t WINDOWS_WIN81 = { OS_WINDOWS,  6, 3 };	// 8.1
+			const os_version_t WINDOWS_WN100 = { OS_WINDOWS, 10, 0 };	// 10
 
 			//Unknown OS
 			const os_version_t UNKNOWN_OPSYS = { OS_UNKNOWN, 0, 0 };	// N/A
@@ -223,7 +223,7 @@ static bool verify_os_version(const DWORD major, const DWORD minor)
 	//Initialize the condition mask
 	VER_SET_CONDITION(dwlConditionMask, VER_MAJORVERSION, VER_GREATER_EQUAL);
 	VER_SET_CONDITION(dwlConditionMask, VER_MINORVERSION, VER_GREATER_EQUAL);
-	VER_SET_CONDITION(dwlConditionMask, VER_PLATFORMID, VER_EQUAL);
+	VER_SET_CONDITION(dwlConditionMask, VER_PLATFORMID,   VER_EQUAL);
 
 	// Perform the test
 	const BOOL ret = VerifyVersionInfoW(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_PLATFORMID, dwlConditionMask);

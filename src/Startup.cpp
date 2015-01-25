@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // MuldeR's Utilities for Qt
-// Copyright (C) 2004-2014 LoRd_MuldeR <MuldeR2@GMX.de>
+// Copyright (C) 2004-2015 LoRd_MuldeR <MuldeR2@GMX.de>
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -252,7 +252,7 @@ QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &
 	{
 		const QString message = QString().sprintf("Running on an unknown WindowsNT-based system (v%u.%u).", osVersion.versionMajor, osVersion.versionMinor);
 		qWarning("%s\n", MUTILS_UTF8(message));
-		MUtils::OS::system_message_wrn(MUTILS_WCHR(message), L"LameXP");
+		MUtils::OS::system_message_wrn(L"LameXP", MUTILS_WCHR(message));
 	}
 
 	//Check for compat mode
