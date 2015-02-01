@@ -346,7 +346,7 @@ bool MUtils::IPCChannel::send(const quint32 &command, const quint32 &flags, cons
 				const quint32 param_count = qMin(MAX_PARAM_CNT, (quint32)params.count());
 				for(quint32 i = 0; i < param_count; i++)
 				{
-					strncpy_s(ipc_msg.payload.params.values[i], MAX_PARAM_LEN, MUTILS_UTF8(params[i]), _TRUNCATE);
+					strncpy_s(ipc_msg.payload.params.values[i], MAX_PARAM_LEN, MUTILS_UTF8(params[i].trimmed()), _TRUNCATE);
 				}
 				ipc_msg.payload.params.count = param_count;
 			}
