@@ -44,24 +44,24 @@
 **             Date: 12.01.12                                             **
 ****************************************************************************/
 
-#include <MUtils/KeccakHash.h>
+#include <MUtils/Hash_Keccak.h>
 #include <QDebug>
 
 #include "3rd_party/keccak/include/keccak_impl.h"
 
-MUtils::KeccakHash::KeccakHash()
+MUtils::Hash::Keccak::Keccak()
 {
 	m_initialized = false;
-	m_state = (MUtils::Internal::KeccakImpl::hashState*) _aligned_malloc(sizeof(MUtils::Internal::KeccakImpl::hashState), 32);
+	m_state = (MUtils::Hash::Internal::KeccakImpl::hashState*) _aligned_malloc(sizeof(MUtils::Hash::Internal::KeccakImpl::hashState), 32);
 	if(!m_state)
 	{
 		throw "[MUtils::KeccakHash] Error: _aligned_malloc() has failed, probably out of heap space!";
 	}
-	memset(m_state, 0, sizeof(MUtils::Internal::KeccakImpl::hashState));
+	memset(m_state, 0, sizeof(MUtils::Hash::Internal::KeccakImpl::hashState));
 	m_hashResult.clear();
 }
 
-MUtils::KeccakHash::~KeccakHash()
+MUtils::Hash::Keccak::~Keccak()
 {
 	m_hashResult.clear();
 
@@ -72,7 +72,7 @@ MUtils::KeccakHash::~KeccakHash()
 	}
 }
 
-bool MUtils::KeccakHash::init(HashBits hashBits)
+bool MUtils::Hash::Keccak::init(HashBits hashBits)
 {
 	if(m_initialized)
 	{
@@ -81,7 +81,7 @@ bool MUtils::KeccakHash::init(HashBits hashBits)
 	}
 
 	m_hashResult.clear();
-	memset(m_state, 0, sizeof(MUtils::Internal::KeccakImpl::hashState));
+	memset(m_state, 0, sizeof(MUtils::Hash::Internal::KeccakImpl::hashState));
 	int hashBitLength = 0;
 
 	switch (hashBits)
@@ -93,7 +93,7 @@ bool MUtils::KeccakHash::init(HashBits hashBits)
 		default: throw "Invalid hash length!!";
 	}
 
-	if(MUtils::Internal::KeccakImpl::Init(m_state, hashBitLength) != MUtils::Internal::KeccakImpl::SUCCESS)
+	if(MUtils::Hash::Internal::KeccakImpl::Init(m_state, hashBitLength) != MUtils::Hash::Internal::KeccakImpl::SUCCESS)
 	{
 		qWarning("KeccakImpl::Init() has failed unexpectedly!");
 		return false;
@@ -105,12 +105,12 @@ bool MUtils::KeccakHash::init(HashBits hashBits)
 	return true;
 }
 
-bool MUtils::KeccakHash::addData(const QByteArray &data)
+bool MUtils::Hash::Keccak::addData(const QByteArray &data)
 {
 	return addData(data.constData(), data.size());
 }
 
-bool MUtils::KeccakHash::addData(const char *data, int size)
+bool MUtils::Hash::Keccak::addData(const char *data, int size)
 {
 	if(!m_initialized)
 	{
@@ -118,7 +118,7 @@ bool MUtils::KeccakHash::addData(const char *data, int size)
 		return false;
 	}
 	
-	if(MUtils::Internal::KeccakImpl::Update(m_state, (MUtils::Internal::KeccakImpl::BitSequence*)data, size*8) != MUtils::Internal::KeccakImpl::SUCCESS)
+	if(MUtils::Hash::Internal::KeccakImpl::Update(m_state, (MUtils::Hash::Internal::KeccakImpl::BitSequence*)data, size*8) != MUtils::Hash::Internal::KeccakImpl::SUCCESS)
 	{
 		qWarning("KeccakImpl::Update() has failed unexpectedly!");
 		m_hashResult.clear();
@@ -129,7 +129,7 @@ bool MUtils::KeccakHash::addData(const char *data, int size)
 	return true;
 }
 
-const QByteArray &MUtils::KeccakHash::finalize()
+const QByteArray &MUtils::Hash::Keccak::finalize()
 {
 	if(!m_initialized)
 	{
@@ -138,7 +138,7 @@ const QByteArray &MUtils::KeccakHash::finalize()
 		return m_hashResult;
 	}
 
-	if(MUtils::Internal::KeccakImpl::Final(m_state, (MUtils::Internal::KeccakImpl::BitSequence*)m_hashResult.data()) != MUtils::Internal::KeccakImpl::SUCCESS)
+	if(MUtils::Hash::Internal::KeccakImpl::Final(m_state, (MUtils::Hash::Internal::KeccakImpl::BitSequence*)m_hashResult.data()) != MUtils::Hash::Internal::KeccakImpl::SUCCESS)
 	{
 		qWarning("KeccakImpl::Final() has failed unexpectedly!");
 		m_hashResult.clear();
@@ -148,13 +148,13 @@ const QByteArray &MUtils::KeccakHash::finalize()
 	return m_hashResult;
 }
 
-bool MUtils::KeccakHash::selfTest(void)
+bool MUtils::Hash::Keccak::selfTest(void)
 {
-	MUtils::KeccakHash hash;
+	MUtils::Hash::Keccak hash;
 	const QByteArray input("The quick brown fox jumps over the lazy dog");
 	bool passed[4] = {false, false, false, false};
 
-	if(hash.init(MUtils::KeccakHash::hb224))
+	if(hash.init(MUtils::Hash::Keccak::hb224))
 	{
 		if(hash.addData(input))
 		{
@@ -167,7 +167,7 @@ bool MUtils::KeccakHash::selfTest(void)
 		}
 	}
 
-	if(hash.init(MUtils::KeccakHash::hb256))
+	if(hash.init(MUtils::Hash::Keccak::hb256))
 	{
 		if(hash.addData(input))
 		{
@@ -180,7 +180,7 @@ bool MUtils::KeccakHash::selfTest(void)
 		}
 	}
 	
-	if(hash.init(MUtils::KeccakHash::hb384))
+	if(hash.init(MUtils::Hash::Keccak::hb384))
 	{
 		if(hash.addData(input))
 		{
@@ -193,7 +193,7 @@ bool MUtils::KeccakHash::selfTest(void)
 		}
 	}
 
-	if(hash.init(MUtils::KeccakHash::hb512))
+	if(hash.init(MUtils::Hash::Keccak::hb512))
 	{
 		if(hash.addData(input))
 		{

@@ -39,9 +39,6 @@
     <ClCompile Include="src\Version.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\KeccakHash.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\CPUFeatures_Win32.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -90,6 +87,15 @@
     <ClCompile Include="$(SolutionDir)\tmp\$(ProjectName)\QRC_MUtilsData.cpp">
       <Filter>Source Files\Generated</Filter>
     </ClCompile>
+    <ClCompile Include="src\Hash_Keccak.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Hash_Blake2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\3rd_party\blake2\src\blake2.cpp">
+      <Filter>Source Files\3rd Party</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\CriticalSection_Win32.h">
@@ -105,9 +111,6 @@
       <Filter>Public Headers</Filter>
     </ClInclude>
     <ClInclude Include="include\MUtils\Version.h">
-      <Filter>Public Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="include\MUtils\KeccakHash.h">
       <Filter>Public Headers</Filter>
     </ClInclude>
     <ClInclude Include="src\DirLocker.h">
@@ -154,6 +157,15 @@
     </ClInclude>
     <ClInclude Include="include\MUtils\Translation.h">
       <Filter>Public Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MUtils\Hash_Blake2.h">
+      <Filter>Public Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MUtils\Hash_Keccak.h">
+      <Filter>Public Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\3rd_party\blake2\include\blake2.h">
+      <Filter>Header Files\3rd Party</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

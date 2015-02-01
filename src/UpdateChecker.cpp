@@ -588,6 +588,7 @@ bool UpdateChecker::checkSignature(const QString &file, const QString &signature
 		qWarning("CheckSignature: File and signature should be in same folder!");
 		return false;
 	}
+
 	if(QFileInfo(file).absolutePath().compare(QFileInfo(m_binaryKeys).absolutePath(), Qt::CaseInsensitive) != 0)
 	{
 		qWarning("CheckSignature: File and keyring should be in same folder!");

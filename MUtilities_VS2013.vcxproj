@@ -18,6 +18,7 @@
     <ClCompile Include="$(SolutionDir)\tmp\$(ProjectName)\QRC_MUtilsData.cpp" />
     <ClCompile Include="$(SolutionDir)\tmp\$(ProjectName)\MOC_UpdateChecker.cpp" />
     <ClCompile Include="src\3rd_party\adler32\src\adler32.cpp" />
+    <ClCompile Include="src\3rd_party\blake2\src\blake2.cpp" />
     <ClCompile Include="src\3rd_party\strnatcmp\src\strnatcmp.cpp" />
     <ClCompile Include="src\CPUFeatures_Win32.cpp" />
     <ClCompile Include="src\DLLMain.cpp" />
@@ -25,9 +26,10 @@
     <ClCompile Include="src\Global.cpp" />
     <ClCompile Include="src\GUI.cpp" />
     <ClCompile Include="src\GUI_Win32.cpp" />
+    <ClCompile Include="src\Hash_Blake2.cpp" />
     <ClCompile Include="src\IPCChannel.cpp" />
     <ClCompile Include="src\JobObject_Win32.cpp" />
-    <ClCompile Include="src\KeccakHash.cpp" />
+    <ClCompile Include="src\Hash_Keccak.cpp" />
     <ClCompile Include="src\OSSupport_Win32.cpp" />
     <ClCompile Include="src\Sound_Win32.cpp" />
     <ClCompile Include="src\Startup.cpp" />
@@ -43,9 +45,10 @@
     <ClInclude Include="include\MUtils\Exception.h" />
     <ClInclude Include="include\MUtils\Global.h" />
     <ClInclude Include="include\MUtils\GUI.h" />
+    <ClInclude Include="include\MUtils\Hash_Blake2.h" />
     <ClInclude Include="include\MUtils\IPCChannel.h" />
     <ClInclude Include="include\MUtils\JobObject.h" />
-    <ClInclude Include="include\MUtils\KeccakHash.h" />
+    <ClInclude Include="include\MUtils\Hash_Keccak.h" />
     <ClInclude Include="include\MUtils\OSSupport.h" />
     <ClInclude Include="include\MUtils\Sound.h" />
     <ClInclude Include="include\MUtils\Startup.h" />
@@ -53,6 +56,7 @@
     <ClInclude Include="include\MUtils\Terminal.h" />
     <ClInclude Include="include\MUtils\Translation.h" />
     <ClInclude Include="src\3rd_party\adler32\include\adler32.h" />
+    <ClInclude Include="src\3rd_party\blake2\include\blake2.h" />
     <ClInclude Include="src\3rd_party\keccak\include\keccak_impl.h" />
     <ClInclude Include="src\3rd_party\strnatcmp\include\strnatcmp.h" />
     <ClInclude Include="src\DirLocker.h" />

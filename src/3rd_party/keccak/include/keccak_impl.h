@@ -19,6 +19,7 @@
 ***************************************************************************/
 
 namespace MUtils {
+namespace Hash {
 namespace Internal {
 namespace KeccakImpl {
 
@@ -1999,5 +2000,6 @@ HashReturn Hash(int hashbitlen, const BitSequence *data, DataLength databitlen, 
 
 } // end of namespace KeccakImpl
 } // end of namespace Internal
+} // end of namespace Hash
 } // end of namespace MUtils
 
