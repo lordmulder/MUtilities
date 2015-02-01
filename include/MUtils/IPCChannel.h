@@ -26,6 +26,7 @@
 
 //Qt
 #include <QtGlobal>
+#include <QStringList>
 
 namespace MUtils
 {
@@ -34,7 +35,8 @@ namespace MUtils
 	class MUTILS_API IPCChannel
 	{
 	public:
-		static const size_t MAX_MESSAGE_LEN = 4096;
+		static const quint32 MAX_PARAM_LEN = 4096;
+		static const quint32 MAX_PARAM_CNT = 4;
 
 		typedef enum
 		{
@@ -50,8 +52,8 @@ namespace MUtils
 
 		int initialize(void);
 
-		bool send(const quint32 &command, const quint32 &flags, const char *const message);
-		bool read(quint32 &command, quint32 &flags, char *const message, const size_t &buffSize);
+		bool send(const quint32 &command, const quint32 &flags, const QStringList &params = QStringList());
+		bool read(quint32 &command, quint32 &flags, QStringList &params);
 
 	private:
 		IPCChannel(const IPCChannel&) : p(NULL), m_appVersionNo(-1) { throw "Constructor is disabled!"; }

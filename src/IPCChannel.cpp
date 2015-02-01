@@ -33,7 +33,7 @@
 #include <QMutex>
 #include <QWriteLocker>
 #include <QCryptographicHash>
-
+#include <QStringList>
 //CRT
 #include <cassert>
 
@@ -89,10 +89,17 @@ namespace MUtils
 
 		typedef struct
 		{
-			quint32 command_id;
-			quint32 flags;
-			char    param[MUtils::IPCChannel::MAX_MESSAGE_LEN];
-			quint64 timestamp;
+			char    values[MUtils::IPCChannel::MAX_PARAM_CNT][MUtils::IPCChannel::MAX_PARAM_LEN];
+			quint32 count;
+		}
+		ipc_msg_data_params_t;
+
+		typedef struct
+		{
+			quint32               command_id;
+			quint32               flags;
+			ipc_msg_data_params_t params;
+			quint64               timestamp;
 		}
 		ipc_msg_data_t;
 
@@ -301,7 +308,7 @@ int MUtils::IPCChannel::initialize(void)
 // SEND MESSAGE
 ///////////////////////////////////////////////////////////////////////////////
 
-bool MUtils::IPCChannel::send(const quint32 &command, const quint32 &flags, const char *const message)
+bool MUtils::IPCChannel::send(const quint32 &command, const quint32 &flags, const QStringList &params)
 {
 	bool success = false;
 	QReadLocker readLock(&p->lock);
@@ -334,9 +341,14 @@ bool MUtils::IPCChannel::send(const quint32 &command, const quint32 &flags, cons
 
 			ipc_msg.payload.command_id = command;
 			ipc_msg.payload.flags = flags;
-			if(message)
+			if(!params.isEmpty())
 			{
-				strncpy_s(ipc_msg.payload.param, MAX_MESSAGE_LEN, message, _TRUNCATE);
+				const quint32 param_count = qMin(MAX_PARAM_CNT, (quint32)params.count());
+				for(quint32 i = 0; i < param_count; i++)
+				{
+					strncpy_s(ipc_msg.payload.params.values[i], MAX_PARAM_LEN, MUTILS_UTF8(params[i]), _TRUNCATE);
+				}
+				ipc_msg.payload.params.count = param_count;
 			}
 			ipc_msg.payload.timestamp = ptr->status.payload.counter++;
 			UPDATE_CHECKSUM(ipc_msg);
@@ -376,17 +388,13 @@ bool MUtils::IPCChannel::send(const quint32 &command, const quint32 &flags, cons
 // READ MESSAGE
 ///////////////////////////////////////////////////////////////////////////////
 
-bool MUtils::IPCChannel::read(quint32 &command, quint32 &flags, char *const message, const size_t &buffSize)
+bool MUtils::IPCChannel::read(quint32 &command, quint32 &flags, QStringList &params)
 {
 	bool success = false;
 	QReadLocker readLock(&p->lock);
-	
 	command = 0;
-	if(message && (buffSize > 0))
-	{
-		message[0] = '\0';
-	}
-	
+	params.clear();
+
 	if(!p->initialized)
 	{
 		MUTILS_THROW("Shared memory for IPC not initialized yet.");
@@ -421,7 +429,13 @@ bool MUtils::IPCChannel::read(quint32 &command, quint32 &flags, char *const mess
 			{
 				command = ipc_msg.payload.command_id;
 				flags = ipc_msg.payload.flags;
-				strncpy_s(message, buffSize, ipc_msg.payload.param, _TRUNCATE);
+				const quint32 param_count = qMin(ipc_msg.payload.params.count, MAX_PARAM_CNT);
+				char temp[MAX_PARAM_LEN];
+				for(quint32 i = 0; i < param_count; i++)
+				{
+					strncpy_s(temp, MAX_PARAM_LEN, ipc_msg.payload.params.values[i], _TRUNCATE);
+					params.append(QString::fromUtf8(temp));
+				}
 				success = true;
 			}
 			else
