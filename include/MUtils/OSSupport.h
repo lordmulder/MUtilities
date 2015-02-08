@@ -154,7 +154,10 @@ namespace MUtils
 		MUTILS_API bool change_process_priority(const QProcess *proc, const int priority);
 
 		//Process ID
-		MUTILS_API quint32 process_id(const QProcess *proc);
+		MUTILS_API quint32 process_id(const QProcess *const proc);
+
+		//Suspend or resume processv
+		MUTILS_API bool suspend_process(const QProcess *proc, const bool suspend);
 
 		//System timer resolution
 		MUTILS_API bool setup_timer_resolution(const quint32 &interval = 1);

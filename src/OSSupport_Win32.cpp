@@ -994,10 +994,33 @@ bool MUtils::OS::change_process_priority(const QProcess *proc, const int priorit
 // PROCESS ID
 ///////////////////////////////////////////////////////////////////////////////
 
-quint32 MUtils::OS::process_id(const QProcess *proc)
+quint32 MUtils::OS::process_id(const QProcess *const proc)
 {
 	PROCESS_INFORMATION *procInf = proc->pid();
 	return (procInf) ? procInf->dwProcessId : NULL;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// PROCESS SUSPEND/RESUME
+///////////////////////////////////////////////////////////////////////////////
+
+bool MUtils::OS::suspend_process(const QProcess *proc, const bool suspend)
+{
+	if(Q_PID pid = proc->pid())
+	{
+		if(suspend)
+		{
+			return (SuspendThread(pid->hThread) != ((DWORD) -1));
+		}
+		else
+		{
+			return (ResumeThread(pid->hThread)  != ((DWORD) -1));
+		}
+	}
+	else
+	{
+		return false;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
