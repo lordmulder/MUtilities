@@ -1047,6 +1047,78 @@ bool MUtils::OS::check_key_state_esc(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// WOW64 REDIRECTION
+///////////////////////////////////////////////////////////////////////////////
+
+typedef BOOL (_stdcall *Wow64DisableWow64FsRedirectionFun)(void *OldValue);
+typedef BOOL (_stdcall *Wow64RevertWow64FsRedirectionFun )(void *OldValue);
+
+static QReadWriteLock                    g_wow64redir_lock;
+static QScopedPointer<QLibrary>          g_wow64redir_kernel32;
+static Wow64DisableWow64FsRedirectionFun g_wow64redir_disable = NULL;
+static Wow64RevertWow64FsRedirectionFun  g_wow64redir_revert  = NULL;
+
+static bool wow64fsredir_init()
+{
+	QWriteLocker writeLock(&g_wow64redir_lock);
+	if(g_wow64redir_disable && g_wow64redir_revert)
+	{
+		return true; /*already initialized*/
+	}
+
+	if(g_wow64redir_kernel32.isNull())
+	{
+		g_wow64redir_kernel32.reset(new QLibrary("kernel32.dll"));
+	}
+
+	if(!g_wow64redir_kernel32->isLoaded())
+	{
+		if(!g_wow64redir_kernel32->load())
+		{
+			return false; /*faild to load kernel32.dll*/
+		}
+	}
+
+	g_wow64redir_disable = (Wow64DisableWow64FsRedirectionFun) g_wow64redir_kernel32->resolve("Wow64DisableWow64FsRedirection");
+	g_wow64redir_revert  = (Wow64RevertWow64FsRedirectionFun)  g_wow64redir_kernel32->resolve("Wow64RevertWow64FsRedirection");
+
+	return (g_wow64redir_disable && g_wow64redir_revert);
+}
+
+#define WOW64FSREDIR_INIT(RDLOCK) do \
+{ \
+	while(!(g_wow64redir_disable && g_wow64redir_revert)) \
+	{ \
+		(RDLOCK).unlock(); \
+		if(!wow64fsredir_init()) return false; \
+		(RDLOCK).relock(); \
+	} \
+} \
+while(0)
+
+bool MUtils::OS::wow64fsredir_disable(void *oldValue)
+{
+	QReadLocker readLock(&g_wow64redir_lock);
+	WOW64FSREDIR_INIT(readLock);
+	if(g_wow64redir_disable(oldValue))
+	{
+		return true;
+	}
+	return false;
+}
+
+bool MUtils::OS::wow64fsredir_revert(void *oldValue)
+{
+	QReadLocker readLock(&g_wow64redir_lock);
+	WOW64FSREDIR_INIT(readLock);
+	if(g_wow64redir_revert(oldValue))
+	{
+		return true;
+	}
+	return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // DEBUGGER CHECK
 ///////////////////////////////////////////////////////////////////////////////
 
