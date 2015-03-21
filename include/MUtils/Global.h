@@ -84,6 +84,9 @@ namespace MUtils
 	MUTILS_API quint32 next_rand32(void);
 	MUTILS_API quint64 next_rand64(void);
 
+	//Parity
+	MUTILS_API bool parity(quint32 value);
+
 	//Remove File/Dir
 	MUTILS_API bool remove_file(const QString &fileName);
 	MUTILS_API bool remove_directory(const QString &folderPath, const bool &recursive);
