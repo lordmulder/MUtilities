@@ -137,14 +137,40 @@ const MUtils::OS::ArgumentMap &MUtils::OS::arguments(void)
 // COPY FILE
 ///////////////////////////////////////////////////////////////////////////////
 
-MUTILS_API bool MUtils::OS::copy_file(const QString &sourcePath, const QString &outputPath, const bool &overwrite)
+typedef struct _progress_callback_data_t
 {
-	const BOOL result = CopyFileW(MUTILS_WCHR(QDir::toNativeSeparators(sourcePath)), MUTILS_WCHR(QDir::toNativeSeparators(outputPath)), overwrite ? FALSE : TRUE);
+	MUtils::OS::progress_callback_t callback_function;
+	void *user_data;
+}
+progress_callback_data_t;
+
+static DWORD __stdcall copy_file_progress(LARGE_INTEGER TotalFileSize, LARGE_INTEGER TotalBytesTransferred, LARGE_INTEGER StreamSize, LARGE_INTEGER StreamBytesTransferred, DWORD dwStreamNumber, DWORD dwCallbackReason, HANDLE hSourceFile, HANDLE hDestinationFile, LPVOID lpData)
+{
+	if(const progress_callback_data_t *data = (progress_callback_data_t*) lpData)
+	{
+		const double progress = qBound(0.0, double(TotalBytesTransferred.QuadPart) / double(TotalFileSize.QuadPart), 1.0);
+		return data->callback_function(progress, data->user_data) ? PROGRESS_CONTINUE : PROGRESS_CANCEL;
+	}
+	return PROGRESS_CONTINUE;
+}
+
+MUTILS_API bool MUtils::OS::copy_file(const QString &sourcePath, const QString &outputPath, const bool &overwrite, const progress_callback_t callback, void *const userData)
+{
+	progress_callback_data_t callback_data = { callback, userData };
+	BOOL cancel = FALSE;
+	const BOOL result = CopyFileExW(MUTILS_WCHR(QDir::toNativeSeparators(sourcePath)), MUTILS_WCHR(QDir::toNativeSeparators(outputPath)), ((callback_data.callback_function) ? copy_file_progress : NULL), ((callback_data.callback_function) ? &callback_data : NULL), &cancel, (overwrite ? 0 : COPY_FILE_FAIL_IF_EXISTS));
 
 	if(result == FALSE)
 	{
 		const DWORD errorCode = GetLastError();
-		qWarning("CopyFile() failed with error code 0x%08X!", errorCode);
+		if(errorCode != ERROR_REQUEST_ABORTED)
+		{
+			qWarning("CopyFile() failed with error code 0x%08X!", errorCode);
+		}
+		else
+		{
+			qWarning("CopyFile() operation was abroted by user!");
+		}
 	}
 
 	return (result != FALSE);

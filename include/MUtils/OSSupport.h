@@ -105,7 +105,8 @@ namespace MUtils
 		MUTILS_API const ArgumentMap &arguments(void);
 
 		//Copy file
-		MUTILS_API bool copy_file(const QString &sourcePath, const QString &outputPath, const bool &overwrite = true);
+		typedef bool (*progress_callback_t)(const double &progress, void *const userData);
+		MUTILS_API bool copy_file(const QString &sourcePath, const QString &outputPath, const bool &overwrite = true, const progress_callback_t callback = NULL, void *const userData = NULL);
 
 		//Get the OS version
 		MUTILS_API const Version::os_version_t &os_version(void);
