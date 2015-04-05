@@ -144,7 +144,6 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	"http://pastie.org/",
 	"http://www.portablefreeware.com/",
 	"http://www.qt.io/",
-	"http://qt-project.org/",
 	"http://www.quakelive.com/",
 	"http://www.seamonkey-project.org/",
 	"http://www.shspvr.com/",
