@@ -22,12 +22,12 @@
 //Win32 API
 #define WIN32_LEAN_AND_MEAN 1
 #include <Windows.h>
-#include <Objbase.h>
 #include <Psapi.h>
 #include <Sensapi.h>
 #include <Shellapi.h>
 #include <PowrProf.h>
 #include <Mmsystem.h>
+#include <ShlObj.h>
 
 //Internal
 #include <MUtils/Global.h>
@@ -440,7 +440,6 @@ static QReadWriteLock         g_known_folders_lock;
 
 const QString &MUtils::OS::known_folder(known_folder_t folder_id)
 {
-	static const int CSIDL_FLAG_CREATE = 0x8000;
 	typedef enum { KF_FLAG_CREATE = 0x00008000 } kf_flags_t;
 	
 	struct
@@ -1070,6 +1069,15 @@ bool MUtils::OS::reset_timer_resolution(const quint32 &interval)
 bool MUtils::OS::check_key_state_esc(void)
 {
 	return (GetAsyncKeyState(VK_ESCAPE) & 0x0001) != 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// SHELL CHANGE NOTIFICATION
+///////////////////////////////////////////////////////////////////////////////
+
+void MUtils::OS::shell_change_notification(void)
+{
+	SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

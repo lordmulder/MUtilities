@@ -167,6 +167,9 @@ namespace MUtils
 		//Keyboard support
 		MUTILS_API bool check_key_state_esc(void);
 
+		//Shell notification
+		MUTILS_API void shell_change_notification(void);
+
 		//WOW64 redirection
 		MUTILS_API bool wow64fsredir_disable(void *oldValue);
 		MUTILS_API bool wow64fsredir_revert (void *oldValue);
