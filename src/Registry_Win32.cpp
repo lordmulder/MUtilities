@@ -106,6 +106,7 @@ MUtils::Registry::RegistryKey::~RegistryKey(void)
 		p->m_hKey = NULL;
 		p->m_isOpen = false;
 	}
+	delete p;
 }
 
 inline bool MUtils::Registry::RegistryKey::isOpen(void)
@@ -128,7 +129,7 @@ bool MUtils::Registry::RegistryKey::value_write(const QString &valueName, const 
 bool MUtils::Registry::RegistryKey::value_read(const QString &valueName, quint32 &value) const
 {
 	DWORD size = sizeof(quint32), type = -1;
-	CHECK_STATUS(false);
+	CHECK_STATUS(true);
 	return (RegQueryValueEx(p->m_hKey, valueName.isEmpty() ? NULL : MUTILS_WCHR(valueName), 0, &type, reinterpret_cast<BYTE*>(&value), &size) == ERROR_SUCCESS) && (type == REG_DWORD);
 }
 
@@ -136,7 +137,7 @@ bool MUtils::Registry::RegistryKey::value_read(const QString &valueName, QString
 {
 	wchar_t buffer[2048];
 	DWORD size = sizeof(wchar_t) * 2048, type = -1;
-	CHECK_STATUS(false);
+	CHECK_STATUS(true);
 	if((RegQueryValueEx(p->m_hKey, valueName.isEmpty() ? NULL : MUTILS_WCHR(valueName), 0, &type, reinterpret_cast<BYTE*>(&value), &size) == ERROR_SUCCESS) && ((type == REG_SZ) || (type == REG_EXPAND_SZ)))
 	{
 		value = QString::fromUtf16(reinterpret_cast<const ushort*>(buffer));

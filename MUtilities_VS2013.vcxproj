@@ -164,7 +164,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)\..\Prerequisites\Qt4\MSVC-2013\Debug\lib;$(SolutionDir)\..\Prerequisites\VisualLeakDetector\lib\Win32</AdditionalLibraryDirectories>
-      <AdditionalDependencies>QtCored4.lib;QtGuid4.lib;Winmm.lib;Psapi.lib;Sensapi.lib;PowrProf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>QtCored4.lib;QtGuid4.lib;Winmm.lib;Psapi.lib;Sensapi.lib;PowrProf.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -193,7 +193,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(SolutionDir)\..\Prerequisites\Qt4\MSVC-2013\Shared\lib;$(SolutionDir)\..\Prerequisites\VisualLeakDetector\lib\Win32</AdditionalLibraryDirectories>
-      <AdditionalDependencies>QtCore4.lib;QtGui4.lib;Winmm.lib;Psapi.lib;Sensapi.lib;PowrProf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>QtCore4.lib;QtGui4.lib;Winmm.lib;Psapi.lib;Sensapi.lib;PowrProf.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>false</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
