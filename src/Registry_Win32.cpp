@@ -25,6 +25,9 @@
 #include <MUtils/Registry.h>
 #include <MUtils/Exception.h>
 
+//Qt
+#include <QStringList>
+
 //Win32
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
@@ -43,6 +46,18 @@ static HKEY registry_root(const int &rootKey)
 	}
 }
 
+static DWORD registry_access(const int &access)
+{
+	switch(access)
+	{
+		case MUtils::Registry::access_readonly:  return KEY_READ;               break;
+		case MUtils::Registry::access_writeonly: return KEY_WRITE;              break;
+		case MUtils::Registry::access_readwrite: return KEY_READ | KEY_WRITE;   break;
+		case MUtils::Registry::access_enumerate: return KEY_ENUMERATE_SUB_KEYS; break;
+		default: MUTILS_THROW("Unknown access value was specified!");
+	}
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // RegistryKeyPrivate Key Class
 ///////////////////////////////////////////////////////////////////////////////
@@ -58,9 +73,9 @@ namespace MUtils
 				friend class MUtils::Registry::RegistryKey;
 
 			private:
-				HKEY m_hKey;
-				bool m_readOnly;
-				bool m_isOpen;
+				HKEY  m_hKey;
+				DWORD m_access;
+				bool  m_isOpen;
 			};
 		}
 	}
@@ -72,9 +87,9 @@ namespace MUtils
 	{ \
 		MUTILS_THROW("Cannot read from or write to a key is not currently open!"); \
 	} \
-	if(p->m_readOnly != (X)) \
+	if(!(p->m_access & (X))) \
 	{ \
-		MUTILS_THROW("Cannot write to read-only key or read from write-only key!"); \
+		MUTILS_THROW("This operation is not support with current access rights!"); \
 	} \
 } \
 while(0)
@@ -83,15 +98,15 @@ while(0)
 // Registry Key Class
 ///////////////////////////////////////////////////////////////////////////////
 
-MUtils::Registry::RegistryKey::RegistryKey(const int &rootKey, const QString &keyName, const bool &readOnly)
+MUtils::Registry::RegistryKey::RegistryKey(const int &rootKey, const QString &keyName, const int &access)
 :
 	p(new Internal::RegistryKeyPrivate())
 {
-	p->m_hKey = NULL;
-	p->m_readOnly = readOnly;
+	p->m_hKey   = NULL;
+	p->m_access = registry_access(access);
 	p->m_isOpen = false;
 
-	p->m_isOpen = (RegCreateKeyEx(registry_root(rootKey), MUTILS_WCHR(keyName), 0, NULL, 0, p->m_readOnly ? KEY_READ : KEY_WRITE, NULL, &p->m_hKey, NULL) == ERROR_SUCCESS);
+	p->m_isOpen = (RegCreateKeyEx(registry_root(rootKey), MUTILS_WCHR(keyName), 0, NULL, 0, p->m_access, NULL, &p->m_hKey, NULL) == ERROR_SUCCESS);
 	if(!p->m_isOpen)
 	{
 		qWarning("Failed to open registry key!");
@@ -116,20 +131,20 @@ inline bool MUtils::Registry::RegistryKey::isOpen(void)
 
 bool MUtils::Registry::RegistryKey::value_write(const QString &valueName, const quint32 &value)
 {
-	CHECK_STATUS(false);
+	CHECK_STATUS(KEY_WRITE);
 	return (RegSetValueEx(p->m_hKey, valueName.isEmpty() ? NULL : MUTILS_WCHR(valueName), 0, REG_DWORD, reinterpret_cast<const BYTE*>(&value), sizeof(quint32)) == ERROR_SUCCESS);
 }
 
 bool MUtils::Registry::RegistryKey::value_write(const QString &valueName, const QString &value)
 {
-	CHECK_STATUS(false);
+	CHECK_STATUS(KEY_WRITE);
 	return (RegSetValueEx(p->m_hKey, valueName.isEmpty() ? NULL : MUTILS_WCHR(valueName), 0, REG_SZ, reinterpret_cast<const BYTE*>(value.utf16()), (value.length() + 1) * sizeof(wchar_t)) == ERROR_SUCCESS);
 }
 
 bool MUtils::Registry::RegistryKey::value_read(const QString &valueName, quint32 &value) const
 {
 	DWORD size = sizeof(quint32), type = -1;
-	CHECK_STATUS(true);
+	CHECK_STATUS(KEY_READ);
 	return (RegQueryValueEx(p->m_hKey, valueName.isEmpty() ? NULL : MUTILS_WCHR(valueName), 0, &type, reinterpret_cast<BYTE*>(&value), &size) == ERROR_SUCCESS) && (type == REG_DWORD);
 }
 
@@ -137,11 +152,30 @@ bool MUtils::Registry::RegistryKey::value_read(const QString &valueName, QString
 {
 	wchar_t buffer[2048];
 	DWORD size = sizeof(wchar_t) * 2048, type = -1;
-	CHECK_STATUS(true);
-	if((RegQueryValueEx(p->m_hKey, valueName.isEmpty() ? NULL : MUTILS_WCHR(valueName), 0, &type, reinterpret_cast<BYTE*>(&value), &size) == ERROR_SUCCESS) && ((type == REG_SZ) || (type == REG_EXPAND_SZ)))
+	CHECK_STATUS(KEY_READ);
+	if((RegQueryValueEx(p->m_hKey, valueName.isEmpty() ? NULL : MUTILS_WCHR(valueName), 0, &type, reinterpret_cast<BYTE*>(&(buffer[0])), &size) == ERROR_SUCCESS) && ((type == REG_SZ) || (type == REG_EXPAND_SZ)))
 	{
 		value = QString::fromUtf16(reinterpret_cast<const ushort*>(buffer));
 		return true;
+	}
+	return false;
+}
+
+bool MUtils::Registry::RegistryKey::enum_subkeys(QStringList &list) const
+{
+	wchar_t buffer[2048];
+	list.clear();
+	CHECK_STATUS(KEY_ENUMERATE_SUB_KEYS);
+	for(DWORD i = 0; i < UINT_MAX; i++)
+	{
+		DWORD size = 2048;
+		const DWORD ret = RegEnumKeyEx(p->m_hKey, i, buffer, &size, NULL, NULL, NULL, NULL);
+		if(ret == ERROR_SUCCESS)
+		{
+			list << QString::fromUtf16(reinterpret_cast<const ushort*>(buffer));
+			continue;
+		}
+		return (ret == ERROR_NO_MORE_ITEMS);
 	}
 	return false;
 }
@@ -156,7 +190,7 @@ bool MUtils::Registry::RegistryKey::value_read(const QString &valueName, QString
 bool MUtils::Registry::reg_value_write(const int &rootKey, const QString &keyName, const QString &valueName, const quint32 &value)
 {
 	bool success = false;
-	RegistryKey regKey(rootKey, keyName, false);
+	RegistryKey regKey(rootKey, keyName, access_readwrite);
 	if(regKey.isOpen())
 	{
 		success = regKey.value_write(valueName, value);
@@ -170,7 +204,7 @@ bool MUtils::Registry::reg_value_write(const int &rootKey, const QString &keyNam
 bool MUtils::Registry::reg_value_write(const int &rootKey, const QString &keyName, const QString &valueName, const QString &value)
 {
 	bool success = false;
-	RegistryKey regKey(rootKey, keyName, false);
+	RegistryKey regKey(rootKey, keyName, access_readwrite);
 	if(regKey.isOpen())
 	{
 		success = regKey.value_write(valueName, value);
@@ -184,7 +218,7 @@ bool MUtils::Registry::reg_value_write(const int &rootKey, const QString &keyNam
 bool MUtils::Registry::reg_value_read(const int &rootKey, const QString &keyName, const QString &valueName, quint32 &value)
 {
 	bool success = false;
-	RegistryKey regKey(rootKey, keyName, true);
+	RegistryKey regKey(rootKey, keyName, access_readonly);
 	if(regKey.isOpen())
 	{
 		success = regKey.value_read(valueName, value);
@@ -198,10 +232,24 @@ bool MUtils::Registry::reg_value_read(const int &rootKey, const QString &keyName
 bool MUtils::Registry::reg_value_read(const int &rootKey, const QString &keyName, const QString &valueName, QString &value)
 {
 	bool success = false;
-	RegistryKey regKey(rootKey, keyName, true);
+	RegistryKey regKey(rootKey, keyName, access_readonly);
 	if(regKey.isOpen())
 	{
 		success = regKey.value_read(valueName, value);
+	}
+	return success;
+}
+
+/*
+ * Read registry value
+ */
+bool MUtils::Registry::reg_enum_subkeys(const int &rootKey, const QString &keyName, QStringList &subkeys)
+{
+	bool success = false;
+	RegistryKey regKey(rootKey, keyName, access_enumerate);
+	if(regKey.isOpen())
+	{
+		success = regKey.enum_subkeys(subkeys);
 	}
 	return success;
 }

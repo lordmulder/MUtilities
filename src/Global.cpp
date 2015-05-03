@@ -543,7 +543,7 @@ int MUtils::Internal::selfTest(const char *const buildKey, const bool debug)
 	if(strncmp(buildKey, MY_BUILD_KEY, 13) || (MY_DEBUG_FLAG != debug))
 	{
 		MUtils::OS::system_message_err(L"MUtils", L"FATAL ERROR: MUtils library version mismatch detected!");
-		MUtils::OS::system_message_wrn(L"MUtils", L"Please re-build the complete solution in order to fix this issue!");
+		MUtils::OS::system_message_wrn(L"MUtils", L"Perform a clean(!) re-install of the application to fix the problem!");
 		abort();
 	}
 	return 0;

@@ -39,6 +39,16 @@ namespace MUtils
 		}
 		reg_root_t;
 
+		//Regsitry access
+		typedef enum
+		{
+			access_readonly  = 0,
+			access_writeonly = 1,
+			access_readwrite = 2,
+			access_enumerate = 3
+		}
+		reg_access_t;
+
 		//Forward declaration
 		namespace Internal
 		{
@@ -49,7 +59,7 @@ namespace MUtils
 		class MUTILS_API RegistryKey
 		{
 		public:
-			RegistryKey(const int &rootKey, const QString &keyName, const bool &readOnly);
+			RegistryKey(const int &rootKey, const QString &keyName, const int &access);
 			~RegistryKey(void);
 
 			inline bool isOpen(void);
@@ -60,16 +70,19 @@ namespace MUtils
 			bool value_read(const QString &valueName, quint32 &value) const;
 			bool value_read(const QString &valueName, QString &value) const;
 
+			bool enum_subkeys(QStringList &list) const;
+
 		private:
 			Internal::RegistryKeyPrivate *const p;
 		};
 
 		//Regsitry functions
-		MUTILS_API bool reg_value_write(const int &rootKey, const QString &keyName, const QString &valueName, const quint32 &value);
-		MUTILS_API bool reg_value_write(const int &rootKey, const QString &keyName, const QString &valueName, const QString &value);
-		MUTILS_API bool reg_value_read (const int &rootKey, const QString &keyName, const QString &valueName, quint32       &value);
-		MUTILS_API bool reg_value_read (const int &rootKey, const QString &keyName, const QString &valueName, QString       &value);
-		MUTILS_API bool reg_key_delete (const int &rootKey, const QString &keyName);
+		MUTILS_API bool reg_value_write (const int &rootKey, const QString &keyName, const QString &valueName, const quint32 &value);
+		MUTILS_API bool reg_value_write (const int &rootKey, const QString &keyName, const QString &valueName, const QString &value);
+		MUTILS_API bool reg_value_read  (const int &rootKey, const QString &keyName, const QString &valueName, quint32       &value);
+		MUTILS_API bool reg_value_read  (const int &rootKey, const QString &keyName, const QString &valueName, QString       &value);
+		MUTILS_API bool reg_key_delete  (const int &rootKey, const QString &keyName);
+		MUTILS_API bool	reg_enum_subkeys(const int &rootKey, const QString &keyName, QStringList &subkeys);
 	}
 }
 
