@@ -70,6 +70,7 @@ namespace MUtils
 			bool value_read(const QString &valueName, quint32 &value) const;
 			bool value_read(const QString &valueName, QString &value) const;
 
+			bool enum_values (QStringList &list) const;
 			bool enum_subkeys(QStringList &list) const;
 
 		private:
@@ -82,7 +83,8 @@ namespace MUtils
 		MUTILS_API bool reg_value_read  (const int &rootKey, const QString &keyName, const QString &valueName, quint32       &value);
 		MUTILS_API bool reg_value_read  (const int &rootKey, const QString &keyName, const QString &valueName, QString       &value);
 		MUTILS_API bool reg_key_delete  (const int &rootKey, const QString &keyName);
-		MUTILS_API bool	reg_enum_subkeys(const int &rootKey, const QString &keyName, QStringList &subkeys);
+		MUTILS_API bool reg_enum_values (const int &rootKey, const QString &keyName, QStringList &list);
+		MUTILS_API bool	reg_enum_subkeys(const int &rootKey, const QString &keyName, QStringList &list);
 	}
 }
 

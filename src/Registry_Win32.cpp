@@ -143,6 +143,7 @@ bool MUtils::Registry::RegistryKey::value_write(const QString &valueName, const 
 
 bool MUtils::Registry::RegistryKey::value_read(const QString &valueName, quint32 &value) const
 {
+	value = 0;
 	DWORD size = sizeof(quint32), type = -1;
 	CHECK_STATUS(KEY_READ);
 	return (RegQueryValueEx(p->m_hKey, valueName.isEmpty() ? NULL : MUTILS_WCHR(valueName), 0, &type, reinterpret_cast<BYTE*>(&value), &size) == ERROR_SUCCESS) && (type == REG_DWORD);
@@ -150,13 +151,32 @@ bool MUtils::Registry::RegistryKey::value_read(const QString &valueName, quint32
 
 bool MUtils::Registry::RegistryKey::value_read(const QString &valueName, QString &value) const
 {
-	wchar_t buffer[2048];
-	DWORD size = sizeof(wchar_t) * 2048, type = -1;
+	value = QString();
+	wchar_t buffer[2048]; DWORD size = sizeof(wchar_t) * 2048, type = -1;
 	CHECK_STATUS(KEY_READ);
 	if((RegQueryValueEx(p->m_hKey, valueName.isEmpty() ? NULL : MUTILS_WCHR(valueName), 0, &type, reinterpret_cast<BYTE*>(&(buffer[0])), &size) == ERROR_SUCCESS) && ((type == REG_SZ) || (type == REG_EXPAND_SZ)))
 	{
 		value = QString::fromUtf16(reinterpret_cast<const ushort*>(buffer));
 		return true;
+	}
+	return false;
+}
+
+bool MUtils::Registry::RegistryKey::enum_values(QStringList &list) const
+{
+	wchar_t buffer[2048];
+	list.clear();
+	CHECK_STATUS(KEY_QUERY_VALUE);
+	for(DWORD i = 0; i < UINT_MAX; i++)
+	{
+		DWORD size = 2048;
+		const DWORD ret = RegEnumValue(p->m_hKey, i, buffer, &size, NULL, NULL, NULL, NULL);
+		if(ret == ERROR_SUCCESS)
+		{
+			list << QString::fromUtf16(reinterpret_cast<const ushort*>(buffer));
+			continue;
+		}
+		return (ret == ERROR_NO_MORE_ITEMS);
 	}
 	return false;
 }
@@ -223,6 +243,10 @@ bool MUtils::Registry::reg_value_read(const int &rootKey, const QString &keyName
 	{
 		success = regKey.value_read(valueName, value);
 	}
+	else
+	{
+		value = 0;
+	}
 	return success;
 }
 
@@ -237,11 +261,33 @@ bool MUtils::Registry::reg_value_read(const int &rootKey, const QString &keyName
 	{
 		success = regKey.value_read(valueName, value);
 	}
+	else
+	{
+		value = QString();
+	}
 	return success;
 }
 
 /*
- * Read registry value
+ * Enumerate value names
+ */
+bool MUtils::Registry::reg_enum_values(const int &rootKey, const QString &keyName, QStringList &values)
+{
+	bool success = false;
+	RegistryKey regKey(rootKey, keyName, access_readonly);
+	if(regKey.isOpen())
+	{
+		success = regKey.enum_values(values);
+	}
+	else
+	{
+		values.clear();
+	}
+	return success;
+}
+
+/*
+ * Enumerate subkey names
  */
 bool MUtils::Registry::reg_enum_subkeys(const int &rootKey, const QString &keyName, QStringList &subkeys)
 {
@@ -250,6 +296,10 @@ bool MUtils::Registry::reg_enum_subkeys(const int &rootKey, const QString &keyNa
 	if(regKey.isOpen())
 	{
 		success = regKey.enum_subkeys(subkeys);
+	}
+	else
+	{
+		subkeys.clear();
 	}
 	return success;
 }
