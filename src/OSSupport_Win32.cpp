@@ -177,6 +177,59 @@ MUTILS_API bool MUtils::OS::copy_file(const QString &sourcePath, const QString &
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// GET FILE VERSION
+///////////////////////////////////////////////////////////////////////////////
+
+static bool get_file_version_helper(const QString fileName, PVOID buffer, const size_t &size, quint16 *const major, quint16 *const minor, quint16 *const patch, quint16 *const build)
+{
+	if(!GetFileVersionInfo(MUTILS_WCHR(fileName), 0, size, buffer))
+	{
+		qWarning("GetFileVersionInfo() has failed, file version cannot be determined!");
+		return false;
+	}
+
+	VS_FIXEDFILEINFO *verInfo;
+	UINT verInfoLen;
+	if(!VerQueryValue(buffer, L"\\", (LPVOID*)(&verInfo), &verInfoLen))
+	{
+		qWarning("VerQueryValue() has failed, file version cannot be determined!");
+		return false;
+	}
+
+	if(major) *major = quint16((verInfo->dwFileVersionMS >> 16) & 0x0000FFFF);
+	if(minor) *minor = quint16((verInfo->dwFileVersionMS)       & 0x0000FFFF);
+	if(patch) *patch = quint16((verInfo->dwFileVersionLS >> 16) & 0x0000FFFF);
+	if(build) *build = quint16((verInfo->dwFileVersionLS)       & 0x0000FFFF);
+
+	return true;
+}
+
+bool MUtils::OS::get_file_version(const QString fileName, quint16 *const major, quint16 *const minor, quint16 *const patch, quint16 *const build)
+{
+	if(major) *major = 0U; if(minor) *minor = 0U;
+	if(patch) *patch = 0U; if(build) *build = 0U;
+
+	const DWORD size = GetFileVersionInfoSize(MUTILS_WCHR(fileName), NULL);
+	if(size < 1)
+	{
+		qWarning("GetFileVersionInfoSize() has failed, file version cannot be determined!");
+		return false;
+	}
+	
+	PVOID buffer = _malloca(size);
+	if(!buffer)
+	{
+		qWarning("Memory allocation has failed!");
+		return false;
+	}
+
+	const bool success = get_file_version_helper(fileName, buffer, size, major, minor, patch, build);
+
+	_freea(buffer);
+	return success;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // OS VERSION DETECTION
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -320,6 +373,21 @@ static bool get_real_os_version(unsigned int *major, unsigned int *minor, bool *
 			continue;
 		}
 		break;
+	}
+
+	//Workaround for the mess that is sometimes referred to as "Windows 10"
+	if(((*major) > 6) || (((*major) == 6) && ((*minor) >= 2)))
+	{
+		quint16 kernel32_major, kernel32_minor;
+		if(MUtils::OS::get_file_version(QLatin1String("kernel32"), &kernel32_major, &kernel32_minor))
+		{
+			if((kernel32_major > (*major)) || ((kernel32_major == (*major)) && (kernel32_minor > (*minor))))
+			{
+				*major = kernel32_major;
+				*minor = kernel32_minor;
+				*pbOverride = true;
+			}
+		}
 	}
 
 	return true;

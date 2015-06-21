@@ -108,6 +108,9 @@ namespace MUtils
 		typedef bool (*progress_callback_t)(const double &progress, void *const userData);
 		MUTILS_API bool copy_file(const QString &sourcePath, const QString &outputPath, const bool &overwrite = true, const progress_callback_t callback = NULL, void *const userData = NULL);
 
+		//Get file version
+		MUTILS_API bool get_file_version(const QString fileName, quint16 *const major = NULL, quint16 *const minor = NULL, quint16 *const patch = NULL, quint16 *const build = NULL);
+
 		//Get the OS version
 		MUTILS_API const Version::os_version_t &os_version(void);
 		MUTILS_API const char *os_friendly_name(const MUtils::OS::Version::os_version_t &os_version);
