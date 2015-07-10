@@ -442,30 +442,39 @@ CLEAN_FILE_NAME[] =
 
 QString MUtils::clean_file_name(const QString &name)
 {
-	QString str = name.simplified();
+	QRegExp regExp("\"(.+)\"");
+	regExp.setMinimal(true);
 
+	QString str = QString(name).replace(regExp, "``\\1´´").trimmed();
 	for(size_t i = 0; CLEAN_FILE_NAME[i].search; i++) 
 	{
 		str.replace(CLEAN_FILE_NAME[i].search, CLEAN_FILE_NAME[i].replace);
 	}
 	
-	QRegExp regExp("\"(.+)\"");
-	regExp.setMinimal(true);
-	str.replace(regExp, "`\\1´");
-	
-	return str.simplified();
+	while(str.endsWith(QLatin1Char('.')))
+	{
+		str.chop(1);
+		str = str.trimmed();
+	}
+
+	return str.trimmed();
 }
 
 QString MUtils::clean_file_path(const QString &path)
 {
-	QStringList parts = path.simplified().replace("\\", "/").split("/", QString::SkipEmptyParts);
+	const bool root = path.startsWith(QLatin1Char('/')) || path.startsWith(QLatin1Char('\\'));
+	QStringList parts = QDir::fromNativeSeparators(path.trimmed()).split(QLatin1Char('/'), QString::SkipEmptyParts);
 
 	for(int i = 0; i < parts.count(); i++)
 	{
+		if((i == 0) && (!root) && (parts[i].length() == 2) && parts[i][0].isLetter() && (parts[i][1] == QLatin1Char(':')))
+		{
+			continue; //handle case "c:\"
+		}
 		parts[i] = MUtils::clean_file_name(parts[i]);
 	}
 
-	return parts.join("/");
+	return root ? parts.join(QLatin1String("/")).prepend(QLatin1Char('/')) : parts.join(QLatin1String("/"));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
