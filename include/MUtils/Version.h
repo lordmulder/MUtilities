@@ -75,6 +75,8 @@ namespace MUtils
 						static const char *const COMPILER_VERS = "MSVC 2013.3";
 					#elif (_MSC_FULL_VER == 180031101)
 						static const char *const COMPILER_VERS = "MSVC 2013.4";
+					#elif (_MSC_FULL_VER == 180040629)
+						static const char *const COMPILER_VERS = "MSVC 2013.5";
 					#else
 						#error Compiler version is not supported yet!
 					#endif
