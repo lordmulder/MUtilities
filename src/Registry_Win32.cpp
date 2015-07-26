@@ -34,27 +34,63 @@
 #include <Shlwapi.h>
 
 ///////////////////////////////////////////////////////////////////////////////
+// INTERNAL FUNCTIONS
+///////////////////////////////////////////////////////////////////////////////
 
-static HKEY registry_root(const int &rootKey)
-{
-	switch(rootKey)
-	{
-		case MUtils::Registry::root_classes: return HKEY_CLASSES_ROOT;  break;
-		case MUtils::Registry::root_user:    return HKEY_CURRENT_USER;  break;
-		case MUtils::Registry::root_machine: return HKEY_LOCAL_MACHINE; break;
-		default: MUTILS_THROW("Unknown root reg value was specified!");
-	}
-}
+#define ENUM2STR(X,Y) do \
+{ \
+	static const char *_name = #Y; \
+	if((X) == (Y)) return _name; \
+} \
+while(0)
 
-static DWORD registry_access(const int &access)
+namespace MUtils
 {
-	switch(access)
+	namespace Registry
 	{
-		case MUtils::Registry::access_readonly:  return KEY_READ;               break;
-		case MUtils::Registry::access_writeonly: return KEY_WRITE;              break;
-		case MUtils::Registry::access_readwrite: return KEY_READ | KEY_WRITE;   break;
-		case MUtils::Registry::access_enumerate: return KEY_ENUMERATE_SUB_KEYS; break;
-		default: MUTILS_THROW("Unknown access value was specified!");
+		static HKEY registry_root(const reg_root_t &rootKey)
+		{
+			switch(rootKey)
+			{
+				case root_classes: return HKEY_CLASSES_ROOT;  break;
+				case root_user:    return HKEY_CURRENT_USER;  break;
+				case root_machine: return HKEY_LOCAL_MACHINE; break;
+				default: MUTILS_THROW("Unknown root reg value was specified!");
+			}
+		}
+
+		static DWORD registry_access(const reg_access_t &access)
+		{
+			switch(access)
+			{
+				case access_readonly:  return KEY_READ;               break;
+				case access_writeonly: return KEY_WRITE;              break;
+				case access_readwrite: return KEY_READ | KEY_WRITE;   break;
+				case access_enumerate: return KEY_ENUMERATE_SUB_KEYS; break;
+				default: MUTILS_THROW("Unknown access value was specified!");
+			}
+		}
+
+		static const char* reg_root2str(const reg_root_t &rootKey)
+		{
+			ENUM2STR(rootKey, root_classes);
+			ENUM2STR(rootKey, root_user);
+			ENUM2STR(rootKey, root_machine);
+
+			static const char *unknown = "<unknown>";
+			return unknown;
+		}
+
+		static const char* reg_access2str(const reg_access_t &access)
+		{
+			ENUM2STR(access, access_readonly);
+			ENUM2STR(access, access_writeonly);
+			ENUM2STR(access, access_readwrite);
+			ENUM2STR(access, access_enumerate);
+
+			static const char *unknown = "<unknown>";
+			return unknown;
+		}
 	}
 }
 
@@ -98,7 +134,7 @@ while(0)
 // Registry Key Class
 ///////////////////////////////////////////////////////////////////////////////
 
-MUtils::Registry::RegistryKey::RegistryKey(const int &rootKey, const QString &keyName, const int &access)
+MUtils::Registry::RegistryKey::RegistryKey(const reg_root_t &rootKey, const QString &keyName, const reg_access_t &access)
 :
 	p(new Internal::RegistryKeyPrivate())
 {
@@ -109,7 +145,7 @@ MUtils::Registry::RegistryKey::RegistryKey(const int &rootKey, const QString &ke
 	p->m_isOpen = (RegCreateKeyEx(registry_root(rootKey), MUTILS_WCHR(keyName), 0, NULL, 0, p->m_access, NULL, &p->m_hKey, NULL) == ERROR_SUCCESS);
 	if(!p->m_isOpen)
 	{
-		qWarning("Failed to open registry key!");
+		qWarning("Failed to open registry key \"%s\"! (rootKey: %s, access: %s)", MUTILS_UTF8(keyName), reg_root2str(rootKey), reg_access2str(access));
 	}
 }
 
@@ -207,7 +243,7 @@ bool MUtils::Registry::RegistryKey::enum_subkeys(QStringList &list) const
 /*
  * Write registry value
  */
-bool MUtils::Registry::reg_value_write(const int &rootKey, const QString &keyName, const QString &valueName, const quint32 &value)
+bool MUtils::Registry::reg_value_write(const reg_root_t &rootKey, const QString &keyName, const QString &valueName, const quint32 &value)
 {
 	bool success = false;
 	RegistryKey regKey(rootKey, keyName, access_readwrite);
@@ -221,7 +257,7 @@ bool MUtils::Registry::reg_value_write(const int &rootKey, const QString &keyNam
 /*
  * Write registry value
  */
-bool MUtils::Registry::reg_value_write(const int &rootKey, const QString &keyName, const QString &valueName, const QString &value)
+bool MUtils::Registry::reg_value_write(const reg_root_t &rootKey, const QString &keyName, const QString &valueName, const QString &value)
 {
 	bool success = false;
 	RegistryKey regKey(rootKey, keyName, access_readwrite);
@@ -235,7 +271,7 @@ bool MUtils::Registry::reg_value_write(const int &rootKey, const QString &keyNam
 /*
  * Read registry value
  */
-bool MUtils::Registry::reg_value_read(const int &rootKey, const QString &keyName, const QString &valueName, quint32 &value)
+bool MUtils::Registry::reg_value_read(const reg_root_t &rootKey, const QString &keyName, const QString &valueName, quint32 &value)
 {
 	bool success = false;
 	RegistryKey regKey(rootKey, keyName, access_readonly);
@@ -253,7 +289,7 @@ bool MUtils::Registry::reg_value_read(const int &rootKey, const QString &keyName
 /*
  * Read registry value
  */
-bool MUtils::Registry::reg_value_read(const int &rootKey, const QString &keyName, const QString &valueName, QString &value)
+bool MUtils::Registry::reg_value_read(const reg_root_t &rootKey, const QString &keyName, const QString &valueName, QString &value)
 {
 	bool success = false;
 	RegistryKey regKey(rootKey, keyName, access_readonly);
@@ -271,7 +307,7 @@ bool MUtils::Registry::reg_value_read(const int &rootKey, const QString &keyName
 /*
  * Enumerate value names
  */
-bool MUtils::Registry::reg_enum_values(const int &rootKey, const QString &keyName, QStringList &values)
+bool MUtils::Registry::reg_enum_values(const reg_root_t &rootKey, const QString &keyName, QStringList &values)
 {
 	bool success = false;
 	RegistryKey regKey(rootKey, keyName, access_readonly);
@@ -289,7 +325,7 @@ bool MUtils::Registry::reg_enum_values(const int &rootKey, const QString &keyNam
 /*
  * Enumerate subkey names
  */
-bool MUtils::Registry::reg_enum_subkeys(const int &rootKey, const QString &keyName, QStringList &subkeys)
+bool MUtils::Registry::reg_enum_subkeys(const reg_root_t &rootKey, const QString &keyName, QStringList &subkeys)
 {
 	bool success = false;
 	RegistryKey regKey(rootKey, keyName, access_enumerate);
@@ -307,7 +343,7 @@ bool MUtils::Registry::reg_enum_subkeys(const int &rootKey, const QString &keyNa
 /*
  * Delete registry key
  */
-bool MUtils::Registry::reg_key_delete(const int &rootKey, const QString &keyName)
+bool MUtils::Registry::reg_key_delete(const reg_root_t &rootKey, const QString &keyName)
 {
 	return (SHDeleteKey(registry_root(rootKey), MUTILS_WCHR(keyName)) == ERROR_SUCCESS);
 }

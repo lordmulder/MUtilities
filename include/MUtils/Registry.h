@@ -59,7 +59,7 @@ namespace MUtils
 		class MUTILS_API RegistryKey
 		{
 		public:
-			RegistryKey(const int &rootKey, const QString &keyName, const int &access);
+			RegistryKey(const reg_root_t &rootKey, const QString &keyName, const reg_access_t &access);
 			~RegistryKey(void);
 
 			inline bool isOpen(void);
@@ -78,13 +78,13 @@ namespace MUtils
 		};
 
 		//Regsitry functions
-		MUTILS_API bool reg_value_write (const int &rootKey, const QString &keyName, const QString &valueName, const quint32 &value);
-		MUTILS_API bool reg_value_write (const int &rootKey, const QString &keyName, const QString &valueName, const QString &value);
-		MUTILS_API bool reg_value_read  (const int &rootKey, const QString &keyName, const QString &valueName, quint32       &value);
-		MUTILS_API bool reg_value_read  (const int &rootKey, const QString &keyName, const QString &valueName, QString       &value);
-		MUTILS_API bool reg_key_delete  (const int &rootKey, const QString &keyName);
-		MUTILS_API bool reg_enum_values (const int &rootKey, const QString &keyName, QStringList &list);
-		MUTILS_API bool	reg_enum_subkeys(const int &rootKey, const QString &keyName, QStringList &list);
+		MUTILS_API bool reg_value_write (const reg_root_t &rootKey, const QString &keyName, const QString &valueName, const quint32 &value);
+		MUTILS_API bool reg_value_write (const reg_root_t &rootKey, const QString &keyName, const QString &valueName, const QString &value);
+		MUTILS_API bool reg_value_read  (const reg_root_t &rootKey, const QString &keyName, const QString &valueName, quint32       &value);
+		MUTILS_API bool reg_value_read  (const reg_root_t &rootKey, const QString &keyName, const QString &valueName, QString       &value);
+		MUTILS_API bool reg_key_delete  (const reg_root_t &rootKey, const QString &keyName);
+		MUTILS_API bool reg_enum_values (const reg_root_t &rootKey, const QString &keyName, QStringList &list);
+		MUTILS_API bool	reg_enum_subkeys(const reg_root_t &rootKey, const QString &keyName, QStringList &list);
 	}
 }
 
