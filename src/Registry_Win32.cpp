@@ -341,6 +341,20 @@ bool MUtils::Registry::reg_enum_subkeys(const reg_root_t &rootKey, const QString
 }
 
 /*
+ * Check registry key existence
+ */
+bool MUtils::Registry::reg_key_exists(const reg_root_t &rootKey, const QString &keyName)
+{
+	HKEY hKey = NULL;
+	if(RegOpenKeyEx(registry_root(rootKey), MUTILS_WCHR(keyName), 0, STANDARD_RIGHTS_READ, &hKey) == ERROR_SUCCESS)
+	{
+		RegCloseKey(hKey);
+		return true;
+	}
+	return false;
+}
+
+/*
  * Delete registry key
  */
 bool MUtils::Registry::reg_key_delete(const reg_root_t &rootKey, const QString &keyName)
