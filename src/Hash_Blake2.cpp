@@ -76,7 +76,7 @@ MUtils::Hash::Blake2::Blake2(const char* key)
 {
 	if(key && key[0])
 	{
-		blake2b_init_key(m_context->state, HASH_SIZE, key, strlen(key));
+		blake2b_init_key(m_context->state, HASH_SIZE, key, (uint8_t)strlen(key));
 	}
 	else
 	{

@@ -547,7 +547,7 @@ QStringList MUtils::available_codepages(const bool &noAliases)
 int MUtils::Internal::selfTest(const char *const buildKey, const bool debug)
 {
 	static const bool MY_DEBUG_FLAG = MUTILS_DEBUG;
-	static const char *const MY_BUILD_KEY = __DATE__"@"__TIME__;
+	static const char *const MY_BUILD_KEY = __DATE__ "@" __TIME__;
 
 	if(strncmp(buildKey, MY_BUILD_KEY, 13) || (MY_DEBUG_FLAG != debug))
 	{

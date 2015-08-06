@@ -27,7 +27,10 @@
 #include <Shellapi.h>
 #include <PowrProf.h>
 #include <Mmsystem.h>
+#pragma warning(push)
+#pragma warning(disable:4091) //for MSVC2015
 #include <ShlObj.h>
+#pragma warning(pop)
 
 //Internal
 #include <MUtils/Global.h>

@@ -109,7 +109,7 @@ namespace MUtils
 	namespace Internal
 	{
 		MUTILS_API int selfTest(const char *const buildKey, const bool debug);
-		static const int g_test = selfTest(__DATE__"@"__TIME__, MUTILS_DEBUG);
+		static const int s_selfTest = selfTest(__DATE__ "@" __TIME__, MUTILS_DEBUG);
 	}
 }
 
