@@ -100,68 +100,44 @@ static const char *clean_str(char *str)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// HELPER MACROS
-///////////////////////////////////////////////////////////////////////////////
-
-#define REPLACE_STANDARD_STREAM(TYPE, HANDLE) do \
-{ \
-	const int fd_##TYPE = _open_osfhandle((intptr_t)GetStdHandle(HANDLE), flags); \
-	FILE *const file_##TYPE = (fd_##TYPE >= 0) ? _fdopen(fd_##TYPE, "wb") : NULL; \
-	if(file_##TYPE) \
-	{ \
-		g_terminal_backup_file_##TYPE = *(std##TYPE); \
-		*(std##TYPE) = *(file_##TYPE); \
-		g_terminal_filebuf_##TYPE.reset(new std::filebuf(file_##TYPE)); \
-		g_terminal_backup_fbuf_##TYPE = std::c##TYPE.rdbuf(); \
-		std::c##TYPE.rdbuf(g_terminal_filebuf_##TYPE.data()); \
-	} \
-} \
-while(0)
-
-#define RESTORE_STANDARD_STREAM(TYPE) do \
-{ \
-	if(!g_terminal_filebuf_##TYPE.isNull()) \
-	{ \
-		*(std##TYPE) = g_terminal_backup_file_##TYPE; \
-		std::c##TYPE.rdbuf(g_terminal_backup_fbuf_##TYPE); \
-		g_terminal_filebuf_##TYPE.reset(NULL); \
-	} \
-} \
-while(0)
-
-///////////////////////////////////////////////////////////////////////////////
 // TERMINAL VARIABLES
 ///////////////////////////////////////////////////////////////////////////////
 
 //Critical section
 static MUtils::Internal::CriticalSection g_terminal_lock;
 
+//Is terminal attached?
+static volatile bool g_terminal_attached = false;
+
 //Terminal replacement streams
-static bool                         g_terminal_attached = false;
 static QScopedPointer<std::filebuf> g_terminal_filebuf_out;
 static QScopedPointer<std::filebuf> g_terminal_filebuf_err;
 
-//Backup of original streams
-static FILE                         g_terminal_backup_file_out;
-static FILE                         g_terminal_backup_file_err;
-static std::streambuf*              g_terminal_backup_fbuf_out;
-static std::streambuf*              g_terminal_backup_fbuf_err;
-
 //The log file
-static QScopedPointer<QFile>        g_terminal_log_file;
+static QScopedPointer<QFile> g_terminal_log_file;
 
 ///////////////////////////////////////////////////////////////////////////////
-// TERMINAL EXIT
+// TERMINAL UTILS
 ///////////////////////////////////////////////////////////////////////////////
 
-static void terminal_restore(void)
+static inline void terminal_connect(FILE *const fp, std::ostream &os, QScopedPointer<std::filebuf> &buff)
+{
+	FILE *temp = NULL;
+	if (freopen_s(&temp, "CONOUT$", "wb", fp) == 0)
+	{
+		setvbuf(temp, NULL, _IONBF, 0);
+		buff.reset(new std::filebuf(temp));
+		os.rdbuf(buff.data());
+	}
+}
+static inline void terminal_restore(void)
 {
 	MUtils::Internal::CSLocker lock(g_terminal_lock);
 
 	if(g_terminal_attached)
 	{
-		RESTORE_STANDARD_STREAM(out);
-		RESTORE_STANDARD_STREAM(err);
+		g_terminal_filebuf_out.reset();
+		g_terminal_filebuf_err.reset();
 		FreeConsole();
 		g_terminal_attached = false;
 	}
@@ -232,9 +208,8 @@ void MUtils::Terminal::setup(int &argc, char **argv, const char* const appName, 
 			//-------------------------------------------------------------------
 			//See: http://support.microsoft.com/default.aspx?scid=kb;en-us;105305
 			//-------------------------------------------------------------------
-			const int flags = _O_WRONLY | _O_U8TEXT;
-			REPLACE_STANDARD_STREAM(out, STD_OUTPUT_HANDLE);
-			REPLACE_STANDARD_STREAM(err, STD_ERROR_HANDLE );
+			terminal_connect(stdout, std::cout, g_terminal_filebuf_out);
+			terminal_connect(stderr, std::cerr, g_terminal_filebuf_err);
 			atexit(terminal_restore);
 
 			const HWND hwndConsole = GetConsoleWindow();
