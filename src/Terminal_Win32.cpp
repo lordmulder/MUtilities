@@ -163,6 +163,8 @@ static inline std::filebuf *terminal_connect(FILE *const fs, std::ostream &os)
 
 static void terminal_shutdown(void)
 {
+	MUtils::Internal::CSLocker lock(g_terminal_lock);
+
 	if (g_terminal_attached)
 	{
 		g_fileBuf_stdout.reset();
