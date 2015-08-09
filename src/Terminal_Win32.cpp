@@ -43,6 +43,8 @@
 #include <fstream>
 #include <ctime>
 #include <stdarg.h>
+#include <io.h>
+#include <fcntl.h>
 
 #ifdef _MSC_VER
 #define stricmp(X,Y) _stricmp((X),(Y))
@@ -60,12 +62,13 @@ static MUtils::Internal::CriticalSection g_terminal_lock;
 //Is terminal attached?
 static volatile bool g_terminal_attached = false;
 
-//Terminal output handle
-static HANDLE g_hConOut = NULL;
-
 //Terminal output buffer
 static const size_t BUFF_SIZE = 8192;
 static char g_conOutBuff[BUFF_SIZE] = { '\0' };
+
+//Buffer objects
+static QScopedPointer<std::filebuf> g_fileBuf_stdout;
+static QScopedPointer<std::filebuf> g_fileBuf_stderr;
 
 //The log file
 static QScopedPointer<QFile> g_terminal_log_file;
@@ -107,7 +110,7 @@ static inline bool null_or_whitespace(const char *const str)
 	return true;
 }
 
-static inline size_t clean_str(char *const str)
+static inline size_t clean_string(char *const str)
 {
 	bool space_flag = true;
 	size_t src = 0, out = 0;
@@ -147,17 +150,27 @@ static inline size_t clean_str(char *const str)
 // TERMINAL SETUP
 ///////////////////////////////////////////////////////////////////////////////
 
+static inline std::filebuf *terminal_connect(FILE *const fs, std::ostream &os)
+{
+	std::filebuf *result = NULL;
+	FILE *temp;
+	if (freopen_s(&temp, "CONOUT$", "wb", fs) == 0)
+	{
+		os.rdbuf(result = new std::filebuf(temp));
+	}
+	return result;
+}
+
 static void terminal_shutdown(void)
 {
-	MUtils::Internal::CSLocker lock(g_terminal_lock);
-
 	if (g_terminal_attached)
 	{
-		if (VALID_HANLDE(g_hConOut))
-		{
-			CloseHandle(g_hConOut);
-			g_hConOut = NULL;
-		}
+		g_fileBuf_stdout.reset();
+		g_fileBuf_stderr.reset();
+		FILE *temp[2];
+		if(stdout) freopen_s(&temp[0], "NUL", "wb", stdout);
+		if(stderr) freopen_s(&temp[1], "NUL", "wb", stderr);
+		FreeConsole();
 		g_terminal_attached = false;
 	}
 }
@@ -220,7 +233,9 @@ void MUtils::Terminal::setup(int &argc, char **argv, const char* const appName, 
 
 		if(g_terminal_attached)
 		{
-			g_hConOut = CreateFileA("CONOUT$", GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_FLAG_NO_BUFFERING, NULL);
+			g_fileBuf_stdout.reset(terminal_connect(stdout, std::cout));
+			g_fileBuf_stderr.reset(terminal_connect(stderr, std::cerr));
+
 			atexit(terminal_shutdown);
 
 			const HWND hwndConsole = GetConsoleWindow();
@@ -248,11 +263,15 @@ static const WORD COLOR_YELLOW = FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_
 static const WORD COLOR_WHITE  = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY;
 static const WORD COLOR_DEFAULT= FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED;
 
-static void set_terminal_color(const WORD &attributes)
+static void set_terminal_color(FILE *const fp, const WORD &attributes)
 {
-	if(VALID_HANLDE(g_hConOut))
+	if(_isatty(_fileno(fp)))
 	{
-		SetConsoleTextAttribute(g_hConOut, attributes);
+		const HANDLE hConsole = (HANDLE)(_get_osfhandle(_fileno(fp)));
+		if (VALID_HANLDE(hConsole))
+		{
+			SetConsoleTextAttribute(hConsole, attributes);
+		}
 	}
 }
 
@@ -263,34 +282,14 @@ static void set_terminal_color(const WORD &attributes)
 static const char *const FORMAT = "[%c][%s] %s\r\n";
 static const char *const GURU_MEDITATION = "\n\nGURU MEDITATION !!!\n\n";
 
-static inline int terminal_fprintf(const char *const text, ...)
-{
-	if (VALID_HANLDE(g_hConOut))
-	{
-		va_list ap;
-		va_start(ap, text);
-		const int len = _vsnprintf_s(g_conOutBuff, BUFF_SIZE, _TRUNCATE, text, ap);
-		va_end(ap);
-
-		if (len > 0)
-		{
-			DWORD written;
-			WriteFile(g_hConOut, g_conOutBuff, DWORD(len), &written, NULL);
-			return len;
-		}
-	}
-
-	return -1;
-}
-
 static void write_to_logfile(QFile *const file, const int &type, const char *const message)
 {
+	int len = -1;
+
 	if (null_or_whitespace(message))
 	{
 		return; /*don't write empty message to log file*/
 	}
-
-	int len = -1;
 
 	static char timestamp[32];
 	make_timestamp(timestamp, 32);
@@ -311,7 +310,7 @@ static void write_to_logfile(QFile *const file, const int &type, const char *con
 
 	if (len > 0)
 	{
-		if (clean_str(g_conOutBuff) > 0)
+		if (clean_string(g_conOutBuff) > 0)
 		{
 			file->write(g_conOutBuff);
 			file->flush();
@@ -321,12 +320,12 @@ static void write_to_logfile(QFile *const file, const int &type, const char *con
 
 static void write_to_debugger(const int &type, const char *const message)
 {
+	int len = -1;
+
 	if (null_or_whitespace(message))
 	{
 		return; /*don't send empty message to debugger*/
 	}
-
-	int len = -1;
 
 	static char timestamp[32];
 	make_timestamp(timestamp, 32);
@@ -347,7 +346,7 @@ static void write_to_debugger(const int &type, const char *const message)
 
 	if (len > 0)
 	{
-		if (clean_str(g_conOutBuff) > 0)
+		if (clean_string(g_conOutBuff) > 0)
 		{
 			OutputDebugStringA(g_conOutBuff);
 		}
@@ -360,19 +359,21 @@ static void write_to_terminal(const int &type, const char *const message)
 	{
 	case QtCriticalMsg:
 	case QtFatalMsg:
-		set_terminal_color(COLOR_RED);
-		terminal_fprintf(GURU_MEDITATION);
-		terminal_fprintf("%s\n", message);
+		set_terminal_color(stderr, COLOR_RED);
+		fprintf(stderr, GURU_MEDITATION);
+		fprintf(stderr, "%s\n", message);
 		break;
 	case QtWarningMsg:
-		set_terminal_color(COLOR_YELLOW);
-		terminal_fprintf("%s\n", message);
+		set_terminal_color(stderr, COLOR_YELLOW);
+		fprintf(stderr, "%s\n", message);
 		break;
 	default:
-		set_terminal_color(COLOR_WHITE);
-		terminal_fprintf("%s\n", message);
+		set_terminal_color(stderr, COLOR_WHITE);
+		fprintf(stderr, "%s\n", message);
 		break;
 	}
+
+	fflush(stderr);
 }
 
 void MUtils::Terminal::write(const int &type, const char *const message)
