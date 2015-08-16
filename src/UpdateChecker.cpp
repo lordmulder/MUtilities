@@ -207,6 +207,20 @@ void UpdateCheckerInfo::resetInfo(void)
 	m_downloadAddress.clear();
 	m_downloadFilename.clear();
 	m_downloadFilecode.clear();
+	m_downloadChecksum.clear();
+}
+
+bool UpdateCheckerInfo::isComplete(void)
+{
+	if(this->m_buildNo < 1)                return false;
+	if(this->m_buildDate.year() < 2010)    return false;
+	if(this->m_downloadSite.isEmpty())     return false;
+	if(this->m_downloadAddress.isEmpty())  return false;
+	if(this->m_downloadFilename.isEmpty()) return false;
+	if(this->m_downloadFilecode.isEmpty()) return false;
+	if(this->m_downloadChecksum.isEmpty()) return false;
+
+	return true;
 }
 
 ////////////////////////////////////////////////////////////
@@ -237,7 +251,6 @@ UpdateChecker::UpdateChecker(const QString &binWGet, const QString &binGnuPG, co
 
 UpdateChecker::~UpdateChecker(void)
 {
-	delete m_updateInfo;
 }
 
 ////////////////////////////////////////////////////////////
@@ -340,7 +353,7 @@ void UpdateChecker::checkForUpdates(void)
 		setProgress(m_progress + 1);
 		if(!m_success)
 		{
-			if(tryUpdateMirror(m_updateInfo, currentMirror))
+			if(tryUpdateMirror(m_updateInfo.data(), currentMirror))
 			{
 				m_success = true;
 			}
@@ -669,12 +682,12 @@ bool UpdateChecker::parseVersionInfo(const QString &file, UpdateCheckerInfo *upd
 			if(value.cap(1).compare("BuildNo", Qt::CaseInsensitive) == 0)
 			{
 				bool ok = false;
-				unsigned int temp = value.cap(2).toUInt(&ok);
+				const unsigned int temp = value.cap(2).toUInt(&ok);
 				if(ok) updateInfo->m_buildNo = temp;
 			}
 			else if(value.cap(1).compare("BuildDate", Qt::CaseInsensitive) == 0)
 			{
-				QDate temp = QDate::fromString(value.cap(2).trimmed(), Qt::ISODate);
+				const QDate temp = QDate::fromString(value.cap(2).trimmed(), Qt::ISODate);
 				if(temp.isValid()) updateInfo->m_buildDate = temp;
 			}
 			else if(value.cap(1).compare("DownloadSite", Qt::CaseInsensitive) == 0)
@@ -692,6 +705,10 @@ bool UpdateChecker::parseVersionInfo(const QString &file, UpdateCheckerInfo *upd
 			else if(value.cap(1).compare("DownloadFilecode", Qt::CaseInsensitive) == 0)
 			{
 				updateInfo->m_downloadFilecode = value.cap(2).trimmed();
+			}
+			else if(value.cap(1).compare("DownloadChecksum", Qt::CaseInsensitive) == 0)
+			{
+				updateInfo->m_downloadChecksum = value.cap(2).trimmed();
 			}
 		}
 		if(inHdr && (value.indexIn(line) >= 0))
@@ -724,22 +741,14 @@ bool UpdateChecker::parseVersionInfo(const QString &file, UpdateCheckerInfo *upd
 		log("Version info is from the future, take care!");
 		qWarning("Version info is from the future, take care!");
 	}
-
-	bool complete = true;
-
-	if(!(updateInfo->m_buildNo > 0)) complete = false;
-	if(!(updateInfo->m_buildDate.year() >= 2010)) complete = false;
-	if(updateInfo->m_downloadSite.isEmpty()) complete = false;
-	if(updateInfo->m_downloadAddress.isEmpty()) complete = false;
-	if(updateInfo->m_downloadFilename.isEmpty()) complete = false;
-	if(updateInfo->m_downloadFilecode.isEmpty()) complete = false;
 	
-	if(!complete)
+	if(!updateInfo->isComplete())
 	{
 		log("WARNING: Version info is incomplete!");
+		return false;
 	}
 
-	return complete;
+	return true;
 }
 
 ////////////////////////////////////////////////////////////

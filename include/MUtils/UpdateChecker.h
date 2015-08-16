@@ -39,6 +39,7 @@ namespace MUtils
 	public:
 		UpdateCheckerInfo(void);
 		void resetInfo(void);
+		bool isComplete(void);
 
 		const quint32 &getBuildNo(void)          const { return m_buildNo;          }
 		const QDate   &getBuildDate(void)        const { return m_buildDate;        }
@@ -46,6 +47,7 @@ namespace MUtils
 		const QString &getDownloadAddress(void)  const { return m_downloadAddress;  }
 		const QString &getDownloadFilename(void) const { return m_downloadFilename; }
 		const QString &getDownloadFilecode(void) const { return m_downloadFilecode; }
+		const QString &getDownloadChecksum(void) const { return m_downloadChecksum; }
 
 	private:
 		quint32 m_buildNo;
@@ -54,6 +56,7 @@ namespace MUtils
 		QString m_downloadAddress;
 		QString m_downloadFilename;
 		QString m_downloadFilecode;
+		QString m_downloadChecksum;
 	};
 
 	// ----------------------------------------------------------------
@@ -80,11 +83,11 @@ namespace MUtils
 		UpdateChecker(const QString &binWGet, const QString &binGnuPG, const QString &binKeys, const QString &applicationId, const quint32 &installedBuildNo, const bool betaUpdates, const bool testMode = false);
 		~UpdateChecker(void);
 
-		const int getUpdateStatus(void) const { return m_status; }
-		const bool getSuccess(void) const { return m_success; };
-		const int getMaximumProgress(void) const { return m_maxProgress; };
-		const int getCurrentProgress(void) const { return m_progress; };
-		const UpdateCheckerInfo *getUpdateInfo(void) const { return m_updateInfo; }
+		const int  getUpdateStatus(void)             const { return m_status; }
+		const bool getSuccess(void)                  const { return m_success; };
+		const int  getMaximumProgress(void)          const { return m_maxProgress; };
+		const int  getCurrentProgress(void)          const { return m_progress; };
+		const UpdateCheckerInfo *getUpdateInfo(void) const { return m_updateInfo.data(); }
 
 	protected:
 		void run(void);
@@ -98,7 +101,7 @@ namespace MUtils
 
 	private:
 		const int m_maxProgress;
-		UpdateCheckerInfo *const m_updateInfo;
+		QScopedPointer<UpdateCheckerInfo> m_updateInfo;
 	
 		const bool m_betaUpdates;
 		const bool m_testMode;
