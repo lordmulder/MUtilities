@@ -535,13 +535,13 @@ bool UpdateChecker::tryUpdateMirror(UpdateCheckerInfo *updateInfo, const QString
 bool UpdateChecker::getUpdateInfo(const QString &url, const QString &outFileVers, const QString &outFileSign)
 {
 	log("", "Downloading update info:");
-	if(!getFile(QString("%1%2"    ).arg(url, mirror_url_postfix[m_betaUpdates ? 1 : 0]), outFileVers))
+	if(!getFile(QString("%1%2"     ).arg(url, mirror_url_postfix[m_betaUpdates ? 1 : 0]), outFileVers))
 	{
 		return false;
 	}
 
 	log("", "Downloading signature:");
-	if(!getFile(QString("%1%2.sig").arg(url, mirror_url_postfix[m_betaUpdates ? 1 : 0]), outFileSign))
+	if(!getFile(QString("%1%2.sig2").arg(url, mirror_url_postfix[m_betaUpdates ? 1 : 0]), outFileSign))
 	{
 		return false;
 	}
