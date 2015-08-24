@@ -76,14 +76,17 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	"http://www.163.com/",
 	"http://www.7-zip.org/",
 	"http://www.ac3filter.net/",
-	"http://www.amazon.com/",
+	"http://clbianco.altervista.org/",
+	"http://status.aws.amazon.com/",
 	"http://antergos.com/",
 	"http://www.aol.com/",
 	"http://www.apache.org/",
 	"http://www.apple.com/",
 	"http://www.adobe.com/",
+	"http://archive.org/web/",
+	"http://www.artlebedev.ru/",
 	"http://web.audacityteam.org/",
-	"http://automattic.com/",
+	"http://status.automattic.com/",
 	"http://www.avidemux.org/",
 	"http://www.babylon.com/",
 	"http://www.baidu.com/",
@@ -91,15 +94,19 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	"http://www.bbc.co.uk/",
 	"http://www.berlios.de/",
 	"http://www.bing.com/",
+	"http://www.bingeandgrab.com/",
 	"http://www.bucketheadpikes.com/",
+	"http://www.buckethead-coop.com/",
 	"http://www.ccc.de/",
 	"http://www.citizeninsomniac.com/WMV/",
 	"http://www.cnet.com/",
 	"http://cnzz.com/",
 	"http://www.codeplex.com/",
+	"http://www.codeproject.com/",
 	"http://www.der-postillon.com/",
 	"http://www.ebay.com/",
 	"http://www.equation.com/",
+	"http://www.farbrausch.de/",
 	"http://fc2.com/",
 	"http://fedoraproject.org/wiki/Fedora_Project_Wiki",
 	"http://blog.fefe.de/",
@@ -107,7 +114,7 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	"http://blog.flickr.net/en",
 	"http://free-codecs.com/",
 	"http://git-scm.com/",
-	"http://status.gitlab.com/",
+	"http://doc.gitlab.com/",
 	"http://www.gmx.net/",
 	"http://news.gnome.org/",
 	"http://www.gnu.org/",
@@ -121,6 +128,7 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	"http://www.imgburn.com/",
 	"http://imgur.com/",
 	"http://www.jd.com/contact/",
+	"http://www.jiscdigitalmedia.ac.uk/",
 	"http://kannmanumdieuhrzeitschonnbierchentrinken.de/",
 	"http://mirrors.kernel.org/",
 	"http://komisar.gin.by/",
@@ -130,28 +138,37 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	"http://www.linuxmint.com/",
 	"http://www.livedoor.com/",
 	"http://www.livejournal.com/",
+	"http://longplayer.org/",
 	"http://go.mail.ru/",
+	"http://marknelson.us/",
 	"http://www.mediafire.com/about/",
+	"http://www.mod-technologies.com/",
 	"http://ftp.mozilla.org/",
 	"http://mplayerhq.hu/",
 	"http://www.msn.com/en-us/",
 	"http://wiki.multimedia.cx/",
 	"http://www.nch.com.au/",
 	"http://oss.netfarm.it/",
+	"http://netrenderer.de/",
 	"http://www.nytimes.com/",
 	"http://www.opera.com/",
 	"http://www.partha.com/",
+	"http://pastebin.com/",
 	"http://pastie.org/",
+	"http://portableapps.com/about",
 	"http://www.portablefreeware.com/",
 	"http://www.qt.io/",
 	"http://www.quakelive.com/",
+	"http://rationalqm.us/mine.html",
 	"http://www.seamonkey-project.org/",
+	"http://selfhtml.org/",
 	"http://www.shspvr.com/",
 	"http://www.sina.com.cn/",
 	"http://www.sohu.com/",
 	"http://www.sogou.com/",
 	"http://sourceforge.net/",
 	"http://www.spiegel.de/",
+	"http://www.sputnikmusic.com/",
 	"http://stackoverflow.com/",
 	"http://tdm-gcc.tdragon.net/",
 	"http://www.tdrsmusic.com/",
@@ -161,16 +178,17 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	"http://www.videolan.org/",
 	"http://virtualdub.org/",
 	"http://blog.virustotal.com/",
-	"http://www.warr.org/buckethead.html",
+	"http://www.vkgoeswild.com/",
+	"http://www.warr.org/WAhere.html",
 	"http://www.weibo.com/login.php",
 	"http://status.wikimedia.org/",
 	"http://www.winamp.com/",
+	"http://www.winhoros.de/",
 	"http://wpde.org/",
 	"http://x265.org/",
 	"http://xhmikosr.1f0.de/",
 	"http://xiph.org/",
 	"http://us.mail.yahoo.com/",
-	"http://www.yandex.ru/",
 	"http://www.youtube.com/yt/about/",
 	"http://www.zedo.com/",
 	"http://ffmpeg.zeranoe.com/",
@@ -531,7 +549,19 @@ bool UpdateChecker::getUpdateInfo(const QString &url, const QString &outFileVers
 	return true;
 }
 
-bool UpdateChecker::getFile(const QString &url, const QString &outFile, unsigned int maxRedir, bool *httpOk)
+bool UpdateChecker::getFile(const QString &url, const QString &outFile, const unsigned int maxRedir, bool *httpOk)
+{
+	for(int i = 0; i < 2; i++)
+	{
+		if(getFile(url, (i > 0), outFile, maxRedir, httpOk))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+bool UpdateChecker::getFile(const QString &url, const bool forceIp4, const QString &outFile, const unsigned int maxRedir, bool *httpOk)
 {
 	QFileInfo output(outFile);
 	output.setCaching(false);
@@ -550,6 +580,11 @@ bool UpdateChecker::getFile(const QString &url, const QString &outFile, unsigned
 	init_process(process, output.absolutePath());
 
 	QStringList args;
+	if(forceIp4)
+	{
+		args << "-4";
+	}
+
 	args << "-T" << "15" << "--no-cache" << "--no-dns-cache" << QString().sprintf("--max-redirect=%u", maxRedir);
 	args << QString("--referer=%1://%2/").arg(QUrl(url).scheme(), QUrl(url).host()) << "-U" << USER_AGENT_STR;
 	args << "-O" << output.fileName() << url;
@@ -561,7 +596,6 @@ bool UpdateChecker::getFile(const QString &url, const QString &outFile, unsigned
 
 	QTimer timer;
 	timer.setSingleShot(true);
-	timer.setInterval(25000);
 	connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
 
 	const QRegExp httpResponseOK("200 OK$");
@@ -573,7 +607,7 @@ bool UpdateChecker::getFile(const QString &url, const QString &outFile, unsigned
 		return false;
 	}
 
-	timer.start();
+	timer.start(25000);
 
 	while(process.state() != QProcess::NotRunning)
 	{
