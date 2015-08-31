@@ -648,10 +648,17 @@ bool UpdateChecker::checkSignature(const QString &file, const QString &signature
 		return false;
 	}
 
+	QString keyRingPath(m_binaryKeys);
+	bool removeKeyring = false;
 	if(QFileInfo(file).absolutePath().compare(QFileInfo(m_binaryKeys).absolutePath(), Qt::CaseInsensitive) != 0)
 	{
-		qWarning("CheckSignature: File and keyring should be in same folder!");
-		return false;
+		keyRingPath = make_temp_file(QFileInfo(file).absolutePath(), "gpg");
+		removeKeyring = true;
+		if(!QFile::copy(m_binaryKeys, keyRingPath))
+		{
+			qWarning("CheckSignature: Failed to copy the key-ring file!");
+			return false;
+		}
 	}
 
 	QProcess process;
@@ -662,10 +669,14 @@ bool UpdateChecker::checkSignature(const QString &file, const QString &signature
 	connect(&process, SIGNAL(finished(int,QProcess::ExitStatus)), &loop, SLOT(quit()));
 	connect(&process, SIGNAL(readyRead()), &loop, SLOT(quit()));
 	
-	process.start(m_binaryGnuPG, QStringList() << "--homedir" << "." << "--keyring" << QFileInfo(m_binaryKeys).fileName() << QFileInfo(signature).fileName() << QFileInfo(file).fileName());
+	process.start(m_binaryGnuPG, QStringList() << "--homedir" << "." << "--keyring" << QFileInfo(keyRingPath).fileName() << QFileInfo(signature).fileName() << QFileInfo(file).fileName());
 
 	if(!process.waitForStarted())
 	{
+		if(removeKeyring)
+		{
+			remove_file(keyRingPath);
+		}
 		return false;
 	}
 
@@ -678,6 +689,11 @@ bool UpdateChecker::checkSignature(const QString &file, const QString &signature
 		}
 	}
 	
+	if(removeKeyring)
+	{
+		remove_file(keyRingPath);
+	}
+
 	log(QString().sprintf("Exited with code %d", process.exitCode()));
 	return (process.exitCode() == 0);
 }

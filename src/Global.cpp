@@ -110,6 +110,37 @@ QString MUtils::rand_str(const bool &bLong)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// GET TEMP FILE NAME
+///////////////////////////////////////////////////////////////////////////////
+
+QString MUtils::make_temp_file(const QString &basePath, const QString &extension, const bool placeholder)
+{
+	for(int i = 0; i < 4096; i++)
+	{
+		const QString tempFileName = QString("%1/%2.%3").arg(basePath, rand_str(), extension);
+		if(!QFileInfo(tempFileName).exists())
+		{
+			if(placeholder)
+			{
+				QFile file(tempFileName);
+				if(file.open(QFile::ReadWrite))
+				{
+					file.close();
+					return tempFileName;
+				}
+			}
+			else
+			{
+				return tempFileName;
+			}
+		}
+	}
+
+	qWarning("Failed to generate unique temp file name!");
+	return QString();
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // COMPUTE PARITY
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -195,7 +226,8 @@ static bool temp_folder_cleanup_helper(const QString &tempPath)
 static void temp_folder_cleaup(void)
 {
 	QWriteLocker writeLock(&g_temp_folder_lock);
-	
+	qWarning("------------ temp_folder_cleaup ------------");
+
 	//Clean the directory
 	while(!g_temp_folder_file.isNull())
 	{
