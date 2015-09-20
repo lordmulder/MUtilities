@@ -102,6 +102,7 @@ namespace MUtils
 
 		//CLI Arguments
 		typedef QMap<QString,QString> ArgumentMap;
+		MUTILS_API const QStringList crack_command_line(const QString &command_line = QString());
 		MUTILS_API const ArgumentMap &arguments(void);
 
 		//Copy file

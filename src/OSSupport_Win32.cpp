@@ -77,6 +77,28 @@ void MUtils::OS::system_message_err(const wchar_t *const title, const wchar_t *c
 static QReadWriteLock                          g_arguments_lock;
 static QScopedPointer<MUtils::OS::ArgumentMap> g_arguments_list;
 
+const QStringList MUtils::OS::crack_command_line(const QString &command_line)
+{
+	int nArgs = 0;
+	LPWSTR *szArglist = CommandLineToArgvW(command_line.isNull() ? GetCommandLineW() : MUTILS_WCHR(command_line), &nArgs);
+
+	QStringList command_line_tokens;
+	if(NULL != szArglist)
+	{
+		for(int i = 0; i < nArgs; i++)
+		{
+			const QString argStr = MUTILS_QSTR(szArglist[i]).trimmed();
+			if(!argStr.isEmpty())
+			{
+				command_line_tokens << argStr;
+			}
+		}
+		LocalFree(szArglist);
+	}
+
+	return command_line_tokens;
+}
+
 const MUtils::OS::ArgumentMap &MUtils::OS::arguments(void)
 {
 	QReadLocker readLock(&g_arguments_lock);
@@ -98,15 +120,16 @@ const MUtils::OS::ArgumentMap &MUtils::OS::arguments(void)
 
 	g_arguments_list.reset(new ArgumentMap());
 	int nArgs = 0;
-	LPWSTR *szArglist = CommandLineToArgvW(GetCommandLineW(), &nArgs);
+	const QStringList argList = crack_command_line();
 
-	if(NULL != szArglist)
+	if(argList.count() > 1)
 	{
-		const QChar separator = QLatin1Char('=');
 		const QString argPrefix = QLatin1String("--");
-		for(int i = 0; i < nArgs; i++)
+		const QChar separator = QLatin1Char('=');
+
+		for(int i = 1; i < nArgs; i++)
 		{
-			const QString argStr = MUTILS_QSTR(szArglist[i]).trimmed();
+			const QString &argStr = argList[i];
 			if(argStr.startsWith(argPrefix))
 			{
 				const QString argData = argStr.mid(2).trimmed();
@@ -126,9 +149,8 @@ const MUtils::OS::ArgumentMap &MUtils::OS::arguments(void)
 				}
 			}
 		}
-		LocalFree(szArglist);
 	}
-	else
+	else if(argList.empty())
 	{
 		qWarning("CommandLineToArgvW() has failed !!!");
 	}
