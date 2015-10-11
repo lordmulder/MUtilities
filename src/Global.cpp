@@ -226,7 +226,6 @@ static bool temp_folder_cleanup_helper(const QString &tempPath)
 static void temp_folder_cleaup(void)
 {
 	QWriteLocker writeLock(&g_temp_folder_lock);
-	qWarning("------------ temp_folder_cleaup ------------");
 
 	//Clean the directory
 	while(!g_temp_folder_file.isNull())
