@@ -119,20 +119,24 @@ const MUtils::OS::ArgumentMap &MUtils::OS::arguments(void)
 	}
 
 	g_arguments_list.reset(new ArgumentMap());
-	int nArgs = 0;
 	const QStringList argList = crack_command_line();
 
-	if(argList.count() > 1)
+	if(!argList.isEmpty())
 	{
 		const QString argPrefix = QLatin1String("--");
-		const QChar separator = QLatin1Char('=');
+		const QChar   separator = QLatin1Char('=');
 
-		for(int i = 1; i < nArgs; i++)
+		bool firstToken = true;
+		for(QStringList::ConstIterator iter = argList.constBegin(); iter != argList.constEnd(); iter++)
 		{
-			const QString &argStr = argList[i];
-			if(argStr.startsWith(argPrefix))
+			if(firstToken)
 			{
-				const QString argData = argStr.mid(2).trimmed();
+				firstToken = false;
+				continue; /*skip executable file name*/
+			}
+			if(iter->startsWith(argPrefix))
+			{
+				const QString argData = iter->mid(2).trimmed();
 				if(argData.length() > 0)
 				{
 					const int separatorIndex = argData.indexOf(separator);
