@@ -24,6 +24,7 @@
 #include <MUtils/OSSupport.h>
 #include <MUtils/Terminal.h>
 #include <MUtils/ErrorHandler.h>
+#include <MUtils/Registry.h>
 #include <MUtils/Exception.h>
 
 //Qt
@@ -36,6 +37,9 @@
 #include <QFont>
 #include <QMessageBox>
 #include <QtPlugin>
+
+//CRT
+#include <string.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 // Qt Static Initialization
@@ -201,6 +205,28 @@ static QString getExecutableName(int &argc, char **argv)
 	return QLatin1String("Program.exe");
 }
 
+static void qt_registry_cleanup(void)
+{
+	static const wchar_t *const KEYS[] =
+	{
+		L"Software\\Trolltech\\OrganizationDefaults\\Qt Factory Cache %s\\com.trolltech.Qt.QImageIOHandlerFactoryInterface:",
+		L"Software\\Trolltech\\OrganizationDefaults\\Qt Plugin Cache %s.false",
+		NULL
+	};
+
+	wchar_t version[32];
+	_snwprintf_s(version, 32, _TRUNCATE, L"%u.%u", (QT_VERSION >> 16), ((QT_VERSION >> 8) & 0xFF));
+
+	for(size_t i = 0; KEYS[i]; i++)
+	{
+		wchar_t key[256];
+		if(_snwprintf_s(key, 256, _TRUNCATE, KEYS[i], version) > 0)
+		{
+			MUtils::Registry::reg_key_delete(MUtils::Registry::root_user, MUTILS_QSTR(key));
+		}
+	}
+}
+
 QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &appName)
 {
 	QMutexLocker lock(&g_init_lock);
@@ -236,7 +262,6 @@ QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &
 #endif
 
 	//Check the Windows version
-	
 	const MUtils::OS::Version::os_version_t &osVersion = MUtils::OS::os_version();
 	if((osVersion.type != MUtils::OS::Version::OS_WINDOWS) || (osVersion < MUtils::OS::Version::WINDOWS_WINXP))
 	{
@@ -277,6 +302,9 @@ QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &
 
 	//Create Qt application instance
 	QApplication *application = new QApplication(argc, argv);
+
+	//Register the Qt clean-up function
+	atexit(qt_registry_cleanup);
 
 	//Load plugins from application directory
 	QCoreApplication::setLibraryPaths(QStringList() << QApplication::applicationDirPath());
