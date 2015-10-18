@@ -207,24 +207,8 @@ static QString getExecutableName(int &argc, char **argv)
 
 static void qt_registry_cleanup(void)
 {
-	static const wchar_t *const KEYS[] =
-	{
-		L"Software\\Trolltech\\OrganizationDefaults\\Qt Factory Cache %s\\com.trolltech.Qt.QImageIOHandlerFactoryInterface:",
-		L"Software\\Trolltech\\OrganizationDefaults\\Qt Plugin Cache %s.false",
-		NULL
-	};
-
-	wchar_t version[32];
-	_snwprintf_s(version, 32, _TRUNCATE, L"%u.%u", (QT_VERSION >> 16), ((QT_VERSION >> 8) & 0xFF));
-
-	for(size_t i = 0; KEYS[i]; i++)
-	{
-		wchar_t key[256];
-		if(_snwprintf_s(key, 256, _TRUNCATE, KEYS[i], version) > 0)
-		{
-			MUtils::Registry::reg_key_delete(MUtils::Registry::root_user, MUTILS_QSTR(key), true, true);
-		}
-	}
+	static const wchar_t *const QT_JUNK_KEY = L"Software\\Trolltech\\OrganizationDefaults";
+	MUtils::Registry::reg_key_delete(MUtils::Registry::root_user, MUTILS_QSTR(QT_JUNK_KEY), true, true);
 }
 
 QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &appName)
