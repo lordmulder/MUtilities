@@ -357,7 +357,27 @@ bool MUtils::Registry::reg_key_exists(const reg_root_t &rootKey, const QString &
 /*
  * Delete registry key
  */
-bool MUtils::Registry::reg_key_delete(const reg_root_t &rootKey, const QString &keyName)
+bool MUtils::Registry::reg_key_delete(const reg_root_t &rootKey, const QString &keyName, const bool &recusrive, const bool &ascend)
 {
-	return (SHDeleteKey(registry_root(rootKey), MUTILS_WCHR(keyName)) == ERROR_SUCCESS);
+	bool okay = false;
+
+	if(recusrive)
+	{
+		okay = (SHDeleteKey(registry_root(rootKey), MUTILS_WCHR(keyName)) == ERROR_SUCCESS);
+	}
+	else
+	{
+		okay = (RegDeleteKey(registry_root(rootKey), MUTILS_WCHR(keyName)) == ERROR_SUCCESS);
+	}
+
+	if(ascend && okay)
+	{
+		const int pos = qMax(keyName.lastIndexOf(QLatin1Char('/')), keyName.lastIndexOf(QLatin1Char('\\')));
+		if(pos > 0)
+		{
+			reg_key_delete(rootKey, keyName.left(pos), false, true);
+		}
+	}
+
+	return okay;
 }

@@ -83,7 +83,7 @@ namespace MUtils
 		MUTILS_API bool reg_value_read  (const reg_root_t &rootKey, const QString &keyName, const QString &valueName, quint32       &value);
 		MUTILS_API bool reg_value_read  (const reg_root_t &rootKey, const QString &keyName, const QString &valueName, QString       &value);
 		MUTILS_API bool reg_key_exists  (const reg_root_t &rootKey, const QString &keyName);
-		MUTILS_API bool reg_key_delete  (const reg_root_t &rootKey, const QString &keyName);
+		MUTILS_API bool reg_key_delete  (const reg_root_t &rootKey, const QString &keyName, const bool &recusrive = true, const bool &ascend = false);
 		MUTILS_API bool reg_enum_values (const reg_root_t &rootKey, const QString &keyName, QStringList &list);
 		MUTILS_API bool	reg_enum_subkeys(const reg_root_t &rootKey, const QString &keyName, QStringList &list);
 	}

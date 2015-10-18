@@ -222,7 +222,7 @@ static void qt_registry_cleanup(void)
 		wchar_t key[256];
 		if(_snwprintf_s(key, 256, _TRUNCATE, KEYS[i], version) > 0)
 		{
-			MUtils::Registry::reg_key_delete(MUtils::Registry::root_user, MUTILS_QSTR(key));
+			MUtils::Registry::reg_key_delete(MUtils::Registry::root_user, MUTILS_QSTR(key), true, true);
 		}
 	}
 }
