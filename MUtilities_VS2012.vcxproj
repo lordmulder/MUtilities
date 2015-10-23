@@ -31,6 +31,7 @@
     <ClCompile Include="src\JobObject_Win32.cpp" />
     <ClCompile Include="src\Hash_Keccak.cpp" />
     <ClCompile Include="src\OSSupport_Win32.cpp" />
+    <ClCompile Include="src\Registry_Win32.cpp" />
     <ClCompile Include="src\Sound_Win32.cpp" />
     <ClCompile Include="src\Startup.cpp" />
     <ClCompile Include="src\Taskbar7_Win32.cpp" />
@@ -50,6 +51,7 @@
     <ClInclude Include="include\MUtils\JobObject.h" />
     <ClInclude Include="include\MUtils\Hash_Keccak.h" />
     <ClInclude Include="include\MUtils\OSSupport.h" />
+    <ClInclude Include="include\MUtils\Registry.h" />
     <ClInclude Include="include\MUtils\Sound.h" />
     <ClInclude Include="include\MUtils\Startup.h" />
     <ClInclude Include="include\MUtils\Taskbar7.h" />
@@ -60,7 +62,6 @@
     <ClInclude Include="src\3rd_party\keccak\include\keccak_impl.h" />
     <ClInclude Include="src\3rd_party\strnatcmp\include\strnatcmp.h" />
     <ClInclude Include="src\DirLocker.h" />
-    <ClInclude Include="src\Utils_Win32.h" />
     <CustomBuild Include="include\Mutils\UpdateChecker.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe" -o "$(SolutionDir)tmp\$(ProjectName)\MOC_%(Filename).cpp" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MOC "$(SolutionDir)tmp\$(ProjectName)\MOC_%(Filename).cpp"</Message>
@@ -162,8 +163,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(QTDIR)\lib;$(SolutionDir)\..\Prerequisites\VisualLeakDetector\lib\Win32</AdditionalLibraryDirectories>
-      <AdditionalDependencies>QtCored4.lib;QtGuid4.lib;Winmm.lib;Psapi.lib;Sensapi.lib;PowrProf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\..\Prerequisites\Qt4\$(PlatformToolset)\Debug\lib;$(SolutionDir)\..\Prerequisites\VisualLeakDetector\lib\Win32</AdditionalLibraryDirectories>
+      <AdditionalDependencies>QtCored4.lib;QtGuid4.lib;Winmm.lib;Psapi.lib;Sensapi.lib;PowrProf.lib;Shlwapi.lib;Version.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -191,8 +192,8 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(QTDIR)\lib;$(SolutionDir)\..\Prerequisites\VisualLeakDetector\lib\Win32</AdditionalLibraryDirectories>
-      <AdditionalDependencies>QtCore4.lib;QtGui4.lib;Winmm.lib;Psapi.lib;Sensapi.lib;PowrProf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\..\Prerequisites\Qt4\$(PlatformToolset)\Shared\lib;$(SolutionDir)\..\Prerequisites\VisualLeakDetector\lib\Win32</AdditionalLibraryDirectories>
+      <AdditionalDependencies>QtCore4.lib;QtGui4.lib;Winmm.lib;Psapi.lib;Sensapi.lib;PowrProf.lib;Shlwapi.lib;Version.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>false</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
