@@ -29,6 +29,9 @@
 #include <QMap>
 #include <QDate>
 
+//Forward declaration
+class QFile;
+
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace MUtils
@@ -167,6 +170,10 @@ namespace MUtils
 		//System timer resolution
 		MUTILS_API bool setup_timer_resolution(const quint32 &interval = 1);
 		MUTILS_API bool reset_timer_resolution(const quint32 &interval = 1);
+
+		//Set file time
+		MUTILS_API bool set_file_time(const QFile &file,   const QDateTime &created = QDateTime(), const QDateTime &modified = QDateTime(), const QDateTime &accessed = QDateTime());
+		MUTILS_API bool set_file_time(const QString &path, const QDateTime &created = QDateTime(), const QDateTime &modified = QDateTime(), const QDateTime &accessed = QDateTime());
 
 		//Keyboard support
 		MUTILS_API bool check_key_state_esc(void);

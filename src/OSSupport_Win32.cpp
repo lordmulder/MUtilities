@@ -32,6 +32,9 @@
 #include <ShlObj.h>
 #pragma warning(pop)
 
+//CRT
+#include <io.h>
+
 //Internal
 #include <MUtils/Global.h>
 #include <MUtils/OSSupport.h>
@@ -1157,6 +1160,89 @@ bool MUtils::OS::setup_timer_resolution(const quint32 &interval)
 bool MUtils::OS::reset_timer_resolution(const quint32 &interval)
 {
 	return timeEndPeriod(interval) == TIMERR_NOERROR;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// SET FILE TIME
+///////////////////////////////////////////////////////////////////////////////
+
+static QScopedPointer<QDateTime> s_epoch;
+static QReadWriteLock            s_epochLock;
+
+static const QDateTime *get_epoch(void)
+{
+	QReadLocker rdLock(&s_epochLock);
+
+	if (s_epoch.isNull())
+	{
+		rdLock.unlock();
+		QWriteLocker wrLock(&s_epochLock);
+		if (s_epoch.isNull())
+		{
+			s_epoch.reset(new QDateTime(QDate(1601, 1, 1), QTime(0, 0, 0, 0), Qt::UTC));
+		}
+		wrLock.unlock();
+		rdLock.relock();
+	}
+
+	return s_epoch.data();
+}
+
+static FILETIME *qt_time_to_file_time(FILETIME *const fileTime, const QDateTime &dateTime)
+{
+	memset(fileTime, 0, sizeof(FILETIME));
+
+	if (const QDateTime *const epoch = get_epoch())
+	{
+		const qint64 msecs = epoch->msecsTo(dateTime);
+		if (msecs > 0)
+		{
+			const quint64 ticks = 10000U * quint64(msecs);
+			fileTime->dwHighDateTime = ((ticks >> 32) & 0xFFFFFFFF);
+			fileTime->dwLowDateTime = (ticks & 0xFFFFFFFF);
+			return fileTime;
+		}
+	}
+
+	return NULL;
+}
+
+static bool set_file_time(const HANDLE hFile, const QDateTime &created, const QDateTime &lastMod, const QDateTime &lastAcc)
+{
+	FILETIME ftCreated, ftLastMod, ftLastAcc;
+
+	FILETIME *const pCreated = created.isValid() ? qt_time_to_file_time(&ftCreated, created) : NULL;
+	FILETIME *const pLastMod = lastMod.isValid() ? qt_time_to_file_time(&ftLastMod, lastMod) : NULL;
+	FILETIME *const pLastAcc = lastAcc.isValid() ? qt_time_to_file_time(&ftLastAcc, lastAcc) : NULL;
+
+	if (pCreated || pLastMod || pLastAcc)
+	{
+		return (SetFileTime(hFile, pCreated, pLastAcc, pLastMod) != FALSE);
+	}
+
+	return false;
+}
+
+bool MUtils::OS::set_file_time(const QFile &file, const QDateTime &created, const QDateTime &lastMod, const QDateTime &lastAcc)
+{
+	const int fd = file.handle();
+	if (fd >= 0)
+	{
+		return set_file_time((HANDLE)_get_osfhandle(fd), created, lastMod, lastAcc);
+	}
+	return false;
+}
+
+bool MUtils::OS::set_file_time(const QString &path, const QDateTime &created, const QDateTime &lastMod, const QDateTime &lastAcc)
+{
+	const HANDLE hFile = CreateFileW(MUTILS_WCHR(path), FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, 0);
+	bool okay = false;
+	if ((hFile != NULL) && (hFile != INVALID_HANDLE_VALUE))
+	{
+		okay = set_file_time(hFile, created, lastMod, lastAcc);
+		CloseHandle(hFile);
+	}
+	return okay;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
