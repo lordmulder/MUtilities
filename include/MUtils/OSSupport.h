@@ -181,6 +181,9 @@ namespace MUtils
 		//Shell notification
 		MUTILS_API void shell_change_notification(void);
 
+		//Get file path from descriptor
+		MUTILS_API QString get_file_path(const int &fd);
+
 		//WOW64 redirection
 		MUTILS_API bool wow64fsredir_disable(void *oldValue);
 		MUTILS_API bool wow64fsredir_revert (void *oldValue);

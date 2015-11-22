@@ -716,6 +716,147 @@ quint64 MUtils::OS::current_file_time(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// FILE PATH FROM FD
+///////////////////////////////////////////////////////////////////////////////
+
+typedef DWORD(_stdcall *GetPathNameByHandleFun)(HANDLE hFile, LPWSTR lpszFilePath, DWORD cchFilePath, DWORD dwFlags);
+
+static QReadWriteLock           g_getFilePath_lock;
+static QScopedPointer<QLibrary> g_getFilePath_kernel32;
+static GetPathNameByHandleFun   g_getFilePath_prt = NULL;
+
+static QString get_file_path_drive_list(void)
+{
+	QString list;
+	const DWORD len = GetLogicalDriveStringsW(0, NULL);
+	if (len > 0)
+	{
+		if (wchar_t *const buffer = (wchar_t*) _malloca(sizeof(wchar_t) * len))
+		{
+			const DWORD ret = GetLogicalDriveStringsW(len, buffer);
+			if ((ret > 0) && (ret < len))
+			{
+				const wchar_t *ptr = buffer;
+				while (const size_t current_len = wcslen(ptr))
+				{
+					list.append(QChar(*reinterpret_cast<const ushort*>(ptr)));
+					ptr += (current_len + 1);
+				}
+			}
+			_freea(buffer);
+		}
+	}
+	return list;
+}
+
+static QString &get_file_path_translate(QString &path)
+{
+	static const DWORD BUFSIZE = 4096;
+	wchar_t buffer[BUFSIZE], drive[3];
+
+	const QString driveList = get_file_path_drive_list();
+	wcscpy_s(drive, 3, L"?:");
+	for (const wchar_t *current = MUTILS_WCHR(driveList); *current; current++)
+	{
+		drive[0] = (*current);
+		if (QueryDosDeviceW(drive, buffer, MAX_PATH))
+		{
+			const QString prefix = MUTILS_QSTR(buffer);
+			if (path.startsWith(prefix, Qt::CaseInsensitive))
+			{
+				path.remove(0, prefix.length()).prepend(QLatin1Char(':')).prepend(QChar(*reinterpret_cast<const ushort*>(current)));
+				break;
+			}
+		}
+	}
+
+	return path;
+}
+
+static QString get_file_path_fallback(const HANDLE &hFile)
+{
+	QString filePath;
+
+	const HANDLE hFileMap = CreateFileMappingW(hFile, NULL, PAGE_READONLY, 0, 1, NULL);
+	if (hFileMap)
+	{
+		void* pMem = MapViewOfFile(hFileMap, FILE_MAP_READ, 0, 0, 1);
+		if (pMem)
+		{
+			static const DWORD BUFSIZE = 4096;
+			wchar_t buffer[BUFSIZE];
+			if (GetMappedFileNameW(GetCurrentProcess(), pMem, buffer, BUFSIZE))
+			{
+				filePath = get_file_path_translate(MUTILS_QSTR(buffer));
+			}
+			UnmapViewOfFile(pMem);
+		}
+		CloseHandle(hFileMap);
+	}
+
+	return filePath;
+}
+
+static bool get_file_path_init()
+{
+	QWriteLocker writeLock(&g_getFilePath_lock);
+	if (g_getFilePath_prt)
+	{
+		return true; /*already initialized*/
+	}
+
+	if (g_getFilePath_kernel32.isNull())
+	{
+		g_getFilePath_kernel32.reset(new QLibrary("kernel32.dll"));
+	}
+
+	if (!g_getFilePath_kernel32->isLoaded())
+	{
+		if (!g_getFilePath_kernel32->load())
+		{
+			return false; /*faild to load kernel32.dll*/
+		}
+	}
+
+	g_getFilePath_prt = (GetPathNameByHandleFun) g_getFilePath_kernel32->resolve("GetFinalPathNameByHandleW");
+	return (g_getFilePath_prt != NULL);
+}
+
+QString MUtils::OS::get_file_path(const int &fd)
+{
+	if (fd >= 0)
+	{
+		QReadLocker readLock(&g_getFilePath_lock);
+
+		if (!g_getFilePath_prt)
+		{
+			readLock.unlock();
+			if (!get_file_path_init())
+			{
+				qWarning("MUtils::OS::get_file_path() --> fallback!");
+				return get_file_path_fallback((HANDLE)_get_osfhandle(fd));
+			}
+			readLock.relock();
+		}
+
+		const HANDLE handle = (HANDLE) _get_osfhandle(fd);
+		const DWORD len = g_getFilePath_prt(handle, NULL, 0, FILE_NAME_OPENED);
+		if (len > 0)
+		{
+			wchar_t *const buffer = (wchar_t*) _malloca(sizeof(wchar_t) * len);
+			const DWORD ret = g_getFilePath_prt(handle, buffer, len, FILE_NAME_OPENED);
+			if ((ret > 0) && (ret < len))
+			{
+				const QString path(MUTILS_QSTR(buffer));
+				return path.startsWith(QLatin1String("\\\\?\\")) ? path.mid(4) : path;
+			}
+		}
+	}
+
+	return QString();
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // PROCESS ELEVATION
 ///////////////////////////////////////////////////////////////////////////////
 
