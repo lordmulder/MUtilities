@@ -26,6 +26,7 @@
 //MUtils
 #include <MUtils/CPUFeatures.h>
 #include <MUtils/OSSupport.h>
+#include "Utils_Win32.h"
 
 //Qt
 #include <QLibrary>
@@ -94,11 +95,11 @@ MUtils::CPUFetaures::cpu_info_t MUtils::CPUFetaures::detect(void)
 	if(strlen(features.vendor) < 1) strncpy_s(features.vendor, 0x40, "Unknown", _TRUNCATE);
 
 #if (!(defined(_M_X64) || defined(_M_IA64)))
-	QLibrary Kernel32Lib("kernel32.dll");
-	if(IsWow64ProcessFun IsWow64ProcessPtr = (IsWow64ProcessFun) Kernel32Lib.resolve("IsWow64Process"))
+	const IsWow64ProcessFun isWow64ProcessPtr = MUtils::Win32Utils::resolve<IsWow64ProcessFun>(QLatin1String("kernel32"), QLatin1String("IsWow64Process"));
+	if(isWow64ProcessPtr)
 	{
 		BOOL x64flag = FALSE;
-		if(IsWow64ProcessPtr(GetCurrentProcess(), &x64flag))
+		if(isWow64ProcessPtr(GetCurrentProcess(), &x64flag))
 		{
 			features.x64 = (x64flag == TRUE);
 		}

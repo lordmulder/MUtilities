@@ -32,6 +32,12 @@
 #include <QWidget>
 #include <QMutex>
 
+//Win32 API
+#ifndef _INC_WINDOWS
+#define WIN32_LEAN_AND_MEAN 1
+#include <Windows.h>
+#endif //_INC_WINDOWS
+
 ///////////////////////////////////////////////////////////////////////////////
 // BROADCAST
 ///////////////////////////////////////////////////////////////////////////////
@@ -109,7 +115,7 @@ bool MUtils::GUI::set_window_icon(QWidget *const window, const QIcon &icon, cons
 	if((!icon.isNull()) && window->winId())
 	{
 		const int extend = (bIsBigIcon ? 32 : 16);
-		if(HICON hIcon = qicon_to_hicon(icon, extend, extend))
+		if(HICON hIcon = (HICON) MUtils::Win32Utils::qicon_to_hicon(icon, extend, extend))
 		{
 			if(new Internal::WindowIconHelper(window, hIcon, bIsBigIcon))
 			{

@@ -21,28 +21,21 @@
 
 #pragma once
 
-//Win32 API
-#ifndef _INC_WINDOWS
-#define WIN32_LEAN_AND_MEAN 1
-#include <Windows.h>
-#endif //_INC_WINDOWS
+#include <stdint.h>
+#include <MUtils/Global.h>
+class QIcon;
 
-//Qt
-#include <QIcon>
-
-///////////////////////////////////////////////////////////////////////////////
-// QICON TO HICON
-///////////////////////////////////////////////////////////////////////////////
-
-static HICON qicon_to_hicon(const QIcon &icon, const int w, const int h)
+namespace MUtils
 {
-	if(!icon.isNull())
+	namespace Win32Utils
 	{
-		QPixmap pixmap = icon.pixmap(w, h);
-		if(!pixmap.isNull())
+		uintptr_t qicon_to_hicon(const QIcon &icon, const int w, const int h);
+		uintptr_t resolve_helper(const QString &libraryName, const QString &functionName);
+
+		template<class T>
+		T resolve(const QString &libraryName, const QString &functionName)
 		{
-			return pixmap.toWinHICON();
+			return reinterpret_cast<T>(resolve_helper(libraryName, functionName));
 		}
 	}
-	return NULL;
 }

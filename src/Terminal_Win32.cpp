@@ -413,7 +413,7 @@ void MUtils::Terminal::set_icon(const QIcon &icon)
 			typedef DWORD (__stdcall *SetConsoleIconFun)(HICON);
 			if(SetConsoleIconFun SetConsoleIconPtr = (SetConsoleIconFun) kernel32.resolve("SetConsoleIcon"))
 			{
-				if(HICON hIcon = qicon_to_hicon(icon, 16, 16))
+				if(HICON hIcon = (HICON) MUtils::Win32Utils::qicon_to_hicon(icon, 16, 16))
 				{
 					SetConsoleIconPtr(hIcon);
 					DestroyIcon(hIcon);

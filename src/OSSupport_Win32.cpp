@@ -40,6 +40,7 @@
 #include <MUtils/OSSupport.h>
 #include <MUtils/GUI.h>
 #include "CriticalSection_Win32.h"
+#include "Utils_Win32.h"
 
 //Qt
 #include <QMap>
@@ -486,17 +487,8 @@ static QReadWriteLock g_wine_lock;
 
 static const bool detect_wine(void)
 {
-	bool is_wine = false;
-	
-	QLibrary ntdll("ntdll.dll");
-	if(ntdll.load())
-	{
-		if(ntdll.resolve("wine_nt_to_unix_file_name") != NULL) is_wine = true;
-		if(ntdll.resolve("wine_get_version")          != NULL) is_wine = true;
-		ntdll.unload();
-	}
-
-	return is_wine;
+	void *const ptr = MUtils::Win32Utils::resolve<void*>(QLatin1String("ntdll"), QLatin1String("wine_get_version"));
+	return (ptr != NULL);
 }
 
 const bool &MUtils::OS::running_on_wine(void)
@@ -531,11 +523,9 @@ const bool &MUtils::OS::running_on_wine(void)
 
 typedef QMap<size_t, QString> KFMap;
 typedef HRESULT (WINAPI *SHGetKnownFolderPath_t)(const GUID &rfid, DWORD dwFlags, HANDLE hToken, PWSTR *ppszPath);
-typedef HRESULT (WINAPI *SHGetFolderPath_t)(HWND hwndOwner, int nFolder, HANDLE hToken, DWORD dwFlags, LPWSTR pszPath);
+typedef HRESULT (WINAPI *SHGetFolderPath_t)     (HWND hwndOwner, int nFolder, HANDLE hToken, DWORD dwFlags, LPWSTR pszPath);
 
 static QScopedPointer<KFMap>  g_known_folders_map;
-static SHGetKnownFolderPath_t g_known_folders_fpGetKnownFolderPath;
-static SHGetFolderPath_t      g_known_folders_fpGetFolderPath;
 static QReadWriteLock         g_known_folders_lock;
 
 const QString &MUtils::OS::known_folder(known_folder_t folder_id)
@@ -598,22 +588,16 @@ const QString &MUtils::OS::known_folder(known_folder_t folder_id)
 	//Initialize on first call
 	if(g_known_folders_map.isNull())
 	{
-		QLibrary shell32("shell32.dll");
-		if(shell32.load())
-		{
-			g_known_folders_fpGetFolderPath =      (SHGetFolderPath_t)      shell32.resolve("SHGetFolderPathW");
-			g_known_folders_fpGetKnownFolderPath = (SHGetKnownFolderPath_t) shell32.resolve("SHGetKnownFolderPath");
-		}
 		g_known_folders_map.reset(new QMap<size_t, QString>());
 	}
 
 	QString folderPath;
 
 	//Now try to get the folder path!
-	if(g_known_folders_fpGetKnownFolderPath)
+	if(const SHGetKnownFolderPath_t known_folders_fpGetKnownFolderPath = MUtils::Win32Utils::resolve<SHGetKnownFolderPath_t>(QLatin1String("shell32"), QLatin1String("SHGetKnownFolderPath")))
 	{
 		WCHAR *path = NULL;
-		if(g_known_folders_fpGetKnownFolderPath(s_folders[folderId].guid, KF_FLAG_CREATE, NULL, &path) == S_OK)
+		if(known_folders_fpGetKnownFolderPath(s_folders[folderId].guid, KF_FLAG_CREATE, NULL, &path) == S_OK)
 		{
 			//MessageBoxW(0, path, L"SHGetKnownFolderPath", MB_TOPMOST);
 			QDir folderTemp = QDir(QDir::fromNativeSeparators(MUTILS_QSTR(path)));
@@ -624,10 +608,10 @@ const QString &MUtils::OS::known_folder(known_folder_t folder_id)
 			CoTaskMemFree(path);
 		}
 	}
-	else if(g_known_folders_fpGetFolderPath)
+	else if(const SHGetFolderPath_t known_folders_fpGetFolderPath = MUtils::Win32Utils::resolve<SHGetFolderPath_t>(QLatin1String("shell32"), QLatin1String("SHGetFolderPathW")))
 	{
 		QScopedArrayPointer<WCHAR> path(new WCHAR[4096]);
-		if(g_known_folders_fpGetFolderPath(NULL, s_folders[folderId].csidl | CSIDL_FLAG_CREATE, NULL, NULL, path.data()) == S_OK)
+		if(known_folders_fpGetFolderPath(NULL, s_folders[folderId].csidl | CSIDL_FLAG_CREATE, NULL, NULL, path.data()) == S_OK)
 		{
 			//MessageBoxW(0, path, L"SHGetFolderPathW", MB_TOPMOST);
 			QDir folderTemp = QDir(QDir::fromNativeSeparators(MUTILS_QSTR(path.data())));
@@ -721,10 +705,6 @@ quint64 MUtils::OS::current_file_time(void)
 
 typedef DWORD(_stdcall *GetPathNameByHandleFun)(HANDLE hFile, LPWSTR lpszFilePath, DWORD cchFilePath, DWORD dwFlags);
 
-static QReadWriteLock           g_getFilePath_lock;
-static QScopedPointer<QLibrary> g_getFilePath_kernel32;
-static GetPathNameByHandleFun   g_getFilePath_prt = NULL;
-
 static QString get_file_path_drive_list(void)
 {
 	QString list;
@@ -797,55 +777,24 @@ static QString get_file_path_fallback(const HANDLE &hFile)
 	return filePath;
 }
 
-static bool get_file_path_init()
-{
-	QWriteLocker writeLock(&g_getFilePath_lock);
-	if (g_getFilePath_prt)
-	{
-		return true; /*already initialized*/
-	}
-
-	if (g_getFilePath_kernel32.isNull())
-	{
-		g_getFilePath_kernel32.reset(new QLibrary("kernel32.dll"));
-	}
-
-	if (!g_getFilePath_kernel32->isLoaded())
-	{
-		if (!g_getFilePath_kernel32->load())
-		{
-			return false; /*faild to load kernel32.dll*/
-		}
-	}
-
-	g_getFilePath_prt = (GetPathNameByHandleFun) g_getFilePath_kernel32->resolve("GetFinalPathNameByHandleW");
-	return (g_getFilePath_prt != NULL);
-}
-
 QString MUtils::OS::get_file_path(const int &fd)
 {
 	if (fd >= 0)
 	{
-		QReadLocker readLock(&g_getFilePath_lock);
-
-		if (!g_getFilePath_prt)
+		const GetPathNameByHandleFun getPathNameByHandleFun = MUtils::Win32Utils::resolve<GetPathNameByHandleFun>(QLatin1String("kernel32"), QLatin1String("GetFinalPathNameByHandleW"));
+		if (!getPathNameByHandleFun)
 		{
-			readLock.unlock();
-			if (!get_file_path_init())
-			{
-				qWarning("MUtils::OS::get_file_path() --> fallback!");
-				return get_file_path_fallback((HANDLE)_get_osfhandle(fd));
-			}
-			readLock.relock();
+			qWarning("MUtils::OS::get_file_path() --> fallback!");
+			return get_file_path_fallback((HANDLE)_get_osfhandle(fd));
 		}
 
 		const HANDLE handle = (HANDLE) _get_osfhandle(fd);
-		const DWORD len = g_getFilePath_prt(handle, NULL, 0, FILE_NAME_OPENED);
+		const DWORD len = getPathNameByHandleFun(handle, NULL, 0, FILE_NAME_OPENED);
 		if (len > 0)
 		{
 			if (wchar_t *const buffer = (wchar_t*)_malloca(sizeof(wchar_t) * len))
 			{
-				const DWORD ret = g_getFilePath_prt(handle, buffer, len, FILE_NAME_OPENED);
+				const DWORD ret = getPathNameByHandleFun(handle, buffer, len, FILE_NAME_OPENED);
 				if ((ret > 0) && (ret < len))
 				{
 					const QString path(MUTILS_QSTR(buffer));
@@ -1414,67 +1363,28 @@ void MUtils::OS::shell_change_notification(void)
 typedef BOOL (_stdcall *Wow64DisableWow64FsRedirectionFun)(void *OldValue);
 typedef BOOL (_stdcall *Wow64RevertWow64FsRedirectionFun )(void *OldValue);
 
-static QReadWriteLock                    g_wow64redir_lock;
-static QScopedPointer<QLibrary>          g_wow64redir_kernel32;
-static Wow64DisableWow64FsRedirectionFun g_wow64redir_disable = NULL;
-static Wow64RevertWow64FsRedirectionFun  g_wow64redir_revert  = NULL;
-
-static bool wow64fsredir_init()
-{
-	QWriteLocker writeLock(&g_wow64redir_lock);
-	if(g_wow64redir_disable && g_wow64redir_revert)
-	{
-		return true; /*already initialized*/
-	}
-
-	if(g_wow64redir_kernel32.isNull())
-	{
-		g_wow64redir_kernel32.reset(new QLibrary("kernel32.dll"));
-	}
-
-	if(!g_wow64redir_kernel32->isLoaded())
-	{
-		if(!g_wow64redir_kernel32->load())
-		{
-			return false; /*faild to load kernel32.dll*/
-		}
-	}
-
-	g_wow64redir_disable = (Wow64DisableWow64FsRedirectionFun) g_wow64redir_kernel32->resolve("Wow64DisableWow64FsRedirection");
-	g_wow64redir_revert  = (Wow64RevertWow64FsRedirectionFun)  g_wow64redir_kernel32->resolve("Wow64RevertWow64FsRedirection");
-
-	return (g_wow64redir_disable && g_wow64redir_revert);
-}
-
-#define WOW64FSREDIR_INIT(RDLOCK) do \
-{ \
-	while(!(g_wow64redir_disable && g_wow64redir_revert)) \
-	{ \
-		(RDLOCK).unlock(); \
-		if(!wow64fsredir_init()) return false; \
-		(RDLOCK).relock(); \
-	} \
-} \
-while(0)
-
 bool MUtils::OS::wow64fsredir_disable(void *oldValue)
 {
-	QReadLocker readLock(&g_wow64redir_lock);
-	WOW64FSREDIR_INIT(readLock);
-	if(g_wow64redir_disable(oldValue))
+	const Wow64DisableWow64FsRedirectionFun wow64redir_disable = MUtils::Win32Utils::resolve<Wow64DisableWow64FsRedirectionFun>(QLatin1String("kernel32"), QLatin1String("Wow64DisableWow64FsRedirection"));
+	if(wow64redir_disable)
 	{
-		return true;
+		if (wow64redir_disable(oldValue))
+		{
+			return true;
+		}
 	}
 	return false;
 }
 
 bool MUtils::OS::wow64fsredir_revert(void *oldValue)
 {
-	QReadLocker readLock(&g_wow64redir_lock);
-	WOW64FSREDIR_INIT(readLock);
-	if(g_wow64redir_revert(oldValue))
+	const Wow64RevertWow64FsRedirectionFun wow64redir_disable = MUtils::Win32Utils::resolve<Wow64RevertWow64FsRedirectionFun>(QLatin1String("kernel32"), QLatin1String("Wow64RevertWow64FsRedirection"));
+	if (wow64redir_disable)
 	{
-		return true;
+		if (wow64redir_disable(oldValue))
+		{
+			return true;
+		}
 	}
 	return false;
 }
