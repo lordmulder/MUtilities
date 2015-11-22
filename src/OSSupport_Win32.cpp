@@ -843,12 +843,15 @@ QString MUtils::OS::get_file_path(const int &fd)
 		const DWORD len = g_getFilePath_prt(handle, NULL, 0, FILE_NAME_OPENED);
 		if (len > 0)
 		{
-			wchar_t *const buffer = (wchar_t*) _malloca(sizeof(wchar_t) * len);
-			const DWORD ret = g_getFilePath_prt(handle, buffer, len, FILE_NAME_OPENED);
-			if ((ret > 0) && (ret < len))
+			if (wchar_t *const buffer = (wchar_t*)_malloca(sizeof(wchar_t) * len))
 			{
-				const QString path(MUTILS_QSTR(buffer));
-				return path.startsWith(QLatin1String("\\\\?\\")) ? path.mid(4) : path;
+				const DWORD ret = g_getFilePath_prt(handle, buffer, len, FILE_NAME_OPENED);
+				if ((ret > 0) && (ret < len))
+				{
+					const QString path(MUTILS_QSTR(buffer));
+					return path.startsWith(QLatin1String("\\\\?\\")) ? path.mid(4) : path;
+				}
+				_freea(buffer);
 			}
 		}
 	}
