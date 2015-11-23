@@ -28,9 +28,6 @@
 #include <MUtils/OSSupport.h>
 #include "Utils_Win32.h"
 
-//Qt
-#include <QLibrary>
-
 MUtils::CPUFetaures::cpu_info_t MUtils::CPUFetaures::detect(void)
 {
 	const OS::ArgumentMap &args = OS::arguments();

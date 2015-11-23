@@ -36,7 +36,6 @@
 #include <QFile>
 #include <QStringList>
 #include <QIcon>
-#include <QLibrary>
 
 //CRT
 #include <iostream>
@@ -407,17 +406,13 @@ void MUtils::Terminal::set_icon(const QIcon &icon)
 
 	if(g_terminal_attached && (!(icon.isNull() || MUtils::OS::running_on_wine())))
 	{
-		QLibrary kernel32("kernel32.dll");
-		if(kernel32.load())
+		typedef DWORD(__stdcall *SetConsoleIconFun)(HICON);
+		if(const SetConsoleIconFun setConsoleIconFun = MUtils::Win32Utils::resolve<SetConsoleIconFun>(QLatin1String("kernel32"), QLatin1String("SetConsoleIcon")))
 		{
-			typedef DWORD (__stdcall *SetConsoleIconFun)(HICON);
-			if(SetConsoleIconFun SetConsoleIconPtr = (SetConsoleIconFun) kernel32.resolve("SetConsoleIcon"))
+			if(HICON hIcon = (HICON) MUtils::Win32Utils::qicon_to_hicon(icon, 16, 16))
 			{
-				if(HICON hIcon = (HICON) MUtils::Win32Utils::qicon_to_hicon(icon, 16, 16))
-				{
-					SetConsoleIconPtr(hIcon);
-					DestroyIcon(hIcon);
-				}
+				setConsoleIconFun(hIcon);
+				DestroyIcon(hIcon);
 			}
 		}
 	}

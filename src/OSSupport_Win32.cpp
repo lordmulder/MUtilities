@@ -45,7 +45,6 @@
 //Qt
 #include <QMap>
 #include <QReadWriteLock>
-#include <QLibrary>
 #include <QDir>
 #include <QWidget>
 #include <QProcess>

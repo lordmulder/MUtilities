@@ -35,7 +35,6 @@
 #include <QApplication>
 #include <QWidget>
 #include <QReadWriteLock>
-#include <QLibrary>
 #include <Dwmapi.h>
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -43,47 +42,42 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 static QReadWriteLock g_themes_lock;
-static bool g_themes_initialized = false;
-static bool g_themes_enabled = false;
+static int g_themes_initialized = 0;
 
-typedef int (WINAPI IsAppThemedFunction)(void);
+typedef int (WINAPI *IsAppThemedFunction)(void);
 
 bool MUtils::GUI::themes_enabled(void)
 {
 	QReadLocker readLock(&g_themes_lock);
 
-	if(g_themes_initialized)
+	if(g_themes_initialized != 0)
 	{
-		return g_themes_enabled;
+		return (g_themes_initialized > 0);
 	}
 
 	readLock.unlock();
 	QWriteLocker writeLock(&g_themes_lock);
 
-	if(g_themes_initialized)
+	if(g_themes_initialized != 0)
 	{
-		return g_themes_enabled;
+		return (g_themes_initialized > 0);
 	}
 
 	const MUtils::OS::Version::os_version_t &osVersion = MUtils::OS::os_version();
 	if(osVersion >= MUtils::OS::Version::WINDOWS_WINXP)
 	{
-		QLibrary uxTheme("UxTheme.dll");
-		if(uxTheme.load())
+		const IsAppThemedFunction isAppThemedPtr = MUtils::Win32Utils::resolve<IsAppThemedFunction>(QLatin1String("UxTheme"), QLatin1String("IsAppThemed"));
+		if(isAppThemedPtr)
 		{
-			if(IsAppThemedFunction *const IsAppThemedPtr = (IsAppThemedFunction*) uxTheme.resolve("IsAppThemed"))
+			g_themes_initialized = isAppThemedPtr() ? 1 : (-1);
+			if(g_themes_initialized < 0)
 			{
-				g_themes_enabled = IsAppThemedPtr();
-				if(!g_themes_enabled)
-				{
-					qWarning("Theme support is disabled for this process!");
-				}
+				qWarning("Theme support is disabled for this process!");
 			}
 		}
 	}
 
-	g_themes_initialized = true;
-	return g_themes_enabled;
+	return (g_themes_initialized > 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -180,74 +174,22 @@ bool MUtils::GUI::bring_to_front(const unsigned long pid)
 // SHEET OF GLASS EFFECT
 ///////////////////////////////////////////////////////////////////////////////
 
-static QReadWriteLock g_dwmapi_lock;
-static QScopedPointer<QLibrary> g_dwmapi_library;
-static bool g_dwmapi_initialized = false;
-
-static struct
-{
-	HRESULT (__stdcall *dwmIsCompositionEnabled)(BOOL *bEnabled);
-	HRESULT (__stdcall *dwmExtendFrameIntoClientArea)(HWND hWnd, const MARGINS* pMarInset);
-	HRESULT (__stdcall *dwmEnableBlurBehindWindow)(HWND hWnd, const DWM_BLURBEHIND* pBlurBehind);
-}
-g_dwmapi_pointers = { NULL, NULL, NULL };
-
-static void initialize_dwmapi(void)
-{
-	QReadLocker writeLock(&g_dwmapi_lock);
-
-	//Not initialized yet?
-	if(g_dwmapi_initialized)
-	{
-		return;
-	}
-	
-	//Reset function pointers
-	g_dwmapi_pointers.dwmIsCompositionEnabled      = NULL;
-	g_dwmapi_pointers.dwmExtendFrameIntoClientArea = NULL;
-	g_dwmapi_pointers.dwmEnableBlurBehindWindow    = NULL;
-			
-	//Does OS support DWM?
-	const MUtils::OS::Version::os_version_t &osVersion = MUtils::OS::os_version();
-	if(osVersion >= MUtils::OS::Version::WINDOWS_VISTA)
-	{
-		//Load DWMAPI.DLL
-		g_dwmapi_library.reset(new QLibrary("dwmapi.dll"));
-		if(g_dwmapi_library->load())
-		{
-			//Initialize function pointers
-			g_dwmapi_pointers.dwmIsCompositionEnabled      = (HRESULT (__stdcall*)(BOOL*))                       g_dwmapi_library->resolve("DwmIsCompositionEnabled");
-			g_dwmapi_pointers.dwmExtendFrameIntoClientArea = (HRESULT (__stdcall*)(HWND, const MARGINS*))        g_dwmapi_library->resolve("DwmExtendFrameIntoClientArea");
-			g_dwmapi_pointers.dwmEnableBlurBehindWindow    = (HRESULT (__stdcall*)(HWND, const DWM_BLURBEHIND*)) g_dwmapi_library->resolve("DwmEnableBlurBehindWindow");
-		}
-		else
-		{
-			g_dwmapi_library.reset(NULL);
-			qWarning("Failed to load DWMAPI.DLL on a DWM-enabled system!");
-		}
-	}
-
-	g_dwmapi_initialized = true;
-}
+typedef	HRESULT (__stdcall *DwmIsCompositionEnabledFun)      (BOOL *bEnabled);
+typedef HRESULT (__stdcall *DwmExtendFrameIntoClientAreaFun) (HWND hWnd, const MARGINS* pMarInset);
+typedef HRESULT (__stdcall *DwmEnableBlurBehindWindowFun)    (HWND hWnd, const DWM_BLURBEHIND* pBlurBehind);
 
 bool MUtils::GUI::sheet_of_glass(QWidget *const window)
 {
-	QReadLocker readLock(&g_dwmapi_lock);
-
-	//Initialize the DWM API
-	if(!g_dwmapi_initialized)
-	{
-		readLock.unlock();
-		initialize_dwmapi();
-		readLock.relock();
-	}
+	const DwmIsCompositionEnabledFun      dwmIsCompositionEnabledFun      = MUtils::Win32Utils::resolve<DwmIsCompositionEnabledFun>     (QLatin1String("dwmapi"), QLatin1String("DwmIsCompositionEnabled")     );
+	const DwmExtendFrameIntoClientAreaFun dwmExtendFrameIntoClientAreaFun = MUtils::Win32Utils::resolve<DwmExtendFrameIntoClientAreaFun>(QLatin1String("dwmapi"), QLatin1String("DwmExtendFrameIntoClientArea"));
+	const DwmEnableBlurBehindWindowFun    dwmEnableBlurBehindWindowFun    = MUtils::Win32Utils::resolve<DwmEnableBlurBehindWindowFun>   (QLatin1String("dwmapi"), QLatin1String("DwmEnableBlurBehindWindow")   );
 
 	//Required functions available?
 	BOOL bCompositionEnabled = FALSE;
-	if(g_dwmapi_pointers.dwmIsCompositionEnabled && g_dwmapi_pointers.dwmExtendFrameIntoClientArea && g_dwmapi_pointers.dwmEnableBlurBehindWindow)
+	if(dwmIsCompositionEnabledFun && dwmExtendFrameIntoClientAreaFun && dwmEnableBlurBehindWindowFun)
 	{
 		//Check if composition is currently enabled
-		if(HRESULT hr = g_dwmapi_pointers.dwmIsCompositionEnabled(&bCompositionEnabled))
+		if(HRESULT hr = dwmIsCompositionEnabledFun(&bCompositionEnabled))
 		{
 			qWarning("DwmIsCompositionEnabled function has failed! (error %d)", hr);
 			return false;
@@ -262,7 +204,7 @@ bool MUtils::GUI::sheet_of_glass(QWidget *const window)
 
 	//Enable the "sheet of glass" effect on this window
 	MARGINS margins = {-1, -1, -1, -1};
-	if(HRESULT hr = g_dwmapi_pointers.dwmExtendFrameIntoClientArea(window->winId(), &margins))
+	if(HRESULT hr = dwmExtendFrameIntoClientAreaFun(window->winId(), &margins))
 	{
 		qWarning("DwmExtendFrameIntoClientArea function has failed! (error %d)", hr);
 		return false;
@@ -273,7 +215,7 @@ bool MUtils::GUI::sheet_of_glass(QWidget *const window)
 	memset(&bb, 0, sizeof(DWM_BLURBEHIND));
 	bb.fEnable = TRUE;
 	bb.dwFlags = DWM_BB_ENABLE;
-	if(HRESULT hr = g_dwmapi_pointers.dwmEnableBlurBehindWindow(window->winId(), &bb))
+	if(HRESULT hr = dwmEnableBlurBehindWindowFun(window->winId(), &bb))
 	{
 		qWarning("DwmEnableBlurBehindWindow function has failed! (error %d)", hr);
 		return false;
@@ -289,22 +231,16 @@ bool MUtils::GUI::sheet_of_glass(QWidget *const window)
 
 bool MUtils::GUI::sheet_of_glass_update(QWidget *const window)
 {
-	QReadLocker readLock(&g_dwmapi_lock);
-
-	//Initialize the DWM API
-	if(!g_dwmapi_initialized)
-	{
-		readLock.unlock();
-		initialize_dwmapi();
-		readLock.relock();
-	}
-
+	const DwmIsCompositionEnabledFun      dwmIsCompositionEnabledFun      = MUtils::Win32Utils::resolve<DwmIsCompositionEnabledFun>     (QLatin1String("dwmapi"), QLatin1String("DwmIsCompositionEnabled")     );
+	const DwmExtendFrameIntoClientAreaFun dwmExtendFrameIntoClientAreaFun = MUtils::Win32Utils::resolve<DwmExtendFrameIntoClientAreaFun>(QLatin1String("dwmapi"), QLatin1String("DwmExtendFrameIntoClientArea"));
+	const DwmEnableBlurBehindWindowFun    dwmEnableBlurBehindWindowFun    = MUtils::Win32Utils::resolve<DwmEnableBlurBehindWindowFun>   (QLatin1String("dwmapi"), QLatin1String("DwmEnableBlurBehindWindow")   );
+	
 	//Required functions available?
 	BOOL bCompositionEnabled = FALSE;
-	if(g_dwmapi_pointers.dwmIsCompositionEnabled && g_dwmapi_pointers.dwmExtendFrameIntoClientArea && g_dwmapi_pointers.dwmEnableBlurBehindWindow)
+	if(dwmIsCompositionEnabledFun && dwmExtendFrameIntoClientAreaFun && dwmEnableBlurBehindWindowFun)
 	{
 		//Check if composition is currently enabled
-		if(HRESULT hr = g_dwmapi_pointers.dwmIsCompositionEnabled(&bCompositionEnabled))
+		if(HRESULT hr = dwmIsCompositionEnabledFun(&bCompositionEnabled))
 		{
 			qWarning("DwmIsCompositionEnabled function has failed! (error %d)", hr);
 			return false;
@@ -322,7 +258,7 @@ bool MUtils::GUI::sheet_of_glass_update(QWidget *const window)
 	memset(&bb, 0, sizeof(DWM_BLURBEHIND));
 	bb.fEnable = TRUE;
 	bb.dwFlags = DWM_BB_ENABLE;
-	if(HRESULT hr = g_dwmapi_pointers.dwmEnableBlurBehindWindow(window->winId(), &bb))
+	if(HRESULT hr = dwmEnableBlurBehindWindowFun(window->winId(), &bb))
 	{
 		qWarning("DwmEnableBlurBehindWindow function has failed! (error %d)", hr);
 		return false;

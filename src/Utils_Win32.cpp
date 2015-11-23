@@ -63,17 +63,17 @@ static QHash<QString, LibraryItem> g_resolve_libs;
 
 uintptr_t MUtils::Win32Utils::resolve_helper(const QString &libraryName, const QString &functionName)
 {
-	QReadLocker rdLock(&g_resolve_lock);
+	const QString libraryNameFolded = libraryName.toCaseFolded().trimmed();
+	const QString functionIdTrimmed = functionName.trimmed();
 
 	//Fuction already loaded?
-	const QString libNameLower = libraryName.toLower();
-	if (g_resolve_libs.contains(libNameLower))
+	QReadLocker rdLock(&g_resolve_lock);
+	if (g_resolve_libs.contains(libraryNameFolded))
 	{
-		LibraryItem &lib = g_resolve_libs[libNameLower];
-		if (lib.second.contains(functionName))
+		LibraryItem &lib = g_resolve_libs[libraryNameFolded];
+		if (lib.second.contains(functionIdTrimmed))
 		{
-			qWarning("TEST: Function already there!");
-			return lib.second[functionName];
+			return lib.second[functionIdTrimmed];
 		}
 	}
 
@@ -82,34 +82,35 @@ uintptr_t MUtils::Win32Utils::resolve_helper(const QString &libraryName, const Q
 	QWriteLocker wrLock(&g_resolve_lock);
 
 	//Load library
-	while (!g_resolve_libs.contains(libNameLower))
+	if (!g_resolve_libs.contains(libraryNameFolded))
 	{
-		qWarning("TEST: Library not there -> going to load now!");
-		QSharedPointer<QLibrary> lib(new QLibrary(libNameLower));
+		QSharedPointer<QLibrary> lib(new QLibrary(libraryNameFolded));
 		if (!(lib->isLoaded() || lib->load()))
 		{
-			qWarning("Failed to load library: \"%s\"", MUTILS_UTF8(libNameLower));
-			return NULL;
+			qWarning("Failed to load dynamic library: %s", MUTILS_UTF8(libraryNameFolded));
+			lib.clear();
 		}
-		g_resolve_libs.insert(libNameLower, qMakePair(lib, FunctionMap()));
+		g_resolve_libs.insert(libraryNameFolded, qMakePair(lib, FunctionMap()));
+	}
+
+	//Is library available?
+	LibraryItem &lib = g_resolve_libs[libraryNameFolded];
+	if (lib.first.isNull() || (!lib.first->isLoaded()))
+	{
+		return NULL; /*library unavailable*/
 	}
 
 	//Lookup the function
-	LibraryItem &lib = g_resolve_libs[libNameLower];
-	while (!lib.second.contains(functionName))
+	if (!lib.second.contains(functionIdTrimmed))
 	{
-		qWarning("TEST: Function not there -> going to resolve now!");
-		void *const ptr = lib.first->resolve(functionName.toLatin1().constData());
+		void *const ptr = lib.first->resolve(functionIdTrimmed.toLatin1().constData());
 		if (!ptr)
 		{
-			lib.second.insert(functionName, NULL);
-			qWarning("Failed to resolve function: \"%s\"", MUTILS_UTF8(functionName));
-			return NULL;
+			qWarning("Failed to resolve function: %s::%s", MUTILS_UTF8(libraryNameFolded), MUTILS_UTF8(functionIdTrimmed));
 		}
-		qWarning("TEST: Function resolved to 0x%p", ptr);
-		lib.second.insert(functionName, reinterpret_cast<uintptr_t>(ptr));
+		lib.second.insert(functionIdTrimmed, reinterpret_cast<uintptr_t>(ptr));
 	}
 
 	//Return function pointer
-	return lib.second[functionName];
+	return lib.second[functionIdTrimmed];
 }
