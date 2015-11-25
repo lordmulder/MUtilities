@@ -728,9 +728,9 @@ static QString get_file_path_drive_list(void)
 	return list;
 }
 
-static QString &get_file_path_translate(QString &path)
+static void get_file_path_translate(QString &path)
 {
-	static const DWORD BUFSIZE = 4096;
+	static const DWORD BUFSIZE = 2048;
 	wchar_t buffer[BUFSIZE], drive[3];
 
 	const QString driveList = get_file_path_drive_list();
@@ -748,8 +748,6 @@ static QString &get_file_path_translate(QString &path)
 			}
 		}
 	}
-
-	return path;
 }
 
 static QString get_file_path_fallback(const HANDLE &hFile)
@@ -759,18 +757,23 @@ static QString get_file_path_fallback(const HANDLE &hFile)
 	const HANDLE hFileMap = CreateFileMappingW(hFile, NULL, PAGE_READONLY, 0, 1, NULL);
 	if (hFileMap)
 	{
-		void* pMem = MapViewOfFile(hFileMap, FILE_MAP_READ, 0, 0, 1);
+		void *const pMem = MapViewOfFile(hFileMap, FILE_MAP_READ, 0, 0, 1);
 		if (pMem)
 		{
-			static const DWORD BUFSIZE = 4096;
-			wchar_t buffer[BUFSIZE];
-			if (GetMappedFileNameW(GetCurrentProcess(), pMem, buffer, BUFSIZE))
+			static const size_t BUFFSIZE = 2048;
+			wchar_t buffer[BUFFSIZE];
+			if (GetMappedFileNameW(GetCurrentProcess(), pMem, buffer, BUFFSIZE) > 0)
 			{
-				filePath = get_file_path_translate(MUTILS_QSTR(buffer));
+				filePath = MUTILS_QSTR(buffer);
 			}
 			UnmapViewOfFile(pMem);
 		}
 		CloseHandle(hFileMap);
+	}
+
+	if (!filePath.isEmpty())
+	{
+		get_file_path_translate(filePath);
 	}
 
 	return filePath;
@@ -783,7 +786,6 @@ QString MUtils::OS::get_file_path(const int &fd)
 		const GetPathNameByHandleFun getPathNameByHandleFun = MUtils::Win32Utils::resolve<GetPathNameByHandleFun>(QLatin1String("kernel32"), QLatin1String("GetFinalPathNameByHandleW"));
 		if (!getPathNameByHandleFun)
 		{
-			qWarning("MUtils::OS::get_file_path() --> fallback!");
 			return get_file_path_fallback((HANDLE)_get_osfhandle(fd));
 		}
 

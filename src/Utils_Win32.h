@@ -30,7 +30,7 @@ namespace MUtils
 	namespace Win32Utils
 	{
 		uintptr_t qicon_to_hicon(const QIcon &icon, const int w, const int h);
-		uintptr_t resolve_helper(const QString &libraryName, const QString &functionName);
+		const uintptr_t &resolve_helper(const QString &libraryName, const QString &functionName);
 
 		template<class T>
 		T resolve(const QString &libraryName, const QString &functionName)

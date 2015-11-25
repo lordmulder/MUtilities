@@ -61,7 +61,7 @@ typedef QPair<QSharedPointer<QLibrary>, FunctionMap> LibraryItem;
 static QReadWriteLock              g_resolve_lock;
 static QHash<QString, LibraryItem> g_resolve_libs;
 
-uintptr_t MUtils::Win32Utils::resolve_helper(const QString &libraryName, const QString &functionName)
+const uintptr_t &MUtils::Win32Utils::resolve_helper(const QString &libraryName, const QString &functionName)
 {
 	const QString libraryNameFolded = libraryName.toCaseFolded().trimmed();
 	const QString functionIdTrimmed = functionName.trimmed();
@@ -97,7 +97,8 @@ uintptr_t MUtils::Win32Utils::resolve_helper(const QString &libraryName, const Q
 	LibraryItem &lib = g_resolve_libs[libraryNameFolded];
 	if (lib.first.isNull() || (!lib.first->isLoaded()))
 	{
-		return NULL; /*library unavailable*/
+		static const uintptr_t null = NULL;
+		return null; /*library unavailable*/
 	}
 
 	//Lookup the function
