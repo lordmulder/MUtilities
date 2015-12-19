@@ -38,6 +38,7 @@
     <ClCompile Include="src\Terminal_Win32.cpp" />
     <ClCompile Include="src\Translation.cpp" />
     <ClCompile Include="src\UpdateChecker.cpp" />
+    <ClCompile Include="src\Utils_Win32.cpp" />
     <ClCompile Include="src\Version.cpp" />
   </ItemGroup>
   <ItemGroup>
