@@ -39,6 +39,7 @@ namespace MUtils
 		static const quint32 FLAG_SSSE3 = 0x10;
 		static const quint32 FLAG_SSE4  = 0x20;
 		static const quint32 FLAG_SSE42 = 0x40;
+		static const quint32 FLAG_AVX   = 0x80;
 
 		//CPU features
 		typedef struct _cpu_info_t

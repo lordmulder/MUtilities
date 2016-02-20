@@ -61,6 +61,13 @@ MUtils::CPUFetaures::cpu_info_t MUtils::CPUFetaures::detect(void)
 		if(CPUInfo[2] & 0x00000200) features.features |= FLAG_SSSE3;
 		if(CPUInfo[2] & 0x00080000) features.features |= FLAG_SSE4;
 		if(CPUInfo[2] & 0x00100000) features.features |= FLAG_SSE42;
+		if ((CPUInfo[2] & 0x18000000) == 0x18000000)
+		{
+			if (IsProcessorFeaturePresent(PF_XSAVE_ENABLED)) /*AVX requires OS support!*/
+			{
+				features.features |= FLAG_AVX;
+			}
+		}
 		features.stepping = CPUInfo[0] & 0xf;
 		features.model    = ((CPUInfo[0] >> 4) & 0xf) + (((CPUInfo[0] >> 16) & 0xf) << 4);
 		features.family   = ((CPUInfo[0] >> 8) & 0xf) + ((CPUInfo[0] >> 20) & 0xff);
@@ -98,12 +105,23 @@ MUtils::CPUFetaures::cpu_info_t MUtils::CPUFetaures::detect(void)
 		BOOL x64flag = FALSE;
 		if(isWow64ProcessPtr(GetCurrentProcess(), &x64flag))
 		{
-			features.x64 = (x64flag == TRUE);
+			if(x64flag) features.x64 = true;
 		}
 	}
 #else
 	features.x64 = true;
 #endif
+
+	if (features.x64)
+	{
+		features.features |= (FLAG_MMX | FLAG_SSE | FLAG_SSE2); /*x86_64 implies SSE2*/
+	}
+
+	if (!(features.features & FLAG_MMX))
+	{
+		qWarning("Warning: CPU does not seem to support MMX. Take care!\n");
+		features.features = 0;
+	}
 
 	DWORD_PTR procAffinity, sysAffinity;
 	if(GetProcessAffinityMask(GetCurrentProcess(), &procAffinity, &sysAffinity))
@@ -119,12 +137,12 @@ MUtils::CPUFetaures::cpu_info_t MUtils::CPUFetaures::detect(void)
 		features.count = qBound(1UL, systemInfo.dwNumberOfProcessors, 64UL);
 	}
 
-	bool flag = false;
-	if(args.contains("force-cpu-no-64bit")) { flag = true; features.x64 = false; }
-	if(args.contains("force-cpu-no-sse"  )) { flag = true; features.features &= (~(FLAG_SSE | FLAG_SSE2 | FLAG_SSE3 | FLAG_SSSE3 | FLAG_SSE4 | FLAG_SSE42)); }
-	if(args.contains("force-cpu-no-intel")) { flag = true; features.intel = false; }
+	bool userFlag = false;
+	if(args.contains("force-cpu-no-64bit")) { userFlag = true; features.x64 = false; }
+	if(args.contains("force-cpu-no-sse"  )) { userFlag = true; features.features &= (~(FLAG_SSE | FLAG_SSE2 | FLAG_SSE3 | FLAG_SSSE3 | FLAG_SSE4 | FLAG_SSE42)); }
+	if(args.contains("force-cpu-no-intel")) { userFlag = true; features.intel = false; }
 
-	if(flag)
+	if(userFlag)
 	{
 		qWarning("CPU flags overwritten by user-defined parameters. Take care!\n");
 	}
