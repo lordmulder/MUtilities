@@ -63,7 +63,7 @@ MUtils::CPUFetaures::cpu_info_t MUtils::CPUFetaures::detect(void)
 		if(CPUInfo[2] & 0x00100000) features.features |= FLAG_SSE42;
 		if ((CPUInfo[2] & 0x18000000) == 0x18000000)
 		{
-			if (IsProcessorFeaturePresent(PF_XSAVE_ENABLED)) /*AVX requires OS support!*/
+			if((_xgetbv(0) & 0x6ui64) == 0x6ui64) /*AVX requires OS support!*/
 			{
 				features.features |= FLAG_AVX;
 			}
