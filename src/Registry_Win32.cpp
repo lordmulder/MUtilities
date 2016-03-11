@@ -71,6 +71,17 @@ namespace MUtils
 			}
 		}
 
+		static DWORD registry_scope(const reg_scope_t &scope)
+		{
+			switch (scope)
+			{
+				case scope_default: return 0;               break;
+				case scope_wow_x32: return KEY_WOW64_32KEY; break;
+				case scope_wow_x64: return KEY_WOW64_64KEY; break;
+				default: MUTILS_THROW("Unknown scope value was specified!");
+			}
+		}
+
 		static const char* reg_root2str(const reg_root_t &rootKey)
 		{
 			ENUM2STR(rootKey, root_classes);
@@ -134,12 +145,12 @@ while(0)
 // Registry Key Class
 ///////////////////////////////////////////////////////////////////////////////
 
-MUtils::Registry::RegistryKey::RegistryKey(const reg_root_t &rootKey, const QString &keyName, const reg_access_t &access)
+MUtils::Registry::RegistryKey::RegistryKey(const reg_root_t &rootKey, const QString &keyName, const reg_access_t &access, const reg_scope_t &scope)
 :
 	p(new Internal::RegistryKeyPrivate())
 {
 	p->m_hKey   = NULL;
-	p->m_access = registry_access(access);
+	p->m_access = registry_access(access) | registry_scope(scope);
 	p->m_isOpen = false;
 
 	p->m_isOpen = (RegCreateKeyEx(registry_root(rootKey), MUTILS_WCHR(keyName), 0, NULL, 0, p->m_access, NULL, &p->m_hKey, NULL) == ERROR_SUCCESS);
@@ -243,10 +254,10 @@ bool MUtils::Registry::RegistryKey::enum_subkeys(QStringList &list) const
 /*
  * Write registry value
  */
-bool MUtils::Registry::reg_value_write(const reg_root_t &rootKey, const QString &keyName, const QString &valueName, const quint32 &value)
+bool MUtils::Registry::reg_value_write(const reg_root_t &rootKey, const QString &keyName, const QString &valueName, const quint32 &value, const reg_scope_t &scope)
 {
 	bool success = false;
-	RegistryKey regKey(rootKey, keyName, access_readwrite);
+	RegistryKey regKey(rootKey, keyName, access_readwrite, scope);
 	if(regKey.isOpen())
 	{
 		success = regKey.value_write(valueName, value);
@@ -257,10 +268,10 @@ bool MUtils::Registry::reg_value_write(const reg_root_t &rootKey, const QString 
 /*
  * Write registry value
  */
-bool MUtils::Registry::reg_value_write(const reg_root_t &rootKey, const QString &keyName, const QString &valueName, const QString &value)
+bool MUtils::Registry::reg_value_write(const reg_root_t &rootKey, const QString &keyName, const QString &valueName, const QString &value, const reg_scope_t &scope)
 {
 	bool success = false;
-	RegistryKey regKey(rootKey, keyName, access_readwrite);
+	RegistryKey regKey(rootKey, keyName, access_readwrite, scope);
 	if(regKey.isOpen())
 	{
 		success = regKey.value_write(valueName, value);
@@ -271,10 +282,10 @@ bool MUtils::Registry::reg_value_write(const reg_root_t &rootKey, const QString 
 /*
  * Read registry value
  */
-bool MUtils::Registry::reg_value_read(const reg_root_t &rootKey, const QString &keyName, const QString &valueName, quint32 &value)
+bool MUtils::Registry::reg_value_read(const reg_root_t &rootKey, const QString &keyName, const QString &valueName, quint32 &value, const reg_scope_t &scope)
 {
 	bool success = false;
-	RegistryKey regKey(rootKey, keyName, access_readonly);
+	RegistryKey regKey(rootKey, keyName, access_readonly, scope);
 	if(regKey.isOpen())
 	{
 		success = regKey.value_read(valueName, value);
@@ -289,10 +300,10 @@ bool MUtils::Registry::reg_value_read(const reg_root_t &rootKey, const QString &
 /*
  * Read registry value
  */
-bool MUtils::Registry::reg_value_read(const reg_root_t &rootKey, const QString &keyName, const QString &valueName, QString &value)
+bool MUtils::Registry::reg_value_read(const reg_root_t &rootKey, const QString &keyName, const QString &valueName, QString &value, const reg_scope_t &scope)
 {
 	bool success = false;
-	RegistryKey regKey(rootKey, keyName, access_readonly);
+	RegistryKey regKey(rootKey, keyName, access_readonly, scope);
 	if(regKey.isOpen())
 	{
 		success = regKey.value_read(valueName, value);
@@ -307,10 +318,10 @@ bool MUtils::Registry::reg_value_read(const reg_root_t &rootKey, const QString &
 /*
  * Enumerate value names
  */
-bool MUtils::Registry::reg_enum_values(const reg_root_t &rootKey, const QString &keyName, QStringList &values)
+bool MUtils::Registry::reg_enum_values(const reg_root_t &rootKey, const QString &keyName, QStringList &values, const reg_scope_t &scope)
 {
 	bool success = false;
-	RegistryKey regKey(rootKey, keyName, access_readonly);
+	RegistryKey regKey(rootKey, keyName, access_readonly, scope);
 	if(regKey.isOpen())
 	{
 		success = regKey.enum_values(values);
@@ -325,10 +336,10 @@ bool MUtils::Registry::reg_enum_values(const reg_root_t &rootKey, const QString 
 /*
  * Enumerate subkey names
  */
-bool MUtils::Registry::reg_enum_subkeys(const reg_root_t &rootKey, const QString &keyName, QStringList &subkeys)
+bool MUtils::Registry::reg_enum_subkeys(const reg_root_t &rootKey, const QString &keyName, QStringList &subkeys, const reg_scope_t &scope)
 {
 	bool success = false;
-	RegistryKey regKey(rootKey, keyName, access_enumerate);
+	RegistryKey regKey(rootKey, keyName, access_enumerate, scope);
 	if(regKey.isOpen())
 	{
 		success = regKey.enum_subkeys(subkeys);
@@ -343,10 +354,10 @@ bool MUtils::Registry::reg_enum_subkeys(const reg_root_t &rootKey, const QString
 /*
  * Check registry key existence
  */
-bool MUtils::Registry::reg_key_exists(const reg_root_t &rootKey, const QString &keyName)
+bool MUtils::Registry::reg_key_exists(const reg_root_t &rootKey, const QString &keyName, const reg_scope_t &scope)
 {
 	HKEY hKey = NULL;
-	if(RegOpenKeyEx(registry_root(rootKey), MUTILS_WCHR(keyName), 0, STANDARD_RIGHTS_READ, &hKey) == ERROR_SUCCESS)
+	if(RegOpenKeyEx(registry_root(rootKey), MUTILS_WCHR(keyName), 0, STANDARD_RIGHTS_READ | registry_scope(scope), &hKey) == ERROR_SUCCESS)
 	{
 		RegCloseKey(hKey);
 		return true;
@@ -357,9 +368,14 @@ bool MUtils::Registry::reg_key_exists(const reg_root_t &rootKey, const QString &
 /*
  * Delete registry key
  */
-bool MUtils::Registry::reg_key_delete(const reg_root_t &rootKey, const QString &keyName, const bool &recusrive, const bool &ascend)
+bool MUtils::Registry::reg_key_delete(const reg_root_t &rootKey, const QString &keyName, const bool &recusrive, const bool &ascend, const reg_scope_t &scope)
 {
 	bool okay = false;
+
+	if (scope != scope_default)
+	{
+		MUTILS_THROW("Scope option not currently supported by reg_key_delete() function!");
+	}
 
 	if(recusrive)
 	{

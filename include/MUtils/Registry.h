@@ -49,6 +49,15 @@ namespace MUtils
 		}
 		reg_access_t;
 
+		//Regsitry scope
+		typedef enum
+		{
+			scope_default = 0,
+			scope_wow_x32 = 1,
+			scope_wow_x64 = 2
+		}
+		reg_scope_t;
+
 		//Forward declaration
 		namespace Internal
 		{
@@ -59,7 +68,7 @@ namespace MUtils
 		class MUTILS_API RegistryKey
 		{
 		public:
-			RegistryKey(const reg_root_t &rootKey, const QString &keyName, const reg_access_t &access);
+			RegistryKey(const reg_root_t &rootKey, const QString &keyName, const reg_access_t &access, const reg_scope_t &scope = scope_default);
 			~RegistryKey(void);
 
 			inline bool isOpen(void);
@@ -78,14 +87,14 @@ namespace MUtils
 		};
 
 		//Regsitry functions
-		MUTILS_API bool reg_value_write (const reg_root_t &rootKey, const QString &keyName, const QString &valueName, const quint32 &value);
-		MUTILS_API bool reg_value_write (const reg_root_t &rootKey, const QString &keyName, const QString &valueName, const QString &value);
-		MUTILS_API bool reg_value_read  (const reg_root_t &rootKey, const QString &keyName, const QString &valueName, quint32       &value);
-		MUTILS_API bool reg_value_read  (const reg_root_t &rootKey, const QString &keyName, const QString &valueName, QString       &value);
-		MUTILS_API bool reg_key_exists  (const reg_root_t &rootKey, const QString &keyName);
-		MUTILS_API bool reg_key_delete  (const reg_root_t &rootKey, const QString &keyName, const bool &recusrive = true, const bool &ascend = false);
-		MUTILS_API bool reg_enum_values (const reg_root_t &rootKey, const QString &keyName, QStringList &list);
-		MUTILS_API bool	reg_enum_subkeys(const reg_root_t &rootKey, const QString &keyName, QStringList &list);
+		MUTILS_API bool reg_value_write (const reg_root_t &rootKey, const QString &keyName, const QString &valueName, const quint32 &value,           const reg_scope_t &scope = scope_default);
+		MUTILS_API bool reg_value_write (const reg_root_t &rootKey, const QString &keyName, const QString &valueName, const QString &value,           const reg_scope_t &scope = scope_default);
+		MUTILS_API bool reg_value_read  (const reg_root_t &rootKey, const QString &keyName, const QString &valueName, quint32       &value,           const reg_scope_t &scope = scope_default);
+		MUTILS_API bool reg_value_read  (const reg_root_t &rootKey, const QString &keyName, const QString &valueName, QString       &value,           const reg_scope_t &scope = scope_default);
+		MUTILS_API bool reg_key_exists  (const reg_root_t &rootKey, const QString &keyName,                                                           const reg_scope_t &scope = scope_default);
+		MUTILS_API bool reg_key_delete  (const reg_root_t &rootKey, const QString &keyName, const bool &recusrive = true, const bool &ascend = false, const reg_scope_t &scope = scope_default);
+		MUTILS_API bool reg_enum_values (const reg_root_t &rootKey, const QString &keyName, QStringList &list,                                        const reg_scope_t &scope = scope_default);
+		MUTILS_API bool	reg_enum_subkeys(const reg_root_t &rootKey, const QString &keyName, QStringList &list,                                        const reg_scope_t &scope = scope_default);
 	}
 }
 
