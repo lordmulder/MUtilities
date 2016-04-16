@@ -1,51 +1,89 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
-	<title>MUtilites</title>
-	<meta charset="utf-8" />
-	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-	<style type="text/css">
-	<!--
-		body { font-family: "Times New Roman", Times, serif; color: #000000; background-color: #FFFFFF; }
-		tt, pre, code { font-family: Courier New, Courier, mono; background-color: #EDF3F7; padding: 1px; }
-		a { color: #0000BB; text-decoration: none; }
-		a:visited { color: #0000BB; text-decoration: none; }
-		a:active { color: #0000FF; text-decoration: none; }
-		a:hover { color: #0000FF; text-decoration: underline; }
-	 -->
-	</style>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="author" content="Created by LoRd_MuldeR &lt;mulder2@gmx&gt; – check http://muldersoft.com/ for news and updates!">
+  <title>MUtilities – README</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+  <style type="text/css">
+  <!--
+    body { font-family: "Times New Roman", Times, serif; color: #000000; background-color: #FFFFFF; }
+    p { text-align: justify; }
+    tt, pre, code { font-family: Courier New, Courier, mono; background-color: #EDF3F7; padding: 1px; }
+    h1:not(.title) { margin-top: 2.25em; }
+    h2:not(.author) { margin-top: 2.0em; }
+    h3, h4 { margin-top: 1.75em; }
+    a { color: #0000BB; text-decoration: none; }
+    a:visited { color: #0000BB; text-decoration: none; }
+    a:active { color: #0000FF; text-decoration: none; }
+    a:hover { color: #0000FF; text-decoration: underline; }
+    img { margin-bottom: 0.75em; }
+    ul, ol  { margin-bottom: 2.0em; }
+    li>ul, li>ol  { margin-bottom: 0em; }
+  -->
+  </style>
 </head>
 <body>
-	<h1>MUtilities &ndash; MuldeR's Utilities for Qt</h1>
-	<p><b>Please visit <a href="http://muldersoft.com/">http://muldersoft.com/</a> or <a href="https://github.com/lordmulder?tab=repositories">https://github.com/lordmulder</a> for more information!</b></p>
-	<hr>
-	<h2>About this Library</h2>
-	<p>This library is a collection of routines and classes to extend the <a href="http://qt-project.org/">Qt cross-platform framework</a>. It contains various convenience and utility functions as well as wrappers for OS-specific functionalities. The library was originally created as a "side product" of the <a href="http://lamexp.sourceforge.net/">LameXP</a> application: Over the years, a lot of code, <i>not</i> really specific to LameXP, had accumulated in the LameXP code base. Some of that code even had been used in other projects too, in a "copy & paste" fashion &ndash; which had lead to redundancy and much complicated maintenance. In order to clean-up the LameXP code base, to eliminate the ugly redundancy and to simplify maintenance, the code in question has finally been refactored into the <i>MUtilities</i> (aka "MuldeR's Utilities for Qt") library. This library now forms the foundation of LameXP and various other OpenSource projects.
-	<hr>
-	<h2>License Information</h2>
-	<p>This library is free software. It is released under the terms of the <a href="https://www.gnu.org/licenses/lgpl-2.1.html">GNU Lesser General Public License (LGPL), Version 2.1</a>.</p>
-	<p><pre><code>MUtilities &ndash; MuldeR's Utilities for Qt<br>Copyright (C) 2004-2016 LoRd_MuldeR &lt;MuldeR2@GMX.de&gt;. Some rights reserved.<br><br>This library is free software; you can redistribute it and/or<br>modify it under the terms of the GNU Lesser General Public<br>License as published by the Free Software Foundation; either<br>version 2.1 of the License, or (at your option) any later version.<br><br>This library is distributed in the hope that it will be useful,<br>but WITHOUT ANY WARRANTY; without even the implied warranty of<br>MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU<br>Lesser General Public License for more details.<br><br>You should have received a copy of the GNU Lesser General Public<br>License along with this library; if not, write to the Free Software<br>Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA.</code></pre>
-	<hr>
-	<h2>Acknowledgement</h2>
-	<p>The following <u>third-party</u> code is used in the <i>MUtilities</i> library:
-	<ul>
-		<li>
-			<b>Keccak/SHA-3 Reference Implementation</b><br>
-			Implementation by the Keccak, Keyak and Ketje Teams, namely, Guido Bertoni, Joan Daemen, Michaël Peeters, Gilles Van Assche and Ronny Van Keer<br>
-			No Copyright / Dedicated to the Public Domain<br><br>
-		</li>
-		<li>
-			<b>Natural Order String Comparison</b><br>
-			Copyright (C) 2000, 2004 by Martin Pool <a href="mailto:mbp@sourcefrog.net">&lt;mbp@sourcefrog.net&gt;</a><br>
-			Released under the zlib License<br><br>
-		</li>
-		<li>
-			<b>Adler-32 Checksum Algorithm (from zlib)</b><br>
-			Copyright (C) 1995-2013 Jean-loup Gailly and Mark Adler<br>
-			Released under the zlib License<br><br>
-		</li>
-	</ul>
-	<hr>
-	<p>e.o.f.</p>
+<header>
+<h1 class="title">MUtilities – README</h1>
+<h2 class="author">Created by LoRd_MuldeR &lt;<script type="text/javascript">
+<!--
+h='&#x67;&#x6d;&#120;';a='&#64;';n='&#x6d;&#x75;&#108;&#100;&#x65;&#114;&#50;';e=n+a+h;
+document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'" clas'+'s="em' + 'ail">'+e+'<\/'+'a'+'>');
+// -->
+</script><noscript>&#x6d;&#x75;&#108;&#100;&#x65;&#114;&#50;&#32;&#x61;&#116;&#32;&#x67;&#x6d;&#120;</noscript>&gt; – check <a href="http://muldersoft.com/" class="uri">http://muldersoft.com/</a> for news and updates!</h2>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#introduction"><span class="toc-section-number">1</span> Introduction</a></li>
+<li><a href="#license"><span class="toc-section-number">2</span> License</a></li>
+<li><a href="#acknowledgement"><span class="toc-section-number">3</span> Acknowledgement</a></li>
+</ul>
+</nav>
+<h1 id="introduction"><span class="header-section-number">1</span> Introduction</h1>
+<p>The <strong>MUtilities</strong> library is a collection of routines and classes to extend the <a href="http://qt-project.org/"><em>Qt cross-platform framework</em></a>. It contains various convenience and utility functions as well as wrappers for OS-specific functionalities. The library was originally created as a &quot;side product&quot; of the <a href="http://lamexp.sourceforge.net/"><strong>LameXP</strong></a> application: Over the years, a lot of code, <strong>not</strong> really specific to <em>LameXP</em>, had accumulated in the <em>LameXP</em> code base. Some of that code even had been used in other projects too, in a &quot;copy &amp; paste&quot; fashion – which had lead to redundancy and much complicated maintenance. In order to clean-up the LameXP code base, to eliminate the ugly redundancy and to simplify maintenance, the code in question has finally been refactored into the <strong>MUtilities</strong> (aka &quot;MuldeR's Utilities for Qt&quot;) library. This library now forms the foundation of <em>LameXP</em> and various <a href="https://github.com/lordmulder"><em>other OpenSource projects</em></a>.</p>
+<h1 id="license"><span class="header-section-number">2</span> License</h1>
+<p>This library is free software. It is released under the terms of the <a href="https://www.gnu.org/licenses/lgpl-2.1.html"><strong>GNU Lesser General Public License (LGPL), Version 2.1</strong></a>.</p>
+<pre><code>MUtilities - MuldeR&#39;s Utilities for Qt
+Copyright (C) 2004-2016 LoRd_MuldeR &lt;MuldeR2@GMX.de&gt;. Some rights reserved.
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA.</code></pre>
+<h1 id="acknowledgement"><span class="header-section-number">3</span> Acknowledgement</h1>
+<p>The following third-party code is used in the MUtilities library:</p>
+<ul>
+<li><p><strong>Keccak/SHA-3 Reference Implementation</strong><br />
+Implementation by the Keccak, Keyak and Ketje Teams, namely, Guido Bertoni, Joan Daemen, Michaël Peeters, Gilles Van Assche and Ronny Van Keer<br />
+No Copyright / Dedicated to the Public Domain</p></li>
+<li><p><strong>Natural Order String Comparison</strong><br />
+Copyright (C) 2000, 2004 by Martin Pool <script type="text/javascript">
+<!--
+h='&#x73;&#x6f;&#x75;&#114;&#x63;&#x65;&#102;&#114;&#x6f;&#x67;&#46;&#110;&#x65;&#116;';a='&#64;';n='&#x6d;&#98;&#112;';e=n+a+h;
+document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'" clas'+'s="em' + 'ail">'+e+'<\/'+'a'+'>');
+// -->
+</script><noscript>&#x6d;&#98;&#112;&#32;&#x61;&#116;&#32;&#x73;&#x6f;&#x75;&#114;&#x63;&#x65;&#102;&#114;&#x6f;&#x67;&#32;&#100;&#x6f;&#116;&#32;&#110;&#x65;&#116;</noscript><br />
+Released under the zlib License</p></li>
+<li><p><strong>Adler-32 Checksum Algorithm (from zlib)</strong><br />
+Copyright (C) 1995-2013 Jean-loup Gailly and Mark Adler<br />
+Released under the zlib License</p></li>
+</ul>
+<p> </p>
+<p><strong>e.o.f.</strong></p>
 </body>
 </html>
