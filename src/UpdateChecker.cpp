@@ -47,7 +47,7 @@ static const char *mirror_url_postfix[] =
 	NULL
 };
 
-static const char *update_mirrors_prim[] =
+static const char *update_mirrors[] =
 {
 	"http://muldersoft.com/",
 	"http://mulder.bplaced.net/",			//"http://mulder.cwsurf.de/",
@@ -66,139 +66,133 @@ static const char *update_mirrors_prim[] =
 	NULL
 };
 
-static const char *update_mirrors_back[] =
-{
-	"http://mplayer.savedonthe.net/",
-	NULL
-};
-
 static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites !!!
 {
-	"http://www.163.com/",
-	"http://www.7-zip.org/",
-	"http://www.ac3filter.net/",
-	"http://clbianco.altervista.org/",
-	"http://status.aws.amazon.com/",
-	"http://build.antergos.com/",
-	"http://www.aol.com/",
-	"http://www.apache.org/",
-	"http://www.apple.com/",
-	"http://www.adobe.com/",
-	"http://archive.org/web/",
-	"http://www.artlebedev.ru/",
-	"http://web.audacityteam.org/",
-	"http://status.automattic.com/",
-	"http://www.avidemux.org/",
-	"http://www.babylon.com/",
-	"http://www.baidu.com/",
-	"http://bandcamp.com/",
-	"http://www.bbc.co.uk/",
-	"http://www.berlios.de/",
-	"http://www.bing.com/",
-	"http://www.bingeandgrab.com/",
-	"http://www.bucketheadpikes.com/",
-	"http://www.buckethead-coop.com/",
-	"http://www.buzzfeed.com/",
-	"http://www.ccc.de/",
-	"http://www.citizeninsomniac.com/WMV/",
-	"http://www.cnet.com/",
-	"http://cnzz.com/",
-	"http://www.codeplex.com/",
-	"http://www.codeproject.com/",
-	"http://www.der-postillon.com/",
-	"http://www.ebay.com/",
-	"http://www.equation.com/",
-	"http://www.farbrausch.de/",
-	"http://fc2.com/",
-	"http://fedoraproject.org/wiki/Fedora_Project_Wiki",
-	"http://blog.fefe.de/",
-	"http://www.ffmpeg.org/",
-	"http://blog.flickr.net/en",
-	"http://free-codecs.com/",
-	"http://git-scm.com/",
-	"http://doc.gitlab.com/",
-	"http://www.gmx.net/",
-	"http://news.gnome.org/",
-	"http://www.gnu.org/",
-	"http://go.com/",
-	"http://code.google.com/",
-	"http://haali.su/mkv/",
-	"http://www.heise.de/",
-	"http://www.huffingtonpost.co.uk/",
-	"http://www.iana.org/",
-	"http://www.imdb.com/",
-	"http://www.imgburn.com/",
-	"http://imgur.com/",
-	"http://www.jd.com/contact/",
-	"http://www.jiscdigitalmedia.ac.uk/",
-	"http://kannmanumdieuhrzeitschonnbierchentrinken.de/",
-	"http://mirrors.kernel.org/",
-	"http://komisar.gin.by/",
-	"http://lame.sourceforge.net/",
-	"http://www.libav.org/",
-	"http://blog.linkedin.com/",
-	"http://www.linuxmint.com/",
-	"http://www.livedoor.com/",
-	"http://www.livejournal.com/",
-	"http://longplayer.org/",
-	"http://go.mail.ru/",
-	"http://marknelson.us/",
-	"http://www.mediafire.com/about/",
-	"http://www.mod-technologies.com/",
-	"http://ftp.mozilla.org/",
-	"http://mplayerhq.hu/",
-	"http://www.msn.com/en-us/",
-	"http://wiki.multimedia.cx/",
-	"http://www.nch.com.au/",
-	"http://mirror.netcologne.de/",
-	"http://oss.netfarm.it/",
-	"http://blog.netflix.com/",
-	"http://netrenderer.de/",
-	"http://www.nytimes.com/",
-	"http://www.opera.com/",
-	"http://www.partha.com/",
-	"http://pastebin.com/",
-	"http://pastie.org/",
-	"http://portableapps.com/about",
-	"http://www.portablefreeware.com/",
-	"http://support.proboards.com/",
-	"http://www.qq.com/",
-	"http://www.qt.io/",
-	"http://www.quakelive.com/",
-	"http://rationalqm.us/mine.html",
-	"http://www.seamonkey-project.org/",
-	"http://selfhtml.org/",
-	"http://www.sina.com.cn/",
-	"http://www.sohu.com/",
-	"http://help.sogou.com/",
-	"http://sourceforge.net/",
-	"http://www.spiegel.de/",
-	"http://www.sputnikmusic.com/",
-	"http://stackoverflow.com/",
-	"http://www.t-online.de/",
-	"http://www.tagesschau.de/",
-	"http://tdm-gcc.tdragon.net/",
-	"http://www.tdrsmusic.com/",
-	"http://www.ubuntu.com/",
-	"http://www.uol.com.br/",
-	"http://www.videohelp.com/",
-	"http://www.videolan.org/",
-	"http://virtualdub.org/",
-	"http://blog.virustotal.com/",
-	"http://www.vkgoeswild.com/",
-	"http://www.warr.org/WAhere.html",
-	"http://www.weibo.com/login.php",
-	"http://status.wikimedia.org/",
-	"http://www.winamp.com/",
-	"http://www.winhoros.de/",
-	"http://wpde.org/",
-	"http://x265.org/",
-	"http://xhmikosr.1f0.de/",
-	"http://xiph.org/",
-	"http://us.mail.yahoo.com/",
-	"http://www.youtube.com/yt/about/",
-	"http://www.zedo.com/",
-	"http://ffmpeg.zeranoe.com/",
+	"www.163.com",
+	"www.7-zip.org",
+	"www.ac3filter.net",
+	"clbianco.altervista.org",
+	"status.aws.amazon.com",
+	"build.antergos.com",
+	"www.aol.com",
+	"www.apache.org",
+	"www.apple.com",
+	"www.adobe.com",
+	"archive.org",
+	"www.artlebedev.ru",
+	"web.audacityteam.org",
+	"status.automattic.com",
+	"www.avidemux.org",
+	"www.babylon.com",
+	"www.baidu.com",
+	"bandcamp.com",
+	"www.bbc.co.uk",
+	"www.berlios.de",
+	"www.bing.com",
+	"www.bingeandgrab.com",
+	"www.bucketheadpikes.com",
+	"www.buckethead-coop.com",
+	"www.buzzfeed.com",
+	"www.ccc.de",
+	"www.citizeninsomniac.com",
+	"www.cnet.com",
+	"cnzz.com",
+	"www.codeplex.com",
+	"www.codeproject.com",
+	"www.der-postillon.com",
+	"www.ebay.com",
+	"www.equation.com",
+	"www.farbrausch.de",
+	"fc2.com",
+	"fedoraproject.org",
+	"blog.fefe.de",
+	"www.ffmpeg.org",
+	"blog.flickr.net",
+	"free-codecs.com",
+	"git-scm.com",
+	"doc.gitlab.com",
+	"www.gmx.net",
+	"news.gnome.org",
+	"www.gnu.org",
+	"go.com",
+	"code.google.com",
+	"haali.su",
+	"www.heise.de",
+	"www.huffingtonpost.co.uk",
+	"www.iana.org",
+	"www.imdb.com",
+	"www.imgburn.com",
+	"imgur.com",
+	"www.jd.com",
+	"www.jiscdigitalmedia.ac.uk",
+	"kannmanumdieuhrzeitschonnbierchentrinken.de",
+	"mirrors.kernel.org",
+	"komisar.gin.by",
+	"lame.sourceforge.net",
+	"www.libav.org",
+	"blog.linkedin.com",
+	"www.linuxmint.com",
+	"www.livedoor.com",
+	"www.livejournal.com",
+	"longplayer.org",
+	"go.mail.ru",
+	"marknelson.us",
+	"www.mediafire.com",
+	"www.mod-technologies.com",
+	"ftp.mozilla.org",
+	"mplayerhq.hu",
+	"www.msn.com",
+	"wiki.multimedia.cx",
+	"www.nch.com.au",
+	"mirror.netcologne.de",
+	"oss.netfarm.it",
+	"blog.netflix.com",
+	"netrenderer.de",
+	"www.nytimes.com",
+	"www.opera.com",
+	"www.partha.com",
+	"pastebin.com",
+	"pastie.org",
+	"portableapps.com",
+	"www.portablefreeware.com",
+	"support.proboards.com",
+	"www.qq.com",
+	"www.qt.io",
+	"www.quakelive.com",
+	"rationalqm.us",
+	"www.seamonkey-project.org",
+	"selfhtml.org",
+	"www.sina.com.cn",
+	"www.sohu.com",
+	"help.sogou.com",
+	"sourceforge.net",
+	"www.spiegel.de",
+	"www.sputnikmusic.com",
+	"stackoverflow.com",
+	"www.t-online.de",
+	"www.tagesschau.de",
+	"tdm-gcc.tdragon.net",
+	"www.tdrsmusic.com",
+	"www.ubuntu.com",
+	"www.uol.com.br",
+	"www.videohelp.com",
+	"www.videolan.org",
+	"virtualdub.org",
+	"blog.virustotal.com",
+	"www.vkgoeswild.com",
+	"www.warr.org",
+	"www.weibo.com",
+	"status.wikimedia.org",
+	"www.winamp.com",
+	"www.winhoros.de",
+	"wpde.org",
+	"x265.org",
+	"xhmikosr.1f0.de",
+	"xiph.org",
+	"us.mail.yahoo.com",
+	"www.youtube.com",
+	"www.zedo.com",
+	"ffmpeg.zeranoe.com",
 	NULL
 };
 
@@ -210,9 +204,19 @@ static char *USER_AGENT_STR = "Mozilla/5.0 (X11; Linux i686; rv:7.0.1) Gecko/201
 static int getMaxProgress(void)
 {
 	int counter = MIN_CONNSCORE + 2;
-	for(int i = 0; update_mirrors_prim[i]; i++) counter++;
-	for(int i = 0; update_mirrors_back[i]; i++) counter++;
+	for(int i = 0; update_mirrors[i]; i++) counter++;
 	return counter;
+}
+
+static QStringList buildRandomList(const char *const values[])
+{
+	QStringList list;
+	for (int index = 0; values[index]; index++)
+	{
+		const int pos = next_rand32() % (index + 1);
+		list.insert(pos, QString::fromLatin1(values[index]));
+	}
+	return list;
 }
 
 ////////////////////////////////////////////////////////////
@@ -252,10 +256,11 @@ bool UpdateCheckerInfo::isComplete(void)
 // Constructor & Destructor
 ////////////////////////////////////////////////////////////
 
-UpdateChecker::UpdateChecker(const QString &binWGet, const QString &binGnuPG, const QString &binKeys, const QString &applicationId, const quint32 &installedBuildNo, const bool betaUpdates, const bool testMode)
+UpdateChecker::UpdateChecker(const QString &binWGet, const QString &binNC, const QString &binGnuPG, const QString &binKeys, const QString &applicationId, const quint32 &installedBuildNo, const bool betaUpdates, const bool testMode)
 :
 	m_updateInfo(new UpdateCheckerInfo()),
 	m_binaryWGet(binWGet),
+	m_binaryNC(binNC),
 	m_binaryGnuPG(binGnuPG),
 	m_binaryKeys(binKeys),
 	m_applicationId(applicationId),
@@ -300,16 +305,13 @@ void UpdateChecker::checkForUpdates(void)
 
 	// ----- Test Internet Connection ----- //
 
-	int connectionScore = 0;
-	int maxConnectTries = (3 * MIN_CONNSCORE) / 2;
-	
-	log("Checking internet connection...");
+	log("Checking internet connection...", "");
 	setStatus(UpdateStatus_CheckingConnection);
 
 	const int networkStatus = OS::network_status();
 	if(networkStatus == OS::NETWORK_TYPE_NON)
 	{
-		log("", "Operating system reports that the computer is currently offline !!!");
+		log("Operating system reports that the computer is currently offline !!!");
 		setProgress(m_maxProgress);
 		setStatus(UpdateStatus_ErrorNoConnection);
 		return;
@@ -319,19 +321,14 @@ void UpdateChecker::checkForUpdates(void)
 
 	// ----- Test Known Hosts Connectivity ----- //
 
-	QStringList hostList;
-	for(int i = 0; known_hosts[i]; i++)
-	{
-		hostList << QString::fromLatin1(known_hosts[i]);
-	}
+	int connectionScore = 0;
 
-	while(!(hostList.isEmpty() || (connectionScore >= MIN_CONNSCORE) || (maxConnectTries < 1)))
+	QStringList hostList = buildRandomList(known_hosts);
+	while(!(hostList.isEmpty() || (connectionScore >= MIN_CONNSCORE)))
 	{
-		switch(tryContactHost(hostList.takeAt(next_rand32() % hostList.count())))
+		if(tryContactHost(hostList.takeFirst()))
 		{
-			case 01: connectionScore += 1; break;
-			case 02: connectionScore += 2; break;
-			default: maxConnectTries -= 1; break;
+			connectionScore += 1;
 		}
 		setProgress(qBound(1, connectionScore + 1, MIN_CONNSCORE + 1));
 		msleep(64);
@@ -345,33 +342,12 @@ void UpdateChecker::checkForUpdates(void)
 		return;
 	}
 
-	// ----- Build Mirror List ----- //
-
-	log("", "----", "", "Checking for updates online...");
-	setStatus(UpdateStatus_FetchingUpdates);
-
-	QStringList mirrorList;
-	for(int index = 0; update_mirrors_prim[index]; index++)
-	{
-		mirrorList << QString::fromLatin1(update_mirrors_prim[index]);
-	}
-
-	if(const int len = mirrorList.count())
-	{
-		const int rounds = len * 1097;
-		for(int i = 0; i < rounds; i++)
-		{
-			mirrorList.swap(i % len, next_rand32() % len);
-		}
-	}
-
-	for(int index = 0; update_mirrors_back[index]; index++)
-	{
-		mirrorList << QString::fromLatin1(update_mirrors_back[index]);
-	}
-	
 	// ----- Fetch Update Info From Server ----- //
 
+	log("----", "", "Checking for updates online...");
+	setStatus(UpdateStatus_FetchingUpdates);
+
+	QStringList mirrorList = buildRandomList(update_mirrors);
 	while(!mirrorList.isEmpty())
 	{
 		QString currentMirror = mirrorList.takeFirst();
@@ -385,7 +361,7 @@ void UpdateChecker::checkForUpdates(void)
 		}
 		else
 		{
-			msleep(64);
+			msleep(25);
 		}
 	}
 	
@@ -429,21 +405,11 @@ void UpdateChecker::testKnownHosts(void)
 		QString currentHost = hostList.takeFirst();
 		qDebug("Testing: %s", currentHost.toLatin1().constData());
 		log("", "Testing:", currentHost, "");
-		QString outFile = QString("%1/%2.htm").arg(temp_folder(), rand_str());
-		bool httpOk = false;
-		if(!getFile(currentHost, outFile, 0, &httpOk))
+		if (!tryContactHost(currentHost))
 		{
-			if(httpOk)
-			{
-				qWarning("\nConnectivity test was SLOW on the following site:\n%s\n", currentHost.toLatin1().constData());
-			}
-			else
-			{
-				qWarning("\nConnectivity test FAILED on the following site:\n%s\n", currentHost.toLatin1().constData());
-			}
+			qWarning("\nConnectivity test FAILED on the following host:\n%s\n", currentHost.toLatin1().constData());
 		}
 		log("", "---");
-		QFile::remove(outFile);
 	}
 }
 
@@ -475,35 +441,6 @@ void UpdateChecker::log(const QString &str1, const QString &str2, const QString 
 	if(!str2.isNull()) emit messageLogged(str2);
 	if(!str3.isNull()) emit messageLogged(str3);
 	if(!str4.isNull()) emit messageLogged(str4);
-}
-
-int UpdateChecker::tryContactHost(const QString &url)
-{
-		int result = -1; bool httpOkay = false;
-		const QString outFile = QString("%1/%2.htm").arg(temp_folder(), rand_str());
-		log("", "Testing host:", url);
-
-		if(getFile(url, outFile, 0, &httpOkay))
-		{
-			log("Connection to host was established successfully.");
-			result = 2;
-		}
-		else
-		{
-			if(httpOkay)
-			{
-				log("Connection to host timed out after HTTP OK was received.");
-				result = 1;
-			}
-			else
-			{
-				log("Connection failed: The host could not be reached!");
-				result = 0;
-			}
-		}
-
-		QFile::remove(outFile);
-		return result;
 }
 
 bool UpdateChecker::tryUpdateMirror(UpdateCheckerInfo *updateInfo, const QString &url)
@@ -554,155 +491,6 @@ bool UpdateChecker::getUpdateInfo(const QString &url, const QString &outFileVers
 	}
 
 	return true;
-}
-
-bool UpdateChecker::getFile(const QString &url, const QString &outFile, const unsigned int maxRedir, bool *httpOk)
-{
-	for(int i = 0; i < 2; i++)
-	{
-		if(getFile(url, (i > 0), outFile, maxRedir, httpOk))
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-bool UpdateChecker::getFile(const QString &url, const bool forceIp4, const QString &outFile, const unsigned int maxRedir, bool *httpOk)
-{
-	QFileInfo output(outFile);
-	output.setCaching(false);
-	if(httpOk) *httpOk = false;
-
-	if(output.exists())
-	{
-		QFile::remove(output.canonicalFilePath());
-		if(output.exists())
-		{
-			return false;
-		}
-	}
-
-	QProcess process;
-	init_process(process, output.absolutePath());
-
-	QStringList args;
-	if(forceIp4)
-	{
-		args << "-4";
-	}
-
-	args << "-T" << "15" << "--no-cache" << "--no-dns-cache" << QString().sprintf("--max-redirect=%u", maxRedir);
-	args << QString("--referer=%1://%2/").arg(QUrl(url).scheme(), QUrl(url).host()) << "-U" << USER_AGENT_STR;
-	args << "-O" << output.fileName() << url;
-
-	QEventLoop loop;
-	connect(&process, SIGNAL(error(QProcess::ProcessError)), &loop, SLOT(quit()));
-	connect(&process, SIGNAL(finished(int,QProcess::ExitStatus)), &loop, SLOT(quit()));
-	connect(&process, SIGNAL(readyRead()), &loop, SLOT(quit()));
-
-	QTimer timer;
-	timer.setSingleShot(true);
-	connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
-
-	const QRegExp httpResponseOK("200 OK$");
-	
-	process.start(m_binaryWGet, args);
-	
-	if(!process.waitForStarted())
-	{
-		return false;
-	}
-
-	timer.start(25000);
-
-	while(process.state() != QProcess::NotRunning)
-	{
-		loop.exec();
-		const bool bTimeOut = (!timer.isActive());
-		while(process.canReadLine())
-		{
-			QString line = QString::fromLatin1(process.readLine()).simplified();
-			if(line.contains(httpResponseOK))
-			{
-				line.append(" [OK]");
-				if(httpOk) *httpOk = true;
-			}
-			log(line);
-		}
-		if(bTimeOut)
-		{
-			qWarning("WGet process timed out <-- killing!");
-			process.kill();
-			process.waitForFinished();
-			log("!!! TIMEOUT !!!");
-			return false;
-		}
-	}
-	
-	timer.stop();
-	timer.disconnect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
-
-	log(QString().sprintf("Exited with code %d", process.exitCode()));
-	return (process.exitCode() == 0) && output.exists() && output.isFile();
-}
-
-bool UpdateChecker::checkSignature(const QString &file, const QString &signature)
-{
-	if(QFileInfo(file).absolutePath().compare(QFileInfo(signature).absolutePath(), Qt::CaseInsensitive) != 0)
-	{
-		qWarning("CheckSignature: File and signature should be in same folder!");
-		return false;
-	}
-
-	QString keyRingPath(m_binaryKeys);
-	bool removeKeyring = false;
-	if(QFileInfo(file).absolutePath().compare(QFileInfo(m_binaryKeys).absolutePath(), Qt::CaseInsensitive) != 0)
-	{
-		keyRingPath = make_temp_file(QFileInfo(file).absolutePath(), "gpg");
-		removeKeyring = true;
-		if(!QFile::copy(m_binaryKeys, keyRingPath))
-		{
-			qWarning("CheckSignature: Failed to copy the key-ring file!");
-			return false;
-		}
-	}
-
-	QProcess process;
-	init_process(process, QFileInfo(file).absolutePath());
-
-	QEventLoop loop;
-	connect(&process, SIGNAL(error(QProcess::ProcessError)), &loop, SLOT(quit()));
-	connect(&process, SIGNAL(finished(int,QProcess::ExitStatus)), &loop, SLOT(quit()));
-	connect(&process, SIGNAL(readyRead()), &loop, SLOT(quit()));
-	
-	process.start(m_binaryGnuPG, QStringList() << "--homedir" << "." << "--keyring" << QFileInfo(keyRingPath).fileName() << QFileInfo(signature).fileName() << QFileInfo(file).fileName());
-
-	if(!process.waitForStarted())
-	{
-		if(removeKeyring)
-		{
-			remove_file(keyRingPath);
-		}
-		return false;
-	}
-
-	while(process.state() == QProcess::Running)
-	{
-		loop.exec();
-		while(process.canReadLine())
-		{
-			log(QString::fromLatin1(process.readLine()).simplified());
-		}
-	}
-	
-	if(removeKeyring)
-	{
-		remove_file(keyRingPath);
-	}
-
-	log(QString().sprintf("Exited with code %d", process.exitCode()));
-	return (process.exitCode() == 0);
 }
 
 bool UpdateChecker::parseVersionInfo(const QString &file, UpdateCheckerInfo *updateInfo)
@@ -806,6 +594,218 @@ bool UpdateChecker::parseVersionInfo(const QString &file, UpdateCheckerInfo *upd
 	}
 
 	return true;
+}
+
+//----------------------------------------------------------
+// EXTERNAL TOOLS
+//----------------------------------------------------------
+
+bool UpdateChecker::getFile(const QString &url, const QString &outFile, const unsigned int maxRedir, bool *httpOk)
+{
+	for (int i = 0; i < 2; i++)
+	{
+		if (getFile(url, (i > 0), outFile, maxRedir, httpOk))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+bool UpdateChecker::getFile(const QString &url, const bool forceIp4, const QString &outFile, const unsigned int maxRedir, bool *httpOk)
+{
+	QFileInfo output(outFile);
+	output.setCaching(false);
+	if (httpOk) *httpOk = false;
+
+	if (output.exists())
+	{
+		QFile::remove(output.canonicalFilePath());
+		if (output.exists())
+		{
+			return false;
+		}
+	}
+
+	QProcess process;
+	init_process(process, output.absolutePath());
+
+	QStringList args;
+	if (forceIp4)
+	{
+		args << "-4";
+	}
+
+	args << "-T" << "15" << "--no-cache" << "--no-dns-cache" << QString().sprintf("--max-redirect=%u", maxRedir);
+	args << QString("--referer=%1://%2/").arg(QUrl(url).scheme(), QUrl(url).host()) << "-U" << USER_AGENT_STR;
+	args << "-O" << output.fileName() << url;
+
+	QEventLoop loop;
+	connect(&process, SIGNAL(error(QProcess::ProcessError)), &loop, SLOT(quit()));
+	connect(&process, SIGNAL(finished(int, QProcess::ExitStatus)), &loop, SLOT(quit()));
+	connect(&process, SIGNAL(readyRead()), &loop, SLOT(quit()));
+
+	QTimer timer;
+	timer.setSingleShot(true);
+	connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
+
+	const QRegExp httpResponseOK("200 OK$");
+
+	process.start(m_binaryWGet, args);
+
+	if (!process.waitForStarted())
+	{
+		return false;
+	}
+
+	timer.start(25000);
+
+	while (process.state() != QProcess::NotRunning)
+	{
+		loop.exec();
+		const bool bTimeOut = (!timer.isActive());
+		while (process.canReadLine())
+		{
+			QString line = QString::fromLatin1(process.readLine()).simplified();
+			if (line.contains(httpResponseOK))
+			{
+				line.append(" [OK]");
+				if (httpOk) *httpOk = true;
+			}
+			log(line);
+		}
+		if (bTimeOut)
+		{
+			qWarning("WGet process timed out <-- killing!");
+			process.kill();
+			process.waitForFinished();
+			log("!!! TIMEOUT !!!");
+			return false;
+		}
+	}
+
+	timer.stop();
+	timer.disconnect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
+
+	log(QString().sprintf("Exited with code %d", process.exitCode()));
+	return (process.exitCode() == 0) && output.exists() && output.isFile();
+}
+
+bool UpdateChecker::tryContactHost(const QString &hostname)
+{
+	log(QString("Connecting to host: %1").arg(hostname));
+
+	QProcess process;
+	init_process(process, temp_folder());
+
+	QStringList args;
+	args << "-z" << hostname << QString::number(80);
+
+	QEventLoop loop;
+	connect(&process, SIGNAL(error(QProcess::ProcessError)), &loop, SLOT(quit()));
+	connect(&process, SIGNAL(finished(int, QProcess::ExitStatus)), &loop, SLOT(quit()));
+	connect(&process, SIGNAL(readyRead()), &loop, SLOT(quit()));
+
+	QTimer timer;
+	timer.setSingleShot(true);
+	connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
+
+	process.start(m_binaryNC, args);
+
+	if (!process.waitForStarted())
+	{
+		return false;
+	}
+
+	timer.start(25000);
+
+	while (process.state() != QProcess::NotRunning)
+	{
+		loop.exec();
+		const bool bTimeOut = (!timer.isActive());
+		while (process.canReadLine())
+		{
+			QString line = QString::fromLatin1(process.readLine()).simplified();
+			log(line);
+		}
+		if (bTimeOut)
+		{
+			qWarning("NC process timed out <-- killing!");
+			process.kill();
+			process.waitForFinished();
+			log("!!! TIMEOUT !!!");
+			return false;
+		}
+	}
+
+	timer.stop();
+	timer.disconnect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
+
+	if (process.exitCode() != 0)
+	{
+		log("Connection has failed!");
+	}
+
+	log(QString().sprintf("Exited with code %d", process.exitCode()), "");
+	return (process.exitCode() == 0);
+}
+
+bool UpdateChecker::checkSignature(const QString &file, const QString &signature)
+{
+	if (QFileInfo(file).absolutePath().compare(QFileInfo(signature).absolutePath(), Qt::CaseInsensitive) != 0)
+	{
+		qWarning("CheckSignature: File and signature should be in same folder!");
+		return false;
+	}
+
+	QString keyRingPath(m_binaryKeys);
+	bool removeKeyring = false;
+	if (QFileInfo(file).absolutePath().compare(QFileInfo(m_binaryKeys).absolutePath(), Qt::CaseInsensitive) != 0)
+	{
+		keyRingPath = make_temp_file(QFileInfo(file).absolutePath(), "gpg");
+		removeKeyring = true;
+		if (!QFile::copy(m_binaryKeys, keyRingPath))
+		{
+			qWarning("CheckSignature: Failed to copy the key-ring file!");
+			return false;
+		}
+	}
+
+	QProcess process;
+	init_process(process, QFileInfo(file).absolutePath());
+
+	QEventLoop loop;
+	connect(&process, SIGNAL(error(QProcess::ProcessError)), &loop, SLOT(quit()));
+	connect(&process, SIGNAL(finished(int, QProcess::ExitStatus)), &loop, SLOT(quit()));
+	connect(&process, SIGNAL(readyRead()), &loop, SLOT(quit()));
+
+	process.start(m_binaryGnuPG, QStringList() << "--homedir" << "." << "--keyring" << QFileInfo(keyRingPath).fileName() << QFileInfo(signature).fileName() << QFileInfo(file).fileName());
+
+	if (!process.waitForStarted())
+	{
+		if (removeKeyring)
+		{
+			remove_file(keyRingPath);
+		}
+		return false;
+	}
+
+	while (process.state() == QProcess::Running)
+	{
+		loop.exec();
+		while (process.canReadLine())
+		{
+			log(QString::fromLatin1(process.readLine()).simplified());
+		}
+	}
+
+	if (removeKeyring)
+	{
+		remove_file(keyRingPath);
+	}
+
+	log(QString().sprintf("Exited with code %d", process.exitCode()));
+	return (process.exitCode() == 0);
 }
 
 ////////////////////////////////////////////////////////////

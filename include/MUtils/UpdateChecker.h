@@ -80,7 +80,7 @@ namespace MUtils
 		}
 		update_status_t;
 
-		UpdateChecker(const QString &binWGet, const QString &binGnuPG, const QString &binKeys, const QString &applicationId, const quint32 &installedBuildNo, const bool betaUpdates, const bool testMode = false);
+		UpdateChecker(const QString &binWGet, const QString &binNC, const QString &binGnuPG, const QString &binKeys, const QString &applicationId, const quint32 &installedBuildNo, const bool betaUpdates, const bool testMode = false);
 		~UpdateChecker(void);
 
 		const int  getUpdateStatus(void)             const { return m_status; }
@@ -110,6 +110,7 @@ namespace MUtils
 		const quint32 m_installedBuildNo;
 
 		const QString m_binaryWGet;
+		const QString m_binaryNC;
 		const QString m_binaryGnuPG;
 		const QString m_binaryKeys;
 
@@ -122,12 +123,13 @@ namespace MUtils
 		inline void setProgress(const int progress);
 		inline void log(const QString &str1, const QString &str2 = QString(), const QString &str3 = QString(), const QString &str4 = QString());
 
+		bool getUpdateInfo(const QString &url, const QString &outFileVers, const QString &outFileSign);
+		bool tryContactHost(const QString &hostname);
+		bool parseVersionInfo(const QString &file, UpdateCheckerInfo *updateInfo);
+
 		bool getFile(const QString &url, const QString &outFile, const unsigned int maxRedir = 5U, bool *httpOk = NULL);
 		bool getFile(const QString &url, const bool forceIp4, const QString &outFile, const unsigned int maxRedir, bool *httpOk);
-		bool getUpdateInfo(const QString &url, const QString &outFileVers, const QString &outFileSign);
-		int tryContactHost(const QString &url);
-		bool tryUpdateMirror(UpdateCheckerInfo *updateInfo, const QString &url);
 		bool checkSignature(const QString &file, const QString &signature);
-		bool parseVersionInfo(const QString &file, UpdateCheckerInfo *updateInfo);
+		bool tryUpdateMirror(UpdateCheckerInfo *updateInfo, const QString &url);
 	};
 }
