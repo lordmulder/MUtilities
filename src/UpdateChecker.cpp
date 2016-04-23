@@ -196,11 +196,14 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	NULL
 };
 
-static const int MIN_CONNSCORE = 8;
+static const int MIN_CONNSCORE = 5;
 static const int VERSION_INFO_EXPIRES_MONTHS = 6;
 static char *USER_AGENT_STR = "Mozilla/5.0 (X11; Linux i686; rv:7.0.1) Gecko/20111106 IceCat/7.0.1";
 
-//Helper function
+////////////////////////////////////////////////////////////
+// Helper Functions
+////////////////////////////////////////////////////////////
+
 static int getMaxProgress(void)
 {
 	int counter = MIN_CONNSCORE + 2;
@@ -321,17 +324,19 @@ void UpdateChecker::checkForUpdates(void)
 
 	// ----- Test Known Hosts Connectivity ----- //
 
-	int connectionScore = 0;
+	int connectionScore = 0, connectionRetry = MIN_CONNSCORE;
 
 	QStringList hostList = buildRandomList(known_hosts);
-	while(!(hostList.isEmpty() || (connectionScore >= MIN_CONNSCORE)))
+	while((!hostList.isEmpty()) && (connectionScore < MIN_CONNSCORE) && (connectionRetry > 0))
 	{
+		connectionRetry--;
 		if(tryContactHost(hostList.takeFirst()))
 		{
 			connectionScore += 1;
+			connectionRetry = MIN_CONNSCORE;
 		}
 		setProgress(qBound(1, connectionScore + 1, MIN_CONNSCORE + 1));
-		msleep(64);
+		msleep(25);
 	}
 
 	if(connectionScore < MIN_CONNSCORE)
@@ -717,7 +722,7 @@ bool UpdateChecker::tryContactHost(const QString &hostname)
 		return false;
 	}
 
-	timer.start(25000);
+	timer.start(10000);
 
 	while (process.state() != QProcess::NotRunning)
 	{
