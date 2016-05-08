@@ -1000,27 +1000,46 @@ void MUtils::OS::sleep_ms(const size_t &duration)
 // EXECUTABLE CHECK
 ///////////////////////////////////////////////////////////////////////////////
 
+static bool libraryAsImageResourceSupported()
+{
+	OSVERSIONINFOEXW osvi;
+	memset(&osvi, 0, sizeof(OSVERSIONINFOEXW));
+	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEXW);
+	if(GetVersionExW((LPOSVERSIONINFOW)&osvi))
+	{
+		if(osvi.dwPlatformId == VER_PLATFORM_WIN32_NT)
+		{
+			return (osvi.dwMajorVersion >= 6U);
+		}
+	}
+	return false;
+}
+
 bool MUtils::OS::is_executable_file(const QString &path)
 {
-	bool bIsExecutable = false;
 	DWORD binaryType;
 	if(GetBinaryType(MUTILS_WCHR(QDir::toNativeSeparators(path)), &binaryType))
 	{
-		bIsExecutable = (binaryType == SCS_32BIT_BINARY || binaryType == SCS_64BIT_BINARY);
+		return ((binaryType == SCS_32BIT_BINARY) || (binaryType == SCS_64BIT_BINARY));
 	}
-	return bIsExecutable;
+
+	const DWORD errorCode = GetLastError();
+	qWarning("GetBinaryType() failed with error: 0x%08X", errorCode);
+	return false;
 }
 
 bool MUtils::OS::is_library_file(const QString &path)
 {
-	bool bIsLibrary = false;
-	const HMODULE hMod = LoadLibraryEx(MUTILS_WCHR(QDir::toNativeSeparators(path)), NULL, LOAD_LIBRARY_AS_IMAGE_RESOURCE);
-	if (hMod)
+	const DWORD flags = libraryAsImageResourceSupported() ? (LOAD_LIBRARY_AS_DATAFILE | LOAD_LIBRARY_AS_IMAGE_RESOURCE) : (LOAD_LIBRARY_AS_DATAFILE | DONT_RESOLVE_DLL_REFERENCES);
+	if (const HMODULE hMod = LoadLibraryEx(MUTILS_WCHR(QDir::toNativeSeparators(path)), NULL, flags))
 	{
-		bIsLibrary = true;
 		FreeLibrary(hMod);
+		return true;
 	}
-	return bIsLibrary;
+
+	const DWORD errorCode = GetLastError();
+	qWarning("LoadLibraryEx() failed with error: 0x%08X", errorCode);
+	return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
