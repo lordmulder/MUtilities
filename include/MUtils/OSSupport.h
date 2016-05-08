@@ -140,8 +140,9 @@ namespace MUtils
 		//Sleep
 		MUTILS_API void sleep_ms(const size_t &duration);
 
-		//Is executable file?
+		//Is executable/library file?
 		MUTILS_API bool is_executable_file(const QString &path);
+		MUTILS_API bool is_library_file(const QString &path);
 
 		//Shutdown & Hibernation
 		MUTILS_API bool is_hibernation_supported(void);

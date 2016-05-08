@@ -1011,6 +1011,18 @@ bool MUtils::OS::is_executable_file(const QString &path)
 	return bIsExecutable;
 }
 
+bool MUtils::OS::is_library_file(const QString &path)
+{
+	bool bIsLibrary = false;
+	const HMODULE hMod = LoadLibraryEx(MUTILS_WCHR(QDir::toNativeSeparators(path)), NULL, LOAD_LIBRARY_AS_IMAGE_RESOURCE);
+	if (hMod)
+	{
+		bIsLibrary = true;
+		FreeLibrary(hMod);
+	}
+	return bIsLibrary;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // HIBERNATION / SHUTDOWN
 ///////////////////////////////////////////////////////////////////////////////
