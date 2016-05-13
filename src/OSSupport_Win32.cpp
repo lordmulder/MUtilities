@@ -319,6 +319,50 @@ namespace MUtils
 	}
 }
 
+static void initialize_os_version(OSVERSIONINFOEXW *const osInfo)
+{
+	memset(osInfo, 0, sizeof(OSVERSIONINFOEXW));
+	osInfo->dwOSVersionInfoSize = sizeof(OSVERSIONINFOEXW);
+}
+
+static bool rtl_get_version(OSVERSIONINFOEXW *const osInfo)
+{
+	typedef LONG(__stdcall *RtlGetVersion)(LPOSVERSIONINFOEXW);
+	if (const HMODULE ntdll = GetModuleHandleW(L"ntdll"))
+	{
+		if (const RtlGetVersion pRtlGetVersion = (RtlGetVersion)GetProcAddress(ntdll, "RtlGetVersion"))
+		{
+			initialize_os_version(osInfo);
+			if (pRtlGetVersion(osInfo) == 0)
+			{
+				return true;
+			}
+		}
+	}
+
+	//Fallback
+	initialize_os_version(osInfo);
+	return (GetVersionExW((LPOSVERSIONINFOW)osInfo) != FALSE);
+}
+
+static bool rtl_verify_version(OSVERSIONINFOEXW *const osInfo, const ULONG typeMask, const ULONGLONG condMask)
+{
+	typedef LONG(__stdcall *RtlVerifyVersionInfo)(LPOSVERSIONINFOEXW, ULONG, ULONGLONG);
+	if (const HMODULE ntdll = GetModuleHandleW(L"ntdll"))
+	{
+		if (const RtlVerifyVersionInfo pRtlVerifyVersionInfo = (RtlVerifyVersionInfo)GetProcAddress(ntdll, "RtlVerifyVersionInfo"))
+		{
+			if (pRtlVerifyVersionInfo(osInfo, typeMask, condMask) == 0)
+			{
+				return true;
+			}
+		}
+	}
+
+	//Fallback
+	return (VerifyVersionInfoW(osInfo, typeMask, condMask) != FALSE);
+}
+
 static bool verify_os_version(const DWORD major, const DWORD minor)
 {
 	OSVERSIONINFOEXW osvi;
@@ -337,7 +381,7 @@ static bool verify_os_version(const DWORD major, const DWORD minor)
 	VER_SET_CONDITION(dwlConditionMask, VER_PLATFORMID,   VER_EQUAL);
 
 	// Perform the test
-	const BOOL ret = VerifyVersionInfoW(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_PLATFORMID, dwlConditionMask);
+	const BOOL ret = rtl_verify_version(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_PLATFORMID, dwlConditionMask);
 
 	//Error checking
 	if(!ret)
@@ -362,7 +406,7 @@ static bool get_real_os_version(unsigned int *major, unsigned int *minor, bool *
 	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEXW);
 
 	//Try GetVersionEx() first
-	if(GetVersionExW((LPOSVERSIONINFOW)&osvi) == FALSE)
+	if(rtl_get_version(&osvi) == FALSE)
 	{
 		qWarning("GetVersionEx() has failed, cannot detect Windows version!");
 		return false;
@@ -405,21 +449,6 @@ static bool get_real_os_version(unsigned int *major, unsigned int *minor, bool *
 			continue;
 		}
 		break;
-	}
-
-	//Workaround for the mess that is sometimes referred to as "Windows 10"
-	if(((*major) > 6) || (((*major) == 6) && ((*minor) >= 2)))
-	{
-		quint16 kernel32_major, kernel32_minor;
-		if(MUtils::OS::get_file_version(QLatin1String("kernel32"), &kernel32_major, &kernel32_minor))
-		{
-			if((kernel32_major > (*major)) || ((kernel32_major == (*major)) && (kernel32_minor > (*minor))))
-			{
-				*major = kernel32_major;
-				*minor = kernel32_minor;
-				*pbOverride = true;
-			}
-		}
 	}
 
 	return true;
@@ -1000,19 +1029,34 @@ void MUtils::OS::sleep_ms(const size_t &duration)
 // EXECUTABLE CHECK
 ///////////////////////////////////////////////////////////////////////////////
 
-static bool libraryAsImageResourceSupported()
+static int g_library_as_image_resource_supported = -1;
+static QReadWriteLock g_library_as_image_resource_supported_lock;
+
+static bool library_as_image_resource_supported()
 {
-	OSVERSIONINFOEXW osvi;
-	memset(&osvi, 0, sizeof(OSVERSIONINFOEXW));
-	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEXW);
-	if(GetVersionExW((LPOSVERSIONINFOW)&osvi))
+	QReadLocker readLocker(&g_library_as_image_resource_supported_lock);
+	if (g_library_as_image_resource_supported >= 0)
 	{
-		if(osvi.dwPlatformId == VER_PLATFORM_WIN32_NT)
+		return (g_library_as_image_resource_supported > 0);
+	}
+
+	readLocker.unlock();
+	QWriteLocker writeLocker(&g_library_as_image_resource_supported_lock);
+
+	if (g_library_as_image_resource_supported < 0)
+	{
+		g_library_as_image_resource_supported = 0;
+		OSVERSIONINFOEXW osvi;
+		if (rtl_get_version(&osvi))
 		{
-			return (osvi.dwMajorVersion >= 6U);
+			if ((osvi.dwPlatformId == VER_PLATFORM_WIN32_NT) && (osvi.dwMajorVersion >= 6U))
+			{
+				g_library_as_image_resource_supported = 1;
+			}
 		}
 	}
-	return false;
+
+	return (g_library_as_image_resource_supported > 0);
 }
 
 bool MUtils::OS::is_executable_file(const QString &path)
@@ -1030,7 +1074,7 @@ bool MUtils::OS::is_executable_file(const QString &path)
 
 bool MUtils::OS::is_library_file(const QString &path)
 {
-	const DWORD flags = libraryAsImageResourceSupported() ? (LOAD_LIBRARY_AS_DATAFILE | LOAD_LIBRARY_AS_IMAGE_RESOURCE) : (LOAD_LIBRARY_AS_DATAFILE | DONT_RESOLVE_DLL_REFERENCES);
+	const DWORD flags = library_as_image_resource_supported() ? (LOAD_LIBRARY_AS_DATAFILE | LOAD_LIBRARY_AS_IMAGE_RESOURCE) : (LOAD_LIBRARY_AS_DATAFILE | DONT_RESOLVE_DLL_REFERENCES);
 	if (const HMODULE hMod = LoadLibraryEx(MUTILS_WCHR(QDir::toNativeSeparators(path)), NULL, flags))
 	{
 		FreeLibrary(hMod);
