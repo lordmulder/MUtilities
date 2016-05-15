@@ -189,17 +189,17 @@ static QString getExecutableName(int &argc, char **argv)
 	if(argc >= 1)
 	{
 		const char *argv0 = argv[0];
-		if(const char *const ptr = strrchr(argv0, '/'))
+		for (int i = 0; i < 2; i++)
 		{
-			argv0 = ptr + 1;
-		}
-		if(const char *const ptr = strrchr(argv0, '\\'))
-		{
-			argv0 = ptr + 1;
+			static const char SEP[2] = { '/', '\\' };
+			if (const char *const ptr = strrchr(argv0, SEP[i]))
+			{
+				argv0 = ptr + 1;
+			}
 		}
 		if(strlen(argv0) > 1)
 		{
-			QString::fromLatin1(argv0);
+			return QString::fromLatin1(argv0);
 		}
 	}
 	return QLatin1String("Program.exe");
@@ -255,11 +255,11 @@ QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &
 	//Check whether we are running on a supported Windows version
 	if(const char *const friendlyName = MUtils::OS::os_friendly_name(osVersion))
 	{
-		qDebug("Running on %s (NT v%u.%u).\n", friendlyName, osVersion.versionMajor, osVersion.versionMinor);
+		qDebug("Running on %s (NT v%u.%u.%u).\n", friendlyName, osVersion.versionMajor, osVersion.versionMinor, osVersion.versionBuild);
 	}
 	else
 	{
-		const QString message = QString().sprintf("Running on an unknown WindowsNT-based system (v%u.%u).", osVersion.versionMajor, osVersion.versionMinor);
+		const QString message = QString().sprintf("Running on an unknown WindowsNT-based system (v%u.%u.%u).", osVersion.versionMajor, osVersion.versionMinor, osVersion.versionBuild);
 		qWarning("%s\n", MUTILS_UTF8(message));
 		MUtils::OS::system_message_wrn(L"LameXP", MUTILS_WCHR(message));
 	}
