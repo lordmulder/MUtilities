@@ -284,7 +284,7 @@ g_os_version_lut[] =
 	{ MUtils::OS::Version::WINDOWS_WIN70, "Windows 7 or Windows Server 2008 R2"           },	//7
 	{ MUtils::OS::Version::WINDOWS_WIN80, "Windows 8 or Windows Server 2012"              },	//8
 	{ MUtils::OS::Version::WINDOWS_WIN81, "Windows 8.1 or Windows Server 2012 R2"         },	//8.1
-	{ MUtils::OS::Version::WINDOWS_WN100, "Windows 10 or Windows Server 2014 (Preview)"   },	//10
+	{ MUtils::OS::Version::WINDOWS_WN100, "Windows 10 or Windows Server 2016"             },	//10
 	{ MUtils::OS::Version::UNKNOWN_OPSYS, "N/A" }
 };
 
@@ -317,6 +317,12 @@ namespace MUtils
 			const os_version_t UNKNOWN_OPSYS = { OS_UNKNOWN, 0, 0 };	// N/A
 		}
 	}
+}
+
+static inline DWORD SAFE_ADD(const DWORD &a, const DWORD &b)
+{
+	const DWORD temp = a + b;
+	return ((temp >= a) && (temp >= b)) ? temp : MAXDWORD;
 }
 
 static void initialize_os_version(OSVERSIONINFOEXW *const osInfo)
@@ -367,10 +373,9 @@ static bool verify_os_version(const DWORD major, const DWORD minor)
 {
 	OSVERSIONINFOEXW osvi;
 	DWORDLONG dwlConditionMask = 0;
+	initialize_os_version(&osvi);
 
 	//Initialize the OSVERSIONINFOEX structure
-	memset(&osvi, 0, sizeof(OSVERSIONINFOEXW));
-	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEXW);
 	osvi.dwMajorVersion = major;
 	osvi.dwMinorVersion = minor;
 	osvi.dwPlatformId = VER_PLATFORM_WIN32_NT;
@@ -395,9 +400,40 @@ static bool verify_os_version(const DWORD major, const DWORD minor)
 	return (ret != FALSE);
 }
 
-static bool get_real_os_version(unsigned int *major, unsigned int *minor, bool *pbOverride)
+static bool verify_os_build(const DWORD build)
 {
-	*major = *minor = 0;
+	OSVERSIONINFOEXW osvi;
+	DWORDLONG dwlConditionMask = 0;
+	initialize_os_version(&osvi);
+
+	//Initialize the OSVERSIONINFOEX structure
+	osvi.dwBuildNumber = build;
+	osvi.dwPlatformId = VER_PLATFORM_WIN32_NT;
+
+	//Initialize the condition mask
+	VER_SET_CONDITION(dwlConditionMask, VER_BUILDNUMBER, VER_GREATER_EQUAL);
+	VER_SET_CONDITION(dwlConditionMask, VER_PLATFORMID, VER_EQUAL);
+
+	// Perform the test
+	const BOOL ret = rtl_verify_version(&osvi, VER_BUILDNUMBER | VER_PLATFORMID, dwlConditionMask);
+
+	//Error checking
+	if (!ret)
+	{
+		if (GetLastError() != ERROR_OLD_WIN_VERSION)
+		{
+			qWarning("VerifyVersionInfo() system call has failed!");
+		}
+	}
+
+	return (ret != FALSE);
+}
+
+static bool get_real_os_version(unsigned int *major, unsigned int *minor, unsigned int *build, bool *pbOverride)
+{
+	static const DWORD MAX_VERSION = 0xFFFF;
+
+	*major = *minor = *build = 0;
 	*pbOverride = false;
 	
 	//Initialize local variables
@@ -417,35 +453,61 @@ static bool get_real_os_version(unsigned int *major, unsigned int *minor, bool *
 	{
 		*major = osvi.dwMajorVersion;
 		*minor = osvi.dwMinorVersion;
+		*build = osvi.dwBuildNumber;
 	}
 	else
 	{
-		qWarning("Not running on Windows NT, unsupported operating system!");
-		return false;
+		if (verify_os_version(4, 0))
+		{
+			*major = 4;
+			*build = 1381;
+			*pbOverride = true;
+		}
+		else
+		{
+			qWarning("Not running on Windows NT, unsupported operating system!");
+			return false;
+		}
 	}
 
-	//Determine the real *major* version first
-	forever
+	//Major Version
+	for (DWORD nextMajor = (*major) + 1; nextMajor <= MAX_VERSION; nextMajor++)
 	{
-		const DWORD nextMajor = (*major) + 1;
-		if(verify_os_version(nextMajor, 0))
+		if (verify_os_version(nextMajor, 0))
 		{
-			*pbOverride = true;
 			*major = nextMajor;
 			*minor = 0;
+			*pbOverride = true;
 			continue;
 		}
 		break;
 	}
 
-	//Now also determine the real *minor* version
-	forever
+	//Minor Version
+	for (DWORD nextMinor = (*minor) + 1; nextMinor <= MAX_VERSION; nextMinor++)
 	{
-		const DWORD nextMinor = (*minor) + 1;
-		if(verify_os_version((*major), nextMinor))
+		if (verify_os_version((*major), nextMinor))
 		{
-			*pbOverride = true;
 			*minor = nextMinor;
+			*pbOverride = true;
+			continue;
+		}
+		break;
+	}
+
+	//Build Version
+	DWORD stepSize = 32768;
+	for (DWORD nextBuildNo = SAFE_ADD((*build), stepSize); (*build) < MAXDWORD; nextBuildNo = SAFE_ADD((*build), stepSize))
+	{
+		if (verify_os_build(nextBuildNo))
+		{
+			*build = nextBuildNo;
+			*pbOverride = true;
+			continue;
+		}
+		if (stepSize > 1)
+		{
+			stepSize = stepSize / 2;
 			continue;
 		}
 		break;
@@ -474,12 +536,13 @@ const MUtils::OS::Version::os_version_t &MUtils::OS::os_version(void)
 	}
 
 	//Detect OS version
-	unsigned int major, minor; bool overrideFlg;
-	if(get_real_os_version(&major, &minor, &overrideFlg))
+	unsigned int major, minor, build; bool overrideFlg;
+	if(get_real_os_version(&major, &minor, &build, &overrideFlg))
 	{
 		g_os_version_info.type = Version::OS_WINDOWS;
 		g_os_version_info.versionMajor = major;
 		g_os_version_info.versionMinor = minor;
+		g_os_version_info.versionBuild = build;
 		g_os_version_info.overrideFlag = overrideFlg;
 	}
 	else

@@ -49,19 +49,20 @@ namespace MUtils
 			os_type_t;
 
 			//OS version struct
-			typedef struct _os_info_t
+			typedef struct _os_version_t
 			{
 				unsigned int type;
 				unsigned int versionMajor;
 				unsigned int versionMinor;
+				unsigned int versionBuild;
 				bool overrideFlag;
 
-				MUTILS_API bool operator== (const _os_info_t &rhs) const;
-				MUTILS_API bool operator!= (const _os_info_t &rhs) const;
-				MUTILS_API bool operator>  (const _os_info_t &rhs) const;
-				MUTILS_API bool operator>= (const _os_info_t &rhs) const;
-				MUTILS_API bool operator<  (const _os_info_t &rhs) const;
-				MUTILS_API bool operator<= (const _os_info_t &rhs) const;
+				MUTILS_API bool operator== (const _os_version_t &rhs) const;
+				MUTILS_API bool operator!= (const _os_version_t &rhs) const;
+				MUTILS_API bool operator>  (const _os_version_t &rhs) const;
+				MUTILS_API bool operator>= (const _os_version_t &rhs) const;
+				MUTILS_API bool operator<  (const _os_version_t &rhs) const;
+				MUTILS_API bool operator<= (const _os_version_t &rhs) const;
 			}
 			os_version_t;
 
