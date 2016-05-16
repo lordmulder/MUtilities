@@ -304,31 +304,41 @@ namespace MUtils
 			bool os_version_t::operator<= (const os_version_t &rhs) const { return (type == rhs.type) && ((versionMajor < rhs.versionMajor) || ((versionMajor == rhs.versionMajor) && (versionMinor <= rhs.versionMinor))); }
 
 			//Known Windows NT versions
-			const os_version_t WINDOWS_WIN2K = { OS_WINDOWS,  5, 0 };	// 2000
-			const os_version_t WINDOWS_WINXP = { OS_WINDOWS,  5, 1 };	// XP
-			const os_version_t WINDOWS_XPX64 = { OS_WINDOWS,  5, 2 };	// XP_x64
-			const os_version_t WINDOWS_VISTA = { OS_WINDOWS,  6, 0 };	// Vista
-			const os_version_t WINDOWS_WIN70 = { OS_WINDOWS,  6, 1 };	// 7
-			const os_version_t WINDOWS_WIN80 = { OS_WINDOWS,  6, 2 };	// 8
-			const os_version_t WINDOWS_WIN81 = { OS_WINDOWS,  6, 3 };	// 8.1
-			const os_version_t WINDOWS_WN100 = { OS_WINDOWS, 10, 0 };	// 10
+			const os_version_t WINDOWS_WIN2K = { OS_WINDOWS,  5, 0,  2195 };	// 2000
+			const os_version_t WINDOWS_WINXP = { OS_WINDOWS,  5, 1,  2600 };	// XP
+			const os_version_t WINDOWS_XPX64 = { OS_WINDOWS,  5, 2,  3790 };	// XP_x64
+			const os_version_t WINDOWS_VISTA = { OS_WINDOWS,  6, 0,  6000 };	// Vista
+			const os_version_t WINDOWS_WIN70 = { OS_WINDOWS,  6, 1,  7600 };	// 7
+			const os_version_t WINDOWS_WIN80 = { OS_WINDOWS,  6, 2,  9200 };	// 8
+			const os_version_t WINDOWS_WIN81 = { OS_WINDOWS,  6, 3,  9600 };	// 8.1
+			const os_version_t WINDOWS_WN100 = { OS_WINDOWS, 10, 0, 10240 };	// 10
 
 			//Unknown OS
-			const os_version_t UNKNOWN_OPSYS = { OS_UNKNOWN, 0, 0 };	// N/A
+			const os_version_t UNKNOWN_OPSYS = { OS_UNKNOWN, 0,  0,     0 };	// N/A
 		}
 	}
 }
 
-static inline DWORD SAFE_ADD(const DWORD &a, const DWORD &b)
+static inline DWORD SAFE_ADD(const DWORD &a, const DWORD &b, const DWORD &limit = MAXDWORD)
 {
-	const DWORD temp = a + b;
-	return ((temp >= a) && (temp >= b)) ? temp : MAXDWORD;
+	return ((a >= limit) || (b >= limit) || ((limit - a) <= b)) ? limit : (a + b);
 }
+
 
 static void initialize_os_version(OSVERSIONINFOEXW *const osInfo)
 {
 	memset(osInfo, 0, sizeof(OSVERSIONINFOEXW));
 	osInfo->dwOSVersionInfoSize = sizeof(OSVERSIONINFOEXW);
+}
+
+static inline DWORD initialize_step_size(const DWORD &limit)
+{
+	DWORD result = 1;
+	while (result < limit)
+	{
+		result = SAFE_ADD(result, result);
+	}
+	return result;
 }
 
 static bool rtl_get_version(OSVERSIONINFOEXW *const osInfo)
@@ -432,6 +442,7 @@ static bool verify_os_build(const DWORD build)
 static bool get_real_os_version(unsigned int *major, unsigned int *minor, unsigned int *build, bool *pbOverride)
 {
 	static const DWORD MAX_VERSION = 0xFFFF;
+	static const DWORD MAX_BUILDNO = MAXINT;
 
 	*major = *minor = *build = 0;
 	*pbOverride = false;
@@ -496,21 +507,24 @@ static bool get_real_os_version(unsigned int *major, unsigned int *minor, unsign
 	}
 
 	//Build Version
-	DWORD stepSize = 32768;
-	for (DWORD nextBuildNo = SAFE_ADD((*build), stepSize); (*build) < MAXDWORD; nextBuildNo = SAFE_ADD((*build), stepSize))
+	if (verify_os_build(SAFE_ADD((*build), 1, MAX_BUILDNO)))
 	{
-		if (verify_os_build(nextBuildNo))
+		DWORD stepSize = initialize_step_size(MAX_BUILDNO);
+		for (DWORD nextBuildNo = SAFE_ADD((*build), stepSize, MAX_BUILDNO); (*build) < MAX_BUILDNO; nextBuildNo = SAFE_ADD((*build), stepSize, MAX_BUILDNO))
 		{
-			*build = nextBuildNo;
-			*pbOverride = true;
-			continue;
+			if (verify_os_build(nextBuildNo))
+			{
+				*build = nextBuildNo;
+				*pbOverride = true;
+				continue;
+			}
+			if (stepSize > 1)
+			{
+				stepSize = stepSize / 2;
+				continue;
+			}
+			break;
 		}
-		if (stepSize > 1)
-		{
-			stepSize = stepSize / 2;
-			continue;
-		}
-		break;
 	}
 
 	return true;
