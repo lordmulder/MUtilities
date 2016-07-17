@@ -36,6 +36,7 @@
 #include <QReadWriteLock>
 #include <QProcess>
 #include <QTextCodec>
+#include <QPair>
 
 //CRT
 #include <cstdlib>
@@ -491,21 +492,40 @@ QString MUtils::clean_file_name(const QString &name)
 	return str.trimmed();
 }
 
+static QPair<QString,QString> clean_file_path_get_prefix(const QString path)
+{
+	static const char *const PREFIXES[] =
+	{
+		"//?/", "//", "/", NULL
+	};
+	const QString posixPath = QDir::fromNativeSeparators(path.trimmed());
+	for (int i = 0; PREFIXES[i]; i++)
+	{
+		const QString prefix = QString::fromLatin1(PREFIXES[i]);
+		if (posixPath.startsWith(prefix))
+		{
+			return qMakePair(prefix, posixPath.mid(prefix.length()));
+		}
+	}
+	return qMakePair(QString(), posixPath);
+}
+
 QString MUtils::clean_file_path(const QString &path)
 {
-	const bool root = path.startsWith(QLatin1Char('/')) || path.startsWith(QLatin1Char('\\'));
-	QStringList parts = QDir::fromNativeSeparators(path.trimmed()).split(QLatin1Char('/'), QString::SkipEmptyParts);
+	const QPair<QString, QString> prefix = clean_file_path_get_prefix(path);
 
+	QStringList parts = prefix.second.split(QLatin1Char('/'), QString::SkipEmptyParts);
 	for(int i = 0; i < parts.count(); i++)
 	{
-		if((i == 0) && (!root) && (parts[i].length() == 2) && parts[i][0].isLetter() && (parts[i][1] == QLatin1Char(':')))
+		if((i == 0) && (parts[i].length() == 2) && parts[i][0].isLetter() && (parts[i][1] == QLatin1Char(':')))
 		{
 			continue; //handle case "c:\"
 		}
 		parts[i] = MUtils::clean_file_name(parts[i]);
 	}
 
-	return root ? parts.join(QLatin1String("/")).prepend(QLatin1Char('/')) : parts.join(QLatin1String("/"));
+	const QString cleanPath = parts.join(QLatin1String("/"));
+	return prefix.first.isEmpty() ? cleanPath : prefix.first + cleanPath;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
