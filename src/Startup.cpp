@@ -261,7 +261,7 @@ QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &
 	{
 		const QString message = QString().sprintf("Running on an unknown WindowsNT-based system (v%u.%u.%u).", osVersion.versionMajor, osVersion.versionMinor, osVersion.versionBuild);
 		qWarning("%s\n", MUTILS_UTF8(message));
-		MUtils::OS::system_message_wrn(L"LameXP", MUTILS_WCHR(message));
+		MUtils::OS::system_message_wrn(MUTILS_WCHR(executableName), MUTILS_WCHR(message));
 	}
 
 	//Check for compat mode
@@ -332,7 +332,7 @@ QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &
 	//Check for process elevation
 	if(MUtils::OS::is_elevated() && (!MUtils::OS::running_on_wine()))
 	{
-		QMessageBox messageBox(QMessageBox::Warning, "LameXP", "<nobr>LameXP was started with 'elevated' rights, altough LameXP does not need these rights.<br>Running an applications with unnecessary rights is a potential security risk!</nobr>", QMessageBox::NoButton, NULL, Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint | Qt::WindowStaysOnTopHint);
+		QMessageBox messageBox(QMessageBox::Warning, executableName, "<nobr>This program was started with 'elevated' rights, altough it does not need these rights.<br>Running an applications with unnecessary rights is a potential security risk!</nobr>", QMessageBox::NoButton, NULL, Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint | Qt::WindowStaysOnTopHint);
 		messageBox.addButton("Quit Program (Recommended)", QMessageBox::NoRole);
 		messageBox.addButton("Ignore", QMessageBox::NoRole);
 		if(messageBox.exec() == 0)
