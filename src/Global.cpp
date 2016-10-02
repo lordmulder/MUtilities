@@ -384,7 +384,14 @@ bool MUtils::remove_directory(const QString &folderPath, const bool &recursive)
 // PROCESS UTILS
 ///////////////////////////////////////////////////////////////////////////////
 
-void MUtils::init_process(QProcess &process, const QString &wokringDir, const bool bReplaceTempDir)
+static void prependToPath(QProcessEnvironment &env, const QString &value)
+{
+	const QLatin1String PATH = QLatin1String("PATH");
+	const QString path = env.value(PATH, QString()).trimmed();
+	env.insert(PATH, path.isEmpty() ? value : QString("%1;%2").arg(value, path));
+}
+
+void MUtils::init_process(QProcess &process, const QString &wokringDir, const bool bReplaceTempDir, const QString &extraPath)
 {
 	//Environment variable names
 	static const char *const s_envvar_names_temp[] =
@@ -419,8 +426,11 @@ void MUtils::init_process(QProcess &process, const QString &wokringDir, const bo
 	}
 
 	//Setup PATH variable
-	const QString path = env.value("PATH", QString()).trimmed();
-	env.insert("PATH", path.isEmpty() ? tempDir : QString("%1;%2").arg(tempDir, path));
+	prependToPath(env, tempDir);
+	if (!extraPath.isEmpty())
+	{
+		prependToPath(env, QDir::toNativeSeparators(extraPath));
+	}
 	
 	//Setup QPorcess object
 	process.setWorkingDirectory(wokringDir);

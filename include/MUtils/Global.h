@@ -76,7 +76,7 @@ namespace MUtils
 	MUTILS_API const QString& temp_folder(void);
 
 	//Process Utils
-	MUTILS_API void init_process(QProcess &process, const QString &wokringDir, const bool bReplaceTempDir = true);
+	MUTILS_API void init_process(QProcess &process, const QString &wokringDir, const bool bReplaceTempDir = true, const QString &extraPath = QString());
 
 	//Random
 	MUTILS_API void seed_rand(void);

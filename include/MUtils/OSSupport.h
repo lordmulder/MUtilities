@@ -190,6 +190,10 @@ namespace MUtils
 		MUTILS_API bool wow64fsredir_disable(void *oldValue);
 		MUTILS_API bool wow64fsredir_revert (void *oldValue);
 
+		//Environment variables
+		MUTILS_API QString get_envvar(const QString &name);
+		MUTILS_API bool set_envvar(const QString &name, const QString &value);
+
 		//Check if debugger is present
 		MUTILS_API void check_debugger(void);
 

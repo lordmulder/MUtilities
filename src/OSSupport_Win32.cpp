@@ -1546,6 +1546,67 @@ bool MUtils::OS::wow64fsredir_revert(void *oldValue)
 // DEBUGGER CHECK
 ///////////////////////////////////////////////////////////////////////////////
 
+QString MUtils::OS::get_envvar(const QString &name)
+{
+	wchar_t *buffer = NULL;
+	size_t requiredSize = 0, buffSize = 0;
+	QString result;
+
+	forever
+	{
+		//Adjust the buffer size as required first!
+		if (buffSize < requiredSize)
+		{
+			if (buffer)
+			{
+				_freea(buffer);
+			}
+			if (!(buffer = (wchar_t*)_malloca(sizeof(wchar_t) * requiredSize)))
+			{
+				break; /*out of memory error!*/
+			}
+			buffSize = requiredSize;
+		}
+
+		//Try to fetch the environment variable now
+		const errno_t error = _wgetenv_s(&requiredSize, buffer, buffSize, MUTILS_WCHR(name));
+		if(!error)
+		{
+			if (requiredSize > 0)
+			{
+				result = MUTILS_QSTR(buffer);
+			}
+			break; /*done*/
+		}
+		else if (error != ERANGE)
+		{
+			break; /*somethging else went wrong!*/
+		}
+	}
+	
+	if (buffer)
+	{
+		_freea(buffer);
+		buffSize = 0;
+		buffer = NULL;
+	}
+
+	return result;
+}
+
+bool MUtils::OS::set_envvar(const QString &name, const QString &value)
+{
+	if (!_wputenv_s(MUTILS_WCHR(name), MUTILS_WCHR(value)))
+	{
+		return true;
+	}
+	return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// DEBUGGER CHECK
+///////////////////////////////////////////////////////////////////////////////
+
 #if (!(MUTILS_DEBUG))
 static __forceinline bool is_debugger_present(void)
 {
