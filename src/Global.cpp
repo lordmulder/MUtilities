@@ -37,6 +37,7 @@
 #include <QProcess>
 #include <QTextCodec>
 #include <QPair>
+#include <QListIterator>
 
 //CRT
 #include <cstdlib>
@@ -391,7 +392,7 @@ static void prependToPath(QProcessEnvironment &env, const QString &value)
 	env.insert(PATH, path.isEmpty() ? value : QString("%1;%2").arg(value, path));
 }
 
-void MUtils::init_process(QProcess &process, const QString &wokringDir, const bool bReplaceTempDir, const QString &extraPath)
+void MUtils::init_process(QProcess &process, const QString &wokringDir, const bool bReplaceTempDir, const QStringList *const extraPaths)
 {
 	//Environment variable names
 	static const char *const s_envvar_names_temp[] =
@@ -427,9 +428,14 @@ void MUtils::init_process(QProcess &process, const QString &wokringDir, const bo
 
 	//Setup PATH variable
 	prependToPath(env, tempDir);
-	if (!extraPath.isEmpty())
+	if (extraPaths && (!extraPaths->isEmpty()))
 	{
-		prependToPath(env, QDir::toNativeSeparators(extraPath));
+		QListIterator<QString> iter(*extraPaths);
+		iter.toBack();
+		while (iter.hasPrevious())
+		{
+			prependToPath(env, QDir::toNativeSeparators(iter.previous()));
+		}
 	}
 	
 	//Setup QPorcess object
