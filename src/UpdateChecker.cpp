@@ -50,11 +50,11 @@ static const char *mirror_url_postfix[] =
 static const char *update_mirrors[] =
 {
 	"http://muldersoft.com/",
-	"http://mulder.bplaced.net/",			//"http://mulder.cwsurf.de/",
+	"http://mulder.bplaced.net/",
 	"http://mulder.6te.net/",
-	"http://mulder.webuda.com/",			//"http://mulder.byethost13.com/",
-	"http://mulder.pe.hu/",					//"http://muldersoft.kilu.de/",
-	"http://muldersoft.square7.ch/",		//"http://muldersoft.zxq.net/",
+	"http://mulder.webuda.com/",
+	"http://mulder.pe.hu/",
+	"http://muldersoft.square7.ch/",
 	"http://muldersoft.co.nf/",
 	"http://muldersoft.eu.pn/",
 	"http://muldersoft.lima-city.de/",
@@ -63,6 +63,8 @@ static const char *update_mirrors[] =
 	"http://lordmulder.github.io/LameXP/",
 	"http://lord_mulder.bitbucket.org/",
 	"http://www.tricksoft.de/",
+	"http://repo.or.cz/LameXP.git/blob_plain/gh-pages:/",
+	"http://gitlab.com/lamexp/lamexp/raw/gh-pages/",
 	NULL
 };
 
@@ -198,7 +200,7 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 
 static const int MIN_CONNSCORE = 5;
 static const int VERSION_INFO_EXPIRES_MONTHS = 6;
-static char *USER_AGENT_STR = "Mozilla/5.0 (X11; Linux i686; rv:7.0.1) Gecko/20111106 IceCat/7.0.1";
+static char *USER_AGENT_STR = "Mozilla/5.0 (X11; Linux i686; rv:10.0) Gecko/20100101 Firefox/10.0"; /*use something innocuous*/
 
 ////////////////////////////////////////////////////////////
 // Helper Functions
@@ -641,7 +643,8 @@ bool UpdateChecker::getFile(const QString &url, const bool forceIp4, const QStri
 		args << "-4";
 	}
 
-	args << "-T" << "15" << "--no-cache" << "--no-dns-cache" << QString().sprintf("--max-redirect=%u", maxRedir);
+	args << "--no-config" << "--no-cache" << "--no-dns-cache" << "--no-check-certificate" << "--no-hsts";
+	args << QString().sprintf("--max-redirect=%u", maxRedir) << "--timeout=15";
 	args << QString("--referer=%1://%2/").arg(QUrl(url).scheme(), QUrl(url).host()) << "-U" << USER_AGENT_STR;
 	args << "-O" << output.fileName() << url;
 
