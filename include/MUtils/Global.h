@@ -84,8 +84,9 @@ namespace MUtils
 	MUTILS_API quint32 next_rand32(void);
 	MUTILS_API quint64 next_rand64(void);
 
-	//Temp File Name
+	//File Name
 	MUTILS_API QString make_temp_file(const QString &basePath, const QString &extension, const bool placeholder = false);
+	MUTILS_API QString make_unique_file(const QString &basePath, const QString &baseName, const QString &extension, const bool fancy = false);
 
 	//Parity
 	MUTILS_API bool parity(quint32 value);

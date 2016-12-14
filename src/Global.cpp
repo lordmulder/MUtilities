@@ -112,7 +112,7 @@ QString MUtils::rand_str(const bool &bLong)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// GET TEMP FILE NAME
+// GENERATE FILE NAME
 ///////////////////////////////////////////////////////////////////////////////
 
 QString MUtils::make_temp_file(const QString &basePath, const QString &extension, const bool placeholder)
@@ -138,8 +138,34 @@ QString MUtils::make_temp_file(const QString &basePath, const QString &extension
 		}
 	}
 
-	qWarning("Failed to generate unique temp file name!");
+	qWarning("Failed to generate temp file name!");
 	return QString();
+}
+
+QString MUtils::make_unique_file(const QString &basePath, const QString &baseName, const QString &extension, const bool fancy)
+{
+	quint32 n = fancy ? 2 : 0;
+	QString fileName = fancy ? QString("%1/%2.%3").arg(basePath, baseName, extension) : QString();
+	while (fileName.isEmpty() || QFileInfo(fileName).exists())
+	{
+		if (n <= quint32(USHRT_MAX))
+		{
+			if (fancy)
+			{
+				fileName = QString("%1/%2 (%3).%4").arg(basePath, baseName, QString::number(n++), extension);
+			}
+			else
+			{
+				fileName = QString("%1/%2.%3.%4").arg(basePath, baseName, QString::number(n++, 16).rightJustified(4, QLatin1Char('0')), extension);
+			}
+		}
+		else
+		{
+			qWarning("Failed to generate unique file name!");
+			return QString();
+		}
+	}
+	return fileName;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
