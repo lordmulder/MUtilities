@@ -494,44 +494,40 @@ void MUtils::natural_string_sort(QStringList &list, const bool bIgnoreCase)
 // CLEAN FILE PATH
 ///////////////////////////////////////////////////////////////////////////////
 
-static const struct
-{
-	const char *const search;
-	const char *const replace;
-}
-CLEAN_FILE_NAME[] =
-{
-	{ "\\",  "-"  },
-	{ " / ", ", " },
-	{ "/",   ","  },
-	{ ":",   "-"  },
-	{ "*",   "x"  },
-	{ "?",   "!"  },
-	{ "<",   "["  },
-	{ ">",   "]"  },
-	{ "|",   "!"  },
-	{ "\"",  "'"  },
-	{ NULL,  NULL }
-};
+static const char FILENAME_ILLEGAL_CHARS[] = "\\/:*?<>\"";
 
 QString MUtils::clean_file_name(const QString &name)
 {
-	QRegExp regExp("\"(.+)\"");
-	regExp.setMinimal(true);
-
-	QString str = QString(name).replace(regExp, "``\\1´´").trimmed();
-	for(size_t i = 0; CLEAN_FILE_NAME[i].search; i++) 
+	QString result(name);
+	if (result.contains(QLatin1Char('"')))
 	{
-		str.replace(CLEAN_FILE_NAME[i].search, CLEAN_FILE_NAME[i].replace);
+		QRegExp quoted("\"(.+)\"");
+		quoted.setMinimal(true);
+		result.replace(quoted, "``\\1´´");
+	}
+
+	for(QString::Iterator iter = result.begin(); iter != result.end(); iter++)
+	{
+		if (iter->category() == QChar::Other_Control)
+		{
+			*iter = QLatin1Char('_');
+		}
+	}
+		
+	for(size_t i = 0; FILENAME_ILLEGAL_CHARS[i]; i++)
+	{
+		result.replace(QLatin1Char(FILENAME_ILLEGAL_CHARS[i]), QLatin1Char('_'));
 	}
 	
-	while(str.endsWith(QLatin1Char('.')))
+	const QRegExp spaces("\\s+$");
+	result.remove(spaces);
+	while (result.endsWith(QLatin1Char('.')))
 	{
-		str.chop(1);
-		str = str.trimmed();
+		result.chop(1);
+		result.remove(spaces);
 	}
 
-	return str.trimmed();
+	return result;
 }
 
 static QPair<QString,QString> clean_file_path_get_prefix(const QString path)
