@@ -540,7 +540,14 @@ void MUtils::natural_string_sort(QStringList &list, const bool bIgnoreCase)
 
 QString MUtils::clean_file_name(const QString &name)
 {
-	static const char FILENAME_ILLEGAL_CHARS[] = "\\/:*?<>\"";
+	static const QLatin1Char REPLACEMENT_CHAR('_');
+	static const char FILENAME_ILLEGAL_CHARS[] = "<>:\"/\\|?*";
+	static const char *const FILENAME_RESERVED_NAMES[] =
+	{
+		"CON", "PRN", "AUX", "NUL",
+		"COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
+		"LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9", NULL
+	};
 
 	QString result(name);
 	if (result.contains(QLatin1Char('"')))
@@ -554,13 +561,13 @@ QString MUtils::clean_file_name(const QString &name)
 	{
 		if (iter->category() == QChar::Other_Control)
 		{
-			*iter = QLatin1Char('_');
+			*iter = REPLACEMENT_CHAR;
 		}
 	}
 		
 	for(size_t i = 0; FILENAME_ILLEGAL_CHARS[i]; i++)
 	{
-		result.replace(QLatin1Char(FILENAME_ILLEGAL_CHARS[i]), QLatin1Char('_'));
+		result.replace(QLatin1Char(FILENAME_ILLEGAL_CHARS[i]), REPLACEMENT_CHAR);
 	}
 	
 	trim_right(result);
@@ -568,6 +575,15 @@ QString MUtils::clean_file_name(const QString &name)
 	{
 		result.chop(1);
 		trim_right(result);
+	}
+
+	for (size_t i = 0; FILENAME_RESERVED_NAMES[i]; i++)
+	{
+		const QString reserved = QString::fromLatin1(FILENAME_RESERVED_NAMES[i]);
+		if ((!result.compare(reserved, Qt::CaseInsensitive)) || result.startsWith(reserved + QLatin1Char('.'), Qt::CaseInsensitive))
+		{
+			result.replace(0, reserved.length(), QString().leftJustified(reserved.length(), REPLACEMENT_CHAR));
+		}
 	}
 
 	return result;
