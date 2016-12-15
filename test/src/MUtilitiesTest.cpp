@@ -107,14 +107,9 @@ TEST(Global, CleanFileName)
 
 int main(int argc, char **argv)
 {
-	printf("MuldeR's Utilities for Qt - Test Suite\n");
-	printf("Copyright (C) 2004-2016 LoRd_MuldeR <MuldeR2@GMX.de>\n\n");
-
-	printf("Using MUtils v%u.%02u, built %s at %s, %s [%s]\n\n",
-		MUtils::Version::lib_version_major(), MUtils::Version::lib_version_minor(),
-		MUTILS_UTF8(MUtils::Version::lib_build_date().toString(Qt::ISODate)), MUTILS_UTF8(MUtils::Version::lib_build_time().toString(Qt::ISODate)),
-		MUtils::Version::compiler_version(), MUtils::Version::compiler_arch()
-	);
+	printf("MuldeR's Utilities for Qt v%u.%02u - Regression Test Suite [%s]\n", MUtils::Version::lib_version_major(), MUtils::Version::lib_version_minor(), MUTILS_DEBUG ? "DEBUG" : "RELEASE");
+	printf("Copyright (C) 2004-2016 LoRd_MuldeR <MuldeR2@GMX.de>. Some rights reserved.\n");
+	printf("Built on %s at %s with %s for Win-%s\n\n", MUTILS_UTF8(MUtils::Version::lib_build_date().toString(Qt::ISODate)), MUTILS_UTF8(MUtils::Version::lib_build_time().toString(Qt::ISODate)), MUtils::Version::compiler_version(), MUtils::Version::compiler_arch());
 
 	printf("This library is free software; you can redistribute it and/or\n");
 	printf("modify it under the terms of the GNU Lesser General Public\n");
