@@ -33,73 +33,72 @@
 #define ASSERT_QSTR(X,Y) ASSERT_EQ((X).compare(QLatin1String(Y)), 0);
 
 //===========================================================================
-// Trim String
+// GLOBAL
 //===========================================================================
+
+//-----------------------------------------------------------------
+// Trim String
+//-----------------------------------------------------------------
+
+#define TEST_TRIM_STR(X,Y,Z) do \
+{ \
+	{ \
+		QString test((Y)); \
+		MUtils::trim_##X(test); \
+		ASSERT_QSTR(test, (Z)); \
+	} \
+	{ \
+		const QString test((Y)); \
+		ASSERT_QSTR(MUtils::trim_##X(test), (Z)); \
+	} \
+} \
+while(0)
 
 TEST(Global, TrimStringLeft)
 {
-	{
-		QString test("");
-		MUtils::trim_left(test);
-		ASSERT_QSTR(test, "");
-	}
-	{
-		QString test("   ");
-		MUtils::trim_left(test);
-		ASSERT_QSTR(test, "");
-	}
-	{
-		QString test("!   test   !");
-		MUtils::trim_left(test);
-		ASSERT_QSTR(test, "!   test   !");
-	}
-	{
-		QString test("   test   ");
-		MUtils::trim_left(test);
-		ASSERT_QSTR(test, "test   ");
-	}
-	{
-		QString test("   !   test   !   ");
-		MUtils::trim_left(test);
-		ASSERT_QSTR(test, "!   test   !   ");
-	}
-	{
-		const QString test("   test   ");
-		ASSERT_QSTR(MUtils::trim_left(test), "test   ");
-	}
+	TEST_TRIM_STR(left, "", "");
+	TEST_TRIM_STR(left, "   ", "");
+	TEST_TRIM_STR(left, "!   test   !", "!   test   !");
+	TEST_TRIM_STR(left, "   test   ", "test   ");
+	TEST_TRIM_STR(left, "   !   test   !   ", "!   test   !   ");
 }
 
 TEST(Global, TrimStringRight)
 {
-	{
-		QString test("");
-		MUtils::trim_right(test);
-		ASSERT_QSTR(test, "");
-	}
-	{
-		QString test("   ");
-		MUtils::trim_right(test);
-		ASSERT_QSTR(test, "");
-	}
-	{
-		QString test("!   test   !");
-		MUtils::trim_right(test);
-		ASSERT_QSTR(test, "!   test   !");
-	}
-	{
-		QString test("   test   ");
-		MUtils::trim_right(test);
-		ASSERT_QSTR(test, "   test");
-	}
-	{
-		QString test("   !   test   !   ");
-		MUtils::trim_right(test);
-		ASSERT_QSTR(test, "   !   test   !");
-	}
-	{
-		const QString test("   test   ");
-		ASSERT_QSTR(MUtils::trim_right(test), "   test");
-	}
+	TEST_TRIM_STR(right, "", "");
+	TEST_TRIM_STR(right, "   ", "");
+	TEST_TRIM_STR(right, "!   test   !", "!   test   !");
+	TEST_TRIM_STR(right, "   test   ", "   test");
+	TEST_TRIM_STR(right, "   !   test   !   ", "   !   test   !");
+}
+
+#undef TEST_TRIM_STR
+
+//-----------------------------------------------------------------
+// Clean File Path
+//-----------------------------------------------------------------
+
+#define TEST_CLEAN_FILE(X,Y,Z) do \
+{ \
+	ASSERT_QSTR(MUtils::clean_file_##X((Y)), (Z)); \
+} \
+while(0)
+
+TEST(Global, CleanFileName)
+{
+	static const char *const VALID_CHARS = "!#$%&'()+,-.0123456789;=@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{}~";
+	TEST_CLEAN_FILE(name, "", "");
+	TEST_CLEAN_FILE(name, VALID_CHARS, VALID_CHARS);
+	TEST_CLEAN_FILE(name, "example.txt", "example.txt");
+	TEST_CLEAN_FILE(name, " example.txt", " example.txt");
+	TEST_CLEAN_FILE(name, "example.txt ", "example.txt");
+	TEST_CLEAN_FILE(name, ".example.txt", ".example.txt");
+	TEST_CLEAN_FILE(name, "example.txt.", "example.txt");
+	TEST_CLEAN_FILE(name, "foo<>:\"/\\|?*\t\r\n.bar", "foo____________.bar");
+	TEST_CLEAN_FILE(name, "NUL", "___");
+	TEST_CLEAN_FILE(name, "NUL.txt", "___.txt");
+	TEST_CLEAN_FILE(name, "NULx.txt", "NULx.txt");
+	TEST_CLEAN_FILE(name, "xNUL.txt", "xNUL.txt");
 }
 
 //===========================================================================
