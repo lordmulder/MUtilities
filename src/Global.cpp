@@ -38,6 +38,7 @@
 #include <QTextCodec>
 #include <QPair>
 #include <QListIterator>
+#include <QMutex>
 
 //CRT
 #include <cstdlib>
@@ -109,6 +110,49 @@ QString MUtils::rand_str(const bool &bLong)
 		return QString::number(next_rand64(), 16).rightJustified(16, QLatin1Char('0'));
 	}
 	return QString("%1%2").arg(rand_str(false), rand_str(false));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// STRING UTILITY FUNCTIONS
+///////////////////////////////////////////////////////////////////////////////
+
+static QScopedPointer<QRegExp> g_str_trim_rx_r;
+static QScopedPointer<QRegExp> g_str_trim_rx_l;
+static QMutex                  g_str_trim_lock;
+
+static QString& trim_helper(QString &str, QScopedPointer<QRegExp> &regex, const char *const pattern)
+{
+	QMutexLocker lock(&g_str_trim_lock);
+	if (regex.isNull())
+	{
+		regex.reset(new QRegExp(QLatin1String(pattern)));
+	}
+	str.remove(*regex.data());
+	return str;
+}
+
+QString& MUtils::trim_right(QString &str)
+{
+	static const char *const TRIM_RIGHT = "\\s+$";
+	return trim_helper(str, g_str_trim_rx_r, TRIM_RIGHT);
+}
+
+QString& MUtils::trim_left(QString &str)
+{
+	static const char *const TRIM_LEFT = "^\\s+";
+	return trim_helper(str, g_str_trim_rx_l, TRIM_LEFT);
+}
+
+QString MUtils::trim_right(const QString &str)
+{
+	QString temp(str);
+	return trim_right(temp);
+}
+
+QString MUtils::trim_left(const QString &str)
+{
+	QString temp(str);
+	return trim_left(temp);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -494,10 +538,10 @@ void MUtils::natural_string_sort(QStringList &list, const bool bIgnoreCase)
 // CLEAN FILE PATH
 ///////////////////////////////////////////////////////////////////////////////
 
-static const char FILENAME_ILLEGAL_CHARS[] = "\\/:*?<>\"";
-
 QString MUtils::clean_file_name(const QString &name)
 {
+	static const char FILENAME_ILLEGAL_CHARS[] = "\\/:*?<>\"";
+
 	QString result(name);
 	if (result.contains(QLatin1Char('"')))
 	{
@@ -519,12 +563,11 @@ QString MUtils::clean_file_name(const QString &name)
 		result.replace(QLatin1Char(FILENAME_ILLEGAL_CHARS[i]), QLatin1Char('_'));
 	}
 	
-	const QRegExp spaces("\\s+$");
-	result.remove(spaces);
+	trim_right(result);
 	while (result.endsWith(QLatin1Char('.')))
 	{
 		result.chop(1);
-		result.remove(spaces);
+		trim_right(result);
 	}
 
 	return result;

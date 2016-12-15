@@ -95,6 +95,12 @@ namespace MUtils
 	MUTILS_API bool remove_file(const QString &fileName);
 	MUTILS_API bool remove_directory(const QString &folderPath, const bool &recursive);
 
+	//String utils
+	MUTILS_API QString& trim_right(QString &str);
+	MUTILS_API QString& trim_left(QString &str);
+	MUTILS_API QString trim_right(const QString &str);
+	MUTILS_API QString trim_left(const QString &str);
+
 	//String sorting
 	MUTILS_API void natural_string_sort(QStringList &list, const bool bIgnoreCase);
 
