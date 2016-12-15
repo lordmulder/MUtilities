@@ -1,5 +1,6 @@
 *.exe
 *.dll
+*.opendb
 *.opensdf
 *.sdf
 *.suo
