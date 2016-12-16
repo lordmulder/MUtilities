@@ -80,9 +80,9 @@ namespace MUtils
 
 	//Random
 	MUTILS_API void seed_rand(void);
-	MUTILS_API QString rand_str(const bool &bLong = false);
-	MUTILS_API quint32 next_rand32(void);
-	MUTILS_API quint64 next_rand64(void);
+	MUTILS_API QString next_rand_str(const bool &bLong = false);
+	MUTILS_API quint32 next_rand_u32(void);
+	MUTILS_API quint64 next_rand_u64(void);
 
 	//File Name
 	MUTILS_API QString make_temp_file(const QString &basePath, const QString &extension, const bool placeholder = false);

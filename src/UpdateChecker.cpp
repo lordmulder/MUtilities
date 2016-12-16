@@ -218,7 +218,7 @@ static QStringList buildRandomList(const char *const values[])
 	QStringList list;
 	for (int index = 0; values[index]; index++)
 	{
-		const int pos = next_rand32() % (index + 1);
+		const int pos = next_rand_u32() % (index + 1);
 		list.insert(pos, QString::fromLatin1(values[index]));
 	}
 	return list;
@@ -455,7 +455,7 @@ bool UpdateChecker::tryUpdateMirror(UpdateCheckerInfo *updateInfo, const QString
 	bool success = false;
 	log("", "Trying mirror:", url);
 
-	const QString randPart = rand_str();
+	const QString randPart = next_rand_str();
 	const QString outFileVers = QString("%1/%2.ver").arg(temp_folder(), randPart);
 	const QString outFileSign = QString("%1/%2.sig").arg(temp_folder(), randPart);
 

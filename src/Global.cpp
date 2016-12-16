@@ -54,6 +54,10 @@
 // Random Support
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef _CRT_RAND_S
+#define rand_s(X) (true)
+#endif
+
 //Robert Jenkins' 96 bit Mix Function
 static unsigned int mix_function(const unsigned int x, const unsigned int y, const unsigned int z)
 {
@@ -79,37 +83,34 @@ void MUtils::seed_rand(void)
 	qsrand(mix_function(clock(), time(NULL), _getpid()));
 }
 
-quint32 MUtils::next_rand32(void)
+quint32 MUtils::next_rand_u32(void)
 {
-	quint32 rnd = 0xDEADBEEF;
-
-#ifdef _CRT_RAND_S
-	if(rand_s(&rnd) == 0)
+	quint32 rnd;
+	if (rand_s(&rnd))
 	{
-		return rnd;
+		for (size_t i = 0; i < sizeof(quint32); i += 2)
+		{
+			rnd = (rnd << 16) ^ qrand();
+		}
 	}
-#endif //_CRT_RAND_S
-
-	for(size_t i = 0; i < sizeof(quint32); i++)
-	{
-		rnd = (rnd << 8) ^ qrand();
-	}
-
 	return rnd;
 }
 
-quint64 MUtils::next_rand64(void)
+quint64 MUtils::next_rand_u64(void)
 {
-	return (quint64(next_rand32()) << 32) | quint64(next_rand32());
+	return (quint64(next_rand_u32()) << 32) | quint64(next_rand_u32());
 }
 
-QString MUtils::rand_str(const bool &bLong)
+QString MUtils::next_rand_str(const bool &bLong)
 {
-	if(!bLong)
+	if (bLong)
 	{
-		return QString::number(next_rand64(), 16).rightJustified(16, QLatin1Char('0'));
+		return next_rand_str(false) + next_rand_str(false);
 	}
-	return QString("%1%2").arg(rand_str(false), rand_str(false));
+	else
+	{
+		return QString::number(next_rand_u64(), 16).rightJustified(16, QLatin1Char('0'));
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -163,7 +164,7 @@ QString MUtils::make_temp_file(const QString &basePath, const QString &extension
 {
 	for(int i = 0; i < 4096; i++)
 	{
-		const QString tempFileName = QString("%1/%2.%3").arg(basePath, rand_str(), extension);
+		const QString tempFileName = QString("%1/%2.%3").arg(basePath, next_rand_str(), extension);
 		if(!QFileInfo(tempFileName).exists())
 		{
 			if(placeholder)
@@ -252,7 +253,7 @@ static QString try_create_subfolder(const QString &baseDir, const QString &postf
 
 static MUtils::Internal::DirLock *try_init_temp_folder(const QString &baseDir)
 {
-	const QString tempPath = try_create_subfolder(baseDir, MUtils::rand_str());
+	const QString tempPath = try_create_subfolder(baseDir, MUtils::next_rand_str());
 	if(!tempPath.isEmpty())
 	{
 		for(int i = 0; i < 32; i++)

@@ -64,7 +64,7 @@ namespace MUtils
 				}
 				for(int i = 0; i < 32; i++)
 				{
-					m_lockFile.reset(new QFile(QString("%1/~%2.lck").arg(m_dirPath, MUtils::rand_str())));
+					m_lockFile.reset(new QFile(QString("%1/~%2.lck").arg(m_dirPath, MUtils::next_rand_str())));
 					if(m_lockFile->open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Unbuffered))
 					{
 						if(m_lockFile->write(testData) >= testData.size())
