@@ -19,29 +19,19 @@
 // http://www.gnu.org/licenses/lgpl-2.1.txt
 //////////////////////////////////////////////////////////////////////////////////
 
-//Google Test
-#include <gtest/gtest.h>
+#include "MUtilsTest.h"
 
 //MUtils
-#include <MUtils/Global.h>
 #include <MUtils/OSSupport.h>
-#include <MUtils/Version.h>
 
 //Qt
 #include <QSet>
-#include <QDir>
-
-//CRT
-#include <cstdio>
-
-//Utilities
-#define ASSERT_QSTR(X,Y) ASSERT_EQ((X).compare(QLatin1String(Y)), 0);
 
 //===========================================================================
-// GLOBAL
+// TESTBED CLASS
 //===========================================================================
 
-class Global : public ::testing::Test
+class GlobalTest : public Testbed
 {
 protected:
 	virtual void SetUp()
@@ -51,22 +41,11 @@ protected:
 	virtual void TearDown()
 	{
 	}
-
-	QString makeTempFolder(const char *const suffix)
-	{
-		const QString tempPath = MUtils::temp_folder();
-		if (!tempPath.isEmpty())
-		{
-			const QString tempSuffix(QString(suffix).simplified().replace(QRegExp("[^\\w]+"), "_"));
-			QDir tempDir(tempPath);
-			if (tempDir.mkpath(tempSuffix) && tempDir.cd(tempSuffix))
-			{
-				return tempDir.absolutePath();
-			}
-		}
-		return QString();
-	}
 };
+
+//===========================================================================
+// TEST METHODS
+//===========================================================================
 
 //-----------------------------------------------------------------
 // Random
@@ -100,17 +79,17 @@ protected:
 } \
 while(0)
 
-TEST_F(Global, RandomU32)
+TEST_F(GlobalTest, RandomU32)
 {
 	TEST_RANDOM(quint32, u32);
 }
 
-TEST_F(Global, RandomU64)
+TEST_F(GlobalTest, RandomU64)
 {
 	TEST_RANDOM(quint64, u64);
 }
 
-TEST_F(Global, RandomStr)
+TEST_F(GlobalTest, RandomStr)
 {
 	TEST_RANDOM(QString, str);
 }
@@ -136,7 +115,7 @@ TEST_F(Global, RandomStr)
 } \
 while(0)
 
-TEST_F(Global, TrimStringLeft)
+TEST_F(GlobalTest, TrimStringLeft)
 {
 	TEST_TRIM_STR(left, "", "");
 	TEST_TRIM_STR(left, "   ", "");
@@ -145,7 +124,7 @@ TEST_F(Global, TrimStringLeft)
 	TEST_TRIM_STR(left, "   !   test   !   ", "!   test   !   ");
 }
 
-TEST_F(Global, TrimStringRight)
+TEST_F(GlobalTest, TrimStringRight)
 {
 	TEST_TRIM_STR(right, "", "");
 	TEST_TRIM_STR(right, "   ", "");
@@ -168,7 +147,7 @@ while(0)
 
 static const char *const VALID_FILENAME_CHARS = "!#$%&'()+,-.0123456789;=@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{}~";
 
-TEST_F(Global, CleanFileName)
+TEST_F(GlobalTest, CleanFileName)
 {
 	TEST_CLEAN_FILE(name, "", "");
 	TEST_CLEAN_FILE(name, VALID_FILENAME_CHARS, VALID_FILENAME_CHARS);
@@ -186,7 +165,7 @@ TEST_F(Global, CleanFileName)
 	TEST_CLEAN_FILE(name, "xNUL.txt", "xNUL.txt");
 }
 
-TEST_F(Global, CleanFilePath)
+TEST_F(GlobalTest, CleanFilePath)
 {
 	TEST_CLEAN_FILE(path, "", "");
 	TEST_CLEAN_FILE(path, VALID_FILENAME_CHARS, VALID_FILENAME_CHARS);
@@ -228,7 +207,7 @@ TEST_F(Global, CleanFilePath)
 		test.insert(name); \
 		QFile file(name); \
 		ASSERT_TRUE(file.open(QIODevice::ReadWrite)); \
-		ASSERT_GT(file.write("foo"), 0); \
+		ASSERT_GE(file.write(TEST_STRING), strlen(TEST_STRING)); \
 		file.close(); \
 	} \
 	for (QSet<QString>::const_iterator iter = test.constBegin(); iter != test.constEnd(); iter++) \
@@ -238,12 +217,12 @@ TEST_F(Global, CleanFilePath)
 	} \
 }
 
-TEST_F(Global, TempFileName)
+TEST_F(GlobalTest, TempFileName)
 {
 	TEST_FILE_NAME(temp, "/\\w+\\.txt$", "txt", true);
 }
 
-TEST_F(Global, UniqFileName)
+TEST_F(GlobalTest, UniqFileName)
 {
 	TEST_FILE_NAME(unique, "/example.\\w+\\.txt$", "example", "txt");
 }
@@ -254,7 +233,7 @@ TEST_F(Global, UniqFileName)
 // Parity
 //-----------------------------------------------------------------
 
-TEST_F(Global, Parity)
+TEST_F(GlobalTest, Parity)
 {
 	ASSERT_EQ(MUtils::parity(0x00000000), false);
 	ASSERT_EQ(MUtils::parity(0x11111111), false);
@@ -267,14 +246,14 @@ TEST_F(Global, Parity)
 	ASSERT_EQ(MUtils::parity(0x00100000), true );
 	ASSERT_EQ(MUtils::parity(0x01000000), true );
 	ASSERT_EQ(MUtils::parity(0x10000000), true );
-	ASSERT_EQ(MUtils::parity(0xEFFFFFFF), true);
-	ASSERT_EQ(MUtils::parity(0xFEFFFFFF), true);
-	ASSERT_EQ(MUtils::parity(0xFFEFFFFF), true);
-	ASSERT_EQ(MUtils::parity(0xFFFEFFFF), true);
-	ASSERT_EQ(MUtils::parity(0xFFFFEFFF), true);
-	ASSERT_EQ(MUtils::parity(0xFFFFFEFF), true);
-	ASSERT_EQ(MUtils::parity(0xFFFFFFEF), true);
-	ASSERT_EQ(MUtils::parity(0xFFFFFFFE), true);
+	ASSERT_EQ(MUtils::parity(0xEFFFFFFF), true );
+	ASSERT_EQ(MUtils::parity(0xFEFFFFFF), true );
+	ASSERT_EQ(MUtils::parity(0xFFEFFFFF), true );
+	ASSERT_EQ(MUtils::parity(0xFFFEFFFF), true );
+	ASSERT_EQ(MUtils::parity(0xFFFFEFFF), true );
+	ASSERT_EQ(MUtils::parity(0xFFFFFEFF), true );
+	ASSERT_EQ(MUtils::parity(0xFFFFFFEF), true );
+	ASSERT_EQ(MUtils::parity(0xFFFFFFFE), true );
 	ASSERT_EQ(MUtils::parity(0x10101010), false);
 	ASSERT_EQ(MUtils::parity(0x01010101), false);
 	ASSERT_EQ(MUtils::parity(0xC8A2CC96), false);
@@ -286,21 +265,69 @@ TEST_F(Global, Parity)
 	ASSERT_EQ(MUtils::parity(0xCA4B1193), false);
 }
 
-//===========================================================================
-// Main function
-//===========================================================================
+//-----------------------------------------------------------------
+// Remove File/Dirrectory
+//-----------------------------------------------------------------
 
-int main(int argc, char **argv)
+#define MAKE_TEST_FILE(X) do \
+{ \
+	ASSERT_TRUE((X).open(QIODevice::ReadWrite)); \
+	ASSERT_GE((X).write(TEST_STRING), strlen(TEST_STRING)); \
+	(X).setPermissions(QFile::ReadOwner|QFile::ExeOwner|QFile::ReadGroup|QFile::ExeGroup|QFile::ReadOther|QFile::ExeOther); \
+} \
+while(0)
+
+#define MAKE_SUB_DIR(X,Y) do \
+{ \
+	ASSERT_TRUE((X).mkpath((Y))); \
+	ASSERT_TRUE((X).cd((Y))); \
+} \
+while (0)
+
+TEST_F(GlobalTest, RemoveFile)
 {
-	printf("MuldeR's Utilities for Qt v%u.%02u - Regression Test Suite [%s]\n", MUtils::Version::lib_version_major(), MUtils::Version::lib_version_minor(), MUTILS_DEBUG ? "DEBUG" : "RELEASE");
-	printf("Copyright (C) 2004-2016 LoRd_MuldeR <MuldeR2@GMX.de>. Some rights reserved.\n");
-	printf("Built on %s at %s with %s for Win-%s.\n\n", MUTILS_UTF8(MUtils::Version::lib_build_date().toString(Qt::ISODate)), MUTILS_UTF8(MUtils::Version::lib_build_time().toString(Qt::ISODate)), MUtils::Version::compiler_version(), MUtils::Version::compiler_arch());
-
-	printf("This library is free software; you can redistribute it and/or\n");
-	printf("modify it under the terms of the GNU Lesser General Public\n");
-	printf("License as published by the Free Software Foundation; either\n");
-	printf("version 2.1 of the License, or (at your option) any later version.\n\n");
-
-	::testing::InitGoogleTest(&argc, argv);
-	return RUN_ALL_TESTS();
+	const QString workDir = makeTempFolder(__FUNCTION__);
+	ASSERT_FALSE(workDir.isEmpty());
+	const QString fileName = QString("%1/example.txt").arg(workDir);
+	QFile test(fileName);
+	MAKE_TEST_FILE(test);
+	ASSERT_FALSE(MUtils::remove_file(fileName));
+	test.close();
+	ASSERT_TRUE(QFileInfo(fileName).exists());
+	ASSERT_TRUE(MUtils::remove_file(fileName));
+	ASSERT_FALSE(QFileInfo(fileName).exists());
 }
+
+TEST_F(GlobalTest, Directory)
+{
+	const QString workDir = makeTempFolder(__FUNCTION__);
+	ASSERT_FALSE(workDir.isEmpty());
+	static const char *const DIR_NAMES[] = { "foo", "bar", NULL };
+	for (size_t i = 0; DIR_NAMES[i]; i++)
+	{
+		QDir dir(workDir);
+		MAKE_SUB_DIR(dir, QLatin1String(DIR_NAMES[i]));
+		for (size_t j = 0; DIR_NAMES[j]; j++)
+		{
+			QDir subdir(dir);
+			MAKE_SUB_DIR(subdir, QLatin1String(DIR_NAMES[j]));
+			QFile test(subdir.filePath("example.txt"));
+			MAKE_TEST_FILE(test);
+			test.close();
+		}
+	}
+	for (size_t i = 0; DIR_NAMES[i]; i++)
+	{
+		QDir dir(QString("%1/%2").arg(workDir, QLatin1String(DIR_NAMES[i])));
+		ASSERT_TRUE(dir.exists());
+		ASSERT_FALSE(MUtils::remove_directory(dir.absolutePath(), false));
+		dir.refresh();
+		ASSERT_TRUE(dir.exists());
+		ASSERT_TRUE(MUtils::remove_directory(dir.absolutePath(), true));
+		dir.refresh();
+		ASSERT_FALSE(dir.exists());
+	}
+}
+
+#undef MAKE_TEST_FILE
+#undef MAKE_SUB_DIR
