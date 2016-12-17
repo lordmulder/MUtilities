@@ -96,7 +96,7 @@ namespace MUtils
 // MESSAGE HANDLER
 ///////////////////////////////////////////////////////////////////////////////
 
-static void qt_message_handler(QtMsgType type, const char *msg)
+static void qt_message_handler(QtMsgType type, const char *const msg)
 {
 	if((!msg) || (!(msg[0])))
 	{
