@@ -6,6 +6,7 @@ setlocal EnableDelayedExpansion
 :: ------------------------------------------
 
 set "PATH_PANDOC=C:\Program Files (x86)\Pandoc"
+set "PATH_DOXYGN=%~dp0\..\Prerequisites\Doxygen\doxygen.exe"
 
 :: ------------------------------------------
 :: Create Documents
@@ -15,6 +16,8 @@ echo ===========================================================================
 echo Building software documentation..."
 echo ===========================================================================
 echo.
+
+pushd "%~dp0"
 
 for %%i in ("%~dp0\*.md") do (
 	echo PANDOC: %%~nxi
@@ -27,4 +30,15 @@ for %%i in ("%~dp0\*.md") do (
 	)
 )
 
+echo DOXYGEN: Doxyfile
+"%PATH_DOXYGN%" "%~dp0\Doxyfile"
+if not "!ERRORLEVEL!"=="0" (
+	echo.
+	echo Something went wrong^^!
+	echo.
+	pause && exit
+)
+
 echo.
+
+pause
