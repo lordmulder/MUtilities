@@ -51,31 +51,15 @@ protected:
 // Random
 //-----------------------------------------------------------------
 
-#define TEST_RANDOM_MAX 99991
+#define TEST_RANDOM_MAX 29989
 #define TEST_RANDOM(X,Y) do \
 { \
-	MUtils::seed_rand(); \
 	QSet<X> test; \
-	int attempts = 0; \
-	while(test.count() != TEST_RANDOM_MAX) \
-	{ \
-		if(++attempts <= 64) \
-		{ \
-			if(attempts > 1) \
-			{ \
-				MUtils::OS::sleep_ms(1); \
-			} \
-			test.clear(); \
-			for (size_t i = 0; i < TEST_RANDOM_MAX; ++i)  \
-			{  \
-				test.insert(MUtils::next_rand_##Y()); \
-			} \
-		} \
-		else \
-		{ \
-			FAIL(); /*too many attempts!*/ \
-		} \
+	for (size_t i = 0; i < TEST_RANDOM_MAX; ++i)  \
+	{  \
+		test.insert(MUtils::next_rand_##Y()); \
 	} \
+	ASSERT_EQ(test.count(), TEST_RANDOM_MAX); \
 } \
 while(0)
 
