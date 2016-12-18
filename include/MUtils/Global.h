@@ -180,7 +180,7 @@ namespace MUtils
 	*
 	* \param extension Specifies the desired file extensions of the unqiue file. Do **not** include a leading dot (`.`) character.
 	*
-	* \param fancy If set to `true`, the file name is generated according to the `"<basedir>/<basename> (N).<ext>"` pattern; if set to `false`, the file name is generated according to the `"<basedir>/<basername>.XXXX.<ext>"` pattern.
+	* \param fancy If set to `true`, the file name is generated according to the `"<basedir>/<basename> (N).<ext>"` pattern; if set to `false`, the file name is generated according to the `"<basedir>/<basename>.XXXX.<ext>"` pattern.
 	*
 	* \return If the function succeeds, it returns a QString holding the full path of the unique file; otherwise it returns a default-constructed QString.
 	*/
