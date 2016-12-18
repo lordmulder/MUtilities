@@ -172,7 +172,7 @@ namespace MUtils
 	/**
 	* \brief Generates a unique file name.
 	*
-	* The function generates a unique file name in the specified directory. The function guarantees that the return file name does *not* exist yet. If necessary, a *counter* will be included in the file name in order to ensure its uniqueness.
+	* The function generates a unique file name in the specified directory. The function guarantees that the returned file name does *not* exist yet. If necessary, a *counter* will be included in the file name in order to ensure its uniqueness.
 	*
 	* \param basePath Specifies the "base" directory where the unique file is supposed to be created. This must be a valid *existing* directory.
 	*
@@ -180,7 +180,7 @@ namespace MUtils
 	*
 	* \param extension Specifies the desired file extensions of the unqiue file. Do **not** include a leading dot (`.`) character.
 	*
-	* \param fancy If set to `true`, the file name is generated according to the `"<basedir>/<basername> (N).<ext>"` pattern; if set to `false`, the file name is generated according to the `"<basedir>/<basername>.XXXX.<ext>"` pattern.
+	* \param fancy If set to `true`, the file name is generated according to the `"<basedir>/<basename> (N).<ext>"` pattern; if set to `false`, the file name is generated according to the `"<basedir>/<basername>.XXXX.<ext>"` pattern.
 	*
 	* \return If the function succeeds, it returns a QString holding the full path of the unique file; otherwise it returns a default-constructed QString.
 	*/
