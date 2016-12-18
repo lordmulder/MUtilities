@@ -55,25 +55,23 @@ static void initialize_mutils_log_file(const int argc, const wchar_t *const *con
 	}
 
 	_snprintf_s(gtestOutputPath, _MAX_PATH + 16, _TRUNCATE, "xml:%S.xml", basePath);
-	if ((!gtestOutputPath[0]) || strchr(gtestOutputPath, '?'))
+	if (gtestOutputPath[0] && (!strchr(gtestOutputPath, '?')))
 	{
-		strcpy_s(gtestOutputPath, _MAX_PATH + 16, "xml:MUtilsTest.xml");
+		::testing::GTEST_FLAG(output) = std::string(gtestOutputPath);
 	}
-	::testing::GTEST_FLAG(output) = std::string(gtestOutputPath);
 }
 
-static void get_time_stamp(char *const buffer, const size_t buff_size)
+static bool get_time_stamp(char *const buffer, const size_t buff_size)
 {
 	const time_t time_stamp = time(NULL);
 	struct tm tm_info;
-	if(!localtime_s(&tm_info, &time_stamp))
-	{
-		strftime(buffer, buff_size, "%Y-%m-%d %H:%M:%S", &tm_info);
-	}
-	else
+	if(localtime_s(&tm_info, &time_stamp))
 	{
 		buffer[0] = L'\0';
+		return false;
 	}
+	const size_t ret = strftime(buffer, buff_size, "%Y-%m-%d %H:%M:%S", &tm_info);
+	return (ret > 0) && (ret < buff_size);
 }
 
 static void qt_message_handler(QtMsgType type, const char *const msg)
@@ -87,8 +85,14 @@ static void qt_message_handler(QtMsgType type, const char *const msg)
 	if (g_logFile && (!ferror(g_logFile)))
 	{
 		char time_buffer[32];
-		get_time_stamp(time_buffer, 32);
-		fprintf(g_logFile, "[%s] %s\n", time_buffer, msg);
+		if (get_time_stamp(time_buffer, 32))
+		{
+			fprintf(g_logFile, "[%s] %s\n", time_buffer, msg);
+		}
+		else
+		{
+			fprintf(g_logFile, "%s\n", msg);
+		}
 	}
 }
 

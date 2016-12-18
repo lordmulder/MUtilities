@@ -331,3 +331,70 @@ TEST_F(GlobalTest, Directory)
 
 #undef MAKE_TEST_FILE
 #undef MAKE_SUB_DIR
+
+//-----------------------------------------------------------------
+// Natural String Sort
+//-----------------------------------------------------------------
+
+TEST_F(GlobalTest, NaturalStrSort)
+{
+	static const char *const TEST[] =
+	{
+		"z0.txt",   "z1.txt",   "z2.txt",   "z3.txt",   "z4.txt",   "z5.txt",   "z6.txt",   "z7.txt",   "z8.txt",   "z9.txt",
+		"z10.txt",  "z11.txt",  "z12.txt",  "z13.txt",  "z14.txt",  "z15.txt",  "z16.txt",  "z17.txt",  "z18.txt",  "z19.txt",
+		"z100.txt", "z101.txt", "z102.txt", "z103.txt", "z104.txt", "z105.txt", "z106.txt", "z107.txt", "z108.txt", "z109.txt",
+		NULL
+	};
+
+	QStringList test;
+	for (size_t i = 0; TEST[i]; i++)
+	{
+		test << QLatin1String(TEST[i]);
+	}
+
+	qsrand(time(NULL));
+	for (size_t q = 0; q < 97; q++)
+	{
+		for (size_t k = 0; k < 997; k++)
+		{
+			const size_t len = size_t(test.count());
+			for (size_t i = 0; i < len; i++)
+			{
+				test.swap(i, qrand() % len);
+			}
+		}
+		MUtils::natural_string_sort(test, true);
+		for (size_t i = 0; TEST[i]; i++)
+		{
+			ASSERT_QSTR(test[i], TEST[i]);
+		}
+	}
+}
+
+//-----------------------------------------------------------------
+// RegExp Parser
+//-----------------------------------------------------------------
+
+#define TEST_REGEX_U32(X,Y,Z,...) do \
+{ \
+	const QRegExp test(QLatin1String((X))); \
+	ASSERT_GE(test.indexIn(QLatin1String((Y))), 0); \
+	quint32 result[(Z)]; \
+	ASSERT_TRUE(MUtils::regexp_parse_uint32(test, result, (Z))); \
+	const quint32 expected[] = { __VA_ARGS__ }; \
+	for(size_t i = 0; i < (Z); i++) \
+	{ \
+		ASSERT_EQ(result[i], expected[i]); \
+	} \
+} \
+while(0)
+
+TEST_F(GlobalTest, ParseRegExp)
+{
+	TEST_REGEX_U32("(\\d+)", "42", 1, 42);
+	TEST_REGEX_U32("(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)", "4 8 15 16 23 42", 6, 4, 8, 15, 16, 23, 42);
+	TEST_REGEX_U32("x264\\s+(\\d+)\\.(\\d+)\\.(\\d+)\\s+\\w+", "x264 0.148.2744 b97ae06", 3, 0, 148, 2744);
+	TEST_REGEX_U32("HEVC\\s+encoder\\s+version\\s+(\\d+)\\.(\\d+)\\+(\\d+)-\\w+", "HEVC encoder version 2.1+70-78e1e1354a25", 3, 2, 1, 70);
+}
+
+#undef TEST_REGEX_U32
