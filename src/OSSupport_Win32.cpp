@@ -1365,10 +1365,26 @@ bool MUtils::OS::change_process_priority(const QProcess *proc, const int priorit
 // PROCESS ID
 ///////////////////////////////////////////////////////////////////////////////
 
+quint32 MUtils::OS::process_id(void)
+{
+	return GetCurrentProcessId();
+}
+
 quint32 MUtils::OS::process_id(const QProcess *const proc)
 {
 	PROCESS_INFORMATION *procInf = proc->pid();
-	return (procInf) ? procInf->dwProcessId : NULL;
+	return (procInf) ? procInf->dwProcessId : 0;
+}
+
+quint32 MUtils::OS::thread_id(void)
+{
+	return GetCurrentThreadId();
+}
+
+quint32 MUtils::OS::thread_id(const QProcess *const proc)
+{
+	PROCESS_INFORMATION *procInf = proc->pid();
+	return (procInf) ? procInf->dwThreadId : 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

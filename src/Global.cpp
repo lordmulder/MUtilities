@@ -20,12 +20,13 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 #if _MSC_VER
-#define _CRT_RAND_S 1
+//#define _CRT_RAND_S 1
 #endif
 
 //MUtils
 #include <MUtils/Global.h>
 #include <MUtils/OSSupport.h>
+#include <MUtils/Version.h>
 
 //Internal
 #include "DirLocker.h"
@@ -39,6 +40,7 @@
 #include <QPair>
 #include <QListIterator>
 #include <QMutex>
+#include <QThreadStorage>
 
 //CRT
 #include <cstdlib>
@@ -58,29 +60,51 @@
 #define rand_s(X) (true)
 #endif
 
+//Per-thread init flag
+static QThreadStorage<bool> g_srand_flag;
+
 //Robert Jenkins' 96 bit Mix Function
-static unsigned int mix_function(const unsigned int x, const unsigned int y, const unsigned int z)
+static quint32 mix_function(const quint32 x, const quint32 y, const quint32 z)
 {
-	unsigned int a = x;
-	unsigned int b = y;
-	unsigned int c = z;
+	quint32 a = x;
+	quint32 b = y;
+	quint32 c = z;
 	
 	a=a-b;  a=a-c;  a=a^(c >> 13);
-	b=b-c;  b=b-a;  b=b^(a << 8 ); 
+	b=b-c;  b=b-a;  b=b^(a <<  8); 
 	c=c-a;  c=c-b;  c=c^(b >> 13);
 	a=a-b;  a=a-c;  a=a^(c >> 12);
 	b=b-c;  b=b-a;  b=b^(a << 16);
-	c=c-a;  c=c-b;  c=c^(b >> 5 );
-	a=a-b;  a=a-c;  a=a^(c >> 3 );
+	c=c-a;  c=c-b;  c=c^(b >>  5);
+	a=a-b;  a=a-c;  a=a^(c >>  3);
 	b=b-c;  b=b-a;  b=b^(a << 10);
 	c=c-a;  c=c-b;  c=c^(b >> 15);
 
 	return a ^ b ^ c;
 }
 
-void MUtils::seed_rand(void)
+static void seed_rand(void)
 {
-	qsrand(mix_function(clock(), time(NULL), _getpid()));
+	fprintf(stderr, "SEED RAND (TID: %u)\n", MUtils::OS::thread_id());
+	QDateTime build(MUtils::Version::lib_build_date(), MUtils::Version::lib_build_time());
+	const quint32 seed = mix_function(MUtils::OS::process_id(), MUtils::OS::thread_id(), build.toMSecsSinceEpoch());
+	qsrand(mix_function(clock(), time(NULL), seed));
+}
+
+static quint32 rand_fallback(void)
+{
+	Q_ASSERT(RAND_MAX >= 0xFFF);
+	if (!(g_srand_flag.hasLocalData() && g_srand_flag.localData()))
+	{
+		seed_rand();
+		g_srand_flag.setLocalData(true);
+	}
+	quint32 rnd = 0x32288EA3;
+	for (size_t i = 0; i < 3; i++)
+	{
+		rnd = (rnd << 12) ^ qrand();
+	}
+	return rnd;
 }
 
 quint32 MUtils::next_rand_u32(void)
@@ -88,10 +112,7 @@ quint32 MUtils::next_rand_u32(void)
 	quint32 rnd;
 	if (rand_s(&rnd))
 	{
-		for (size_t i = 0; i < sizeof(quint32); i += 2)
-		{
-			rnd = (rnd << 16) ^ qrand();
-		}
+		return rand_fallback();
 	}
 	return rnd;
 }

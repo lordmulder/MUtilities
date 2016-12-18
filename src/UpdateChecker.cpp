@@ -305,7 +305,6 @@ void UpdateChecker::checkForUpdates(void)
 
 	m_success = false;
 	m_updateInfo->resetInfo();
-	seed_rand();
 	setProgress(0);
 
 	// ----- Test Internet Connection ----- //
