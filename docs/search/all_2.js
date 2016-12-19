@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['global_2eh',['Global.h',['../d5/d3b/_global_8h.html',1,'']]]
+  ['blake2',['Blake2',['../d1/d01/class_m_utils_1_1_hash_1_1_blake2.html',1,'MUtils::Hash']]]
 ];

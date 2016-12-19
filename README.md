@@ -8,7 +8,7 @@ The **MUtilities** library is a collection of routines and classes to extend the
 
 # Project Structure
 
-The *MUtilities* project directory is structured as follows:
+The *MUtilities* project directory is organized as follows:
 
 * `bin/` &ndash; compiled library files (static or shared), link those files in projects that use the MUtilities library
 * `docs/` &ndash; programming interface documentation, generated with Doxygen tool
@@ -19,6 +19,26 @@ The *MUtilities* project directory is structured as follows:
 * `src/` &ndash; source code files, required for building the MUtilities library (third-party code in `src/3rd_party/`)
 * `test/` &ndash; unit tests, based on Google Test framework
 * `tmp/` &ndash; temporary files, automatically generated during the build process
+
+
+# Example
+
+Here is a minimal example on how to use the *MUtilities* library in your project:
+
+    //MUtils
+    #include <MUtils/Global.h>
+    
+    int main(int argc, char **argv)
+    {
+        qDebug("Random number: %u\n", MUtils::next_rand_u32());
+    }
+
+## Build Notes
+
+* In order to use the *MUtilities* library in your project, your build environment must have already been set up for building Qt-based projects. Setting up Qt is *not* covered by this document.
+* Additionally, make sure that *MUtilities'* `include/` directory is contained in your "Additional Include Directories" and that the *MUtilities'* `bin/` directory is contained in your "Additional Library Directories".
+* Finally, make sure that your project links against the `MUtils32-1.lib` library file. For each build configuration you have to pick the proper **.lib** file from the correspnding `bin/<platform>/<config>/` directory!
+* If your projects intends to use the *MUtilities* library as a **static** library, then the macro `MUTILS_STATIC_LIB` *must* be added to your project's "Preprocessor Definitions".
 
 
 # API Documentation

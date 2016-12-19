@@ -169,22 +169,47 @@ QString&#160;</td><td class="memItemRight" valign="bottom"><b>MUtils::clean_file
 <tr class="memitem:ac0949226be088ce65a60d5aa4194e1c0"><td class="memItemLeft" align="right" valign="top"><a id="ac0949226be088ce65a60d5aa4194e1c0"></a>
 QString&#160;</td><td class="memItemRight" valign="bottom"><b>MUtils::clean_file_path</b> (const QString &amp;path)</td></tr>
 <tr class="separator:ac0949226be088ce65a60d5aa4194e1c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a45cb0d1e6a55cf5ffda3b626c25fd957"><td class="memItemLeft" align="right" valign="top"><a id="a45cb0d1e6a55cf5ffda3b626c25fd957"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>MUtils::regexp_parse_uint32</b> (const QRegExp &amp;regexp, quint32 &amp;value)</td></tr>
+<tr class="memitem:a45cb0d1e6a55cf5ffda3b626c25fd957"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d3b/_global_8h.html#a45cb0d1e6a55cf5ffda3b626c25fd957">MUtils::regexp_parse_uint32</a> (const QRegExp &amp;regexp, quint32 &amp;value)</td></tr>
+<tr class="memdesc:a45cb0d1e6a55cf5ffda3b626c25fd957"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse regular expression results.  <a href="../../d5/d3b/_global_8h.html#a45cb0d1e6a55cf5ffda3b626c25fd957">More...</a><br /></td></tr>
 <tr class="separator:a45cb0d1e6a55cf5ffda3b626c25fd957"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a367969a260da994876d19c9f7ee40606"><td class="memItemLeft" align="right" valign="top"><a id="a367969a260da994876d19c9f7ee40606"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>MUtils::regexp_parse_uint32</b> (const QRegExp &amp;regexp, quint32 *values, const size_t &amp;count)</td></tr>
+<tr class="memitem:a367969a260da994876d19c9f7ee40606"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d3b/_global_8h.html#a367969a260da994876d19c9f7ee40606">MUtils::regexp_parse_uint32</a> (const QRegExp &amp;regexp, quint32 *values, const size_t &amp;count)</td></tr>
+<tr class="memdesc:a367969a260da994876d19c9f7ee40606"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse regular expression results.  <a href="../../d5/d3b/_global_8h.html#a367969a260da994876d19c9f7ee40606">More...</a><br /></td></tr>
 <tr class="separator:a367969a260da994876d19c9f7ee40606"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4fcbdafffc1224776616fcc6aec8278b"><td class="memItemLeft" align="right" valign="top"><a id="a4fcbdafffc1224776616fcc6aec8278b"></a>
-QStringList&#160;</td><td class="memItemRight" valign="bottom"><b>MUtils::available_codepages</b> (const bool &amp;noAliases=true)</td></tr>
+<tr class="memitem:a4fcbdafffc1224776616fcc6aec8278b"><td class="memItemLeft" align="right" valign="top">QStringList&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d3b/_global_8h.html#a4fcbdafffc1224776616fcc6aec8278b">MUtils::available_codepages</a> (const bool &amp;noAliases=true)</td></tr>
+<tr class="memdesc:a4fcbdafffc1224776616fcc6aec8278b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve a list of all available codepages.  <a href="../../d5/d3b/_global_8h.html#a4fcbdafffc1224776616fcc6aec8278b">More...</a><br /></td></tr>
 <tr class="separator:a4fcbdafffc1224776616fcc6aec8278b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a00af0daa1ae56f474746443002be6786"><td class="memItemLeft" align="right" valign="top"><a id="a00af0daa1ae56f474746443002be6786"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>MUtils::Internal::selfTest</b> (const char *const buildKey, const bool debug)</td></tr>
-<tr class="separator:a00af0daa1ae56f474746443002be6786"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This file contains miscellaneous functions that are generally useful for Qt-based applications. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
+<a id="file_a4fcbdafffc1224776616fcc6aec8278b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#file_a4fcbdafffc1224776616fcc6aec8278b">&sect;&nbsp;</a></span>available_codepages()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">QStringList MUtils::available_codepages </td>
+          <td>(</td>
+          <td class="paramtype">const bool &amp;&#160;</td>
+          <td class="paramname"><em>noAliases</em> = <code>true</code></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Retrieve a list of all available codepages. </p>
+<p>The function generates a list of all codepages that are available on the system. Each codepage name returned by this function may be passed to the <code>QTextCodec::codecForName()</code> function in order to obtain a corresponding <a href="http://doc.qt.io/qt-4.8/qtextcodec.html">QTextCodec</a> object.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">noAliases</td><td>If set to <code>true</code>, only distinct codepages are returned, i.e. any codepage aliases are discarded from the list; if set to <code>false</code>, the returned list may (and usually will) also contain codepage aliases.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>If the function succeeds, it returns a QStringList holding the names of all codepages available on the system; otherwise it returns a default-constructed QStringList. </dd></dl>
+
+</div>
+</div>
 <a id="file_a67cb16c62b213da5135a6fa076f3f005"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#file_a67cb16c62b213da5135a6fa076f3f005">&sect;&nbsp;</a></span>make_temp_file()</h2>
 
@@ -420,6 +445,91 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>MUtils::Internal::self
 
 </div>
 </div>
+<a id="file_a45cb0d1e6a55cf5ffda3b626c25fd957"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#file_a45cb0d1e6a55cf5ffda3b626c25fd957">&sect;&nbsp;</a></span>regexp_parse_uint32() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool MUtils::regexp_parse_uint32 </td>
+          <td>(</td>
+          <td class="paramtype">const QRegExp &amp;&#160;</td>
+          <td class="paramname"><em>regexp</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">quint32 &amp;&#160;</td>
+          <td class="paramname"><em>value</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Parse regular expression results. </p>
+<p>This function tries to parses the result (capture) of a regular expression as an unsigned 32-Bit value. The given regular expression must contain at least <em>one</em> capture. Only the <em>first</em> capture is considered, additional captures are ignored.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">regexp</td><td>A read-only reference to the <a href="http://doc.qt.io/qt-4.8/qregexp.html">QRegExp</a> object whose result (capture) will be parsed. This <a href="http://doc.qt.io/qt-4.8/qregexp.html">QRegExp</a> must already have been <em>successfully</em> matched against the respective input string, e.g. via <code>QRegExp::indexIn()</code>, prior to calling this function.</td></tr>
+    <tr><td class="paramname">value</td><td>A reference to a variable of type <code>quint32</code>, where the unsigned 32-Bit representation of the result will be stored. The contents of this variable are <em>undefined</em>, if the function failed.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The function returns <code>true</code>, if the regular expression's capture could be parsed successfully; it returns <code>false</code>, if the capture contains an invalid string or if there are insufficient captures in given the <a href="http://doc.qt.io/qt-4.8/qregexp.html">QRegExp</a> object. </dd></dl>
+
+</div>
+</div>
+<a id="file_a367969a260da994876d19c9f7ee40606"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#file_a367969a260da994876d19c9f7ee40606">&sect;&nbsp;</a></span>regexp_parse_uint32() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool MUtils::regexp_parse_uint32 </td>
+          <td>(</td>
+          <td class="paramtype">const QRegExp &amp;&#160;</td>
+          <td class="paramname"><em>regexp</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">quint32 *&#160;</td>
+          <td class="paramname"><em>values</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const size_t &amp;&#160;</td>
+          <td class="paramname"><em>count</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Parse regular expression results. </p>
+<p>This function tries to parses the results (captures) of a regular expression as unsigned 32-Bit values. The given regular expression must contain at least <code>count</code> captures. Only the <em>first</em> <code>count</code> captures are considered, additional captures are ignored.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">regexp</td><td>A read-only reference to the <a href="http://doc.qt.io/qt-4.8/qregexp.html">QRegExp</a> object whose results (captures) will be parsed. This <a href="http://doc.qt.io/qt-4.8/qregexp.html">QRegExp</a> must already have been <em>successfully</em> matched against the respective input string, e.g. via <code>QRegExp::indexIn()</code>, prior to calling this function.</td></tr>
+    <tr><td class="paramname">value</td><td>A pointer to an array of type <code>quint32</code>, where the unsigned 32-Bit representations of the results will be stored (the <code>n</code>-th result is stored at <code>value[n-1]</code>). The array must be at least <code>count</code> elements in length. The contents of this array are <em>undefined</em>, if the function failed.</td></tr>
+    <tr><td class="paramname">count</td><td>Specifies the number of results (captures) in the given <a href="http://doc.qt.io/qt-4.8/qregexp.html">QRegExp</a> object. The function tries to parse the first <code>count</code> captures and ignores any additional captures that may exist. This parameter also determines the required (minimum) length of the <code>value</code> array.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The function returns <code>true</code>, if all of the regular expression's captures could be parsed successfully; it returns <code>false</code>, if any of the captures contain an invalid string or if there are insufficient captures in given the <a href="http://doc.qt.io/qt-4.8/qregexp.html">QRegExp</a> object. </dd></dl>
+
+</div>
+</div>
 <a id="file_ac7d2c9bd5c49230b2fed72e3410c3f7d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#file_ac7d2c9bd5c49230b2fed72e3410c3f7d">&sect;&nbsp;</a></span>remove_directory()</h2>
 
@@ -624,7 +734,7 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>MUtils::Internal::self
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Dec 19 2016 02:43:14 for MuldeR&#39;s Utilities for Qt by &#160;<a href="http://www.doxygen.org/index.html">
+Generated by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="../../doxygen.png" alt="doxygen"/>
 </a> 1.8.12
 </small></address>

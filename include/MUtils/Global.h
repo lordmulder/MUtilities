@@ -272,15 +272,47 @@ namespace MUtils
 	*/
 	MUTILS_API void natural_string_sort(QStringList &list, const bool bIgnoreCase);
 
-	//Clean file path
+
 	MUTILS_API QString clean_file_name(const QString &name);
 	MUTILS_API QString clean_file_path(const QString &path);
 
-	//Regular expressions
+	/**
+	* \brief Parse regular expression results
+	*
+	* This function tries to parses the result (capture) of a regular expression as an unsigned 32-Bit value. The given regular expression must contain at least *one* capture. Only the *first* capture is considered, additional captures are ignored.
+	*
+	* \param regexp A read-only reference to the [QRegExp](http://doc.qt.io/qt-4.8/qregexp.html) object whose result (capture) will be parsed. This [QRegExp](http://doc.qt.io/qt-4.8/qregexp.html) must already have been *successfully* matched against the respective input string, e.g. via `QRegExp::indexIn()`, prior to calling this function.
+	*
+	* \param value A reference to a variable of type `quint32`, where the unsigned 32-Bit representation of the result will be stored. The contents of this variable are *undefined*, if the function failed.
+	*
+	* \return The function returns `true`, if the regular expression's capture could be parsed successfully; it returns `false`, if the capture contains an invalid string or if there are insufficient captures in given the [QRegExp](http://doc.qt.io/qt-4.8/qregexp.html) object.
+	*/
 	MUTILS_API bool regexp_parse_uint32(const QRegExp &regexp, quint32 &value);
+
+	/**
+	* \brief Parse regular expression results
+	*
+	* This function tries to parses the results (captures) of a regular expression as unsigned 32-Bit values. The given regular expression must contain at least \p count captures. Only the *first* \p count captures are considered, additional captures are ignored.
+	*
+	* \param regexp A read-only reference to the [QRegExp](http://doc.qt.io/qt-4.8/qregexp.html) object whose results (captures) will be parsed. This [QRegExp](http://doc.qt.io/qt-4.8/qregexp.html) must already have been *successfully* matched against the respective input string, e.g. via `QRegExp::indexIn()`, prior to calling this function.
+	*
+	* \param value A pointer to an array of type `quint32`, where the unsigned 32-Bit representations of the results will be stored (the `n`-th result is stored at `value[n-1]`). The array must be at least \p count elements in length. The contents of this array are *undefined*, if the function failed.
+	*
+	* \param count Specifies the number of results (captures) in the given [QRegExp](http://doc.qt.io/qt-4.8/qregexp.html) object. The function tries to parse the first \p count captures and ignores any additional captures that may exist. This parameter also determines the required (minimum) length of the \p value array.
+	*
+	* \return The function returns `true`, if all of the regular expression's captures could be parsed successfully; it returns `false`, if any of the captures contain an invalid string or if there are insufficient captures in given the [QRegExp](http://doc.qt.io/qt-4.8/qregexp.html) object.
+	*/
 	MUTILS_API bool regexp_parse_uint32(const QRegExp &regexp, quint32 *values, const size_t &count);
 
-	//Internationalization
+	/**
+	* \brief Retrieve a list of all available codepages
+	*
+	* The function generates a list of all codepages that are available on the system. Each codepage name returned by this function may be passed to the `QTextCodec::codecForName()` function in order to obtain a corresponding [QTextCodec](http://doc.qt.io/qt-4.8/qtextcodec.html) object.
+	*
+	* \param noAliases If set to `true`, only distinct codepages are returned, i.e. any codepage aliases are discarded from the list; if set to `false`, the returned list may (and usually will) also contain codepage aliases.
+	*
+	* \return If the function succeeds, it returns a QStringList holding the names of all codepages available on the system; otherwise it returns a default-constructed QStringList.
+	*/
 	MUTILS_API QStringList available_codepages(const bool &noAliases = true);
 
 	//Internal

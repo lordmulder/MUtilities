@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['blake2',['Blake2',['../d1/d01/class_m_utils_1_1_hash_1_1_blake2.html',1,'MUtils::Hash']]]
+  ['available_5fcodepages',['available_codepages',['../d5/d3b/_global_8h.html#a4fcbdafffc1224776616fcc6aec8278b',1,'MUtils']]]
 ];

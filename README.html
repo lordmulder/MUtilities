@@ -42,15 +42,18 @@ document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'" clas'+'s="em' + 'ail">'+e+'<\
 <ul>
 <li><a href="#introduction"><span class="toc-section-number">1</span> Introduction</a></li>
 <li><a href="#project-structure"><span class="toc-section-number">2</span> Project Structure</a></li>
-<li><a href="#api-documentation"><span class="toc-section-number">3</span> API Documentation</a></li>
-<li><a href="#license"><span class="toc-section-number">4</span> License</a></li>
-<li><a href="#acknowledgement"><span class="toc-section-number">5</span> Acknowledgement</a></li>
+<li><a href="#example"><span class="toc-section-number">3</span> Example</a><ul>
+<li><a href="#build-notes"><span class="toc-section-number">3.1</span> Build Notes</a></li>
+</ul></li>
+<li><a href="#api-documentation"><span class="toc-section-number">4</span> API Documentation</a></li>
+<li><a href="#license"><span class="toc-section-number">5</span> License</a></li>
+<li><a href="#acknowledgement"><span class="toc-section-number">6</span> Acknowledgement</a></li>
 </ul>
 </nav>
 <h1 id="introduction"><span class="header-section-number">1</span> Introduction</h1>
 <p>The <strong>MUtilities</strong> library is a collection of routines and classes to extend the <a href="http://qt-project.org/"><em>Qt cross-platform framework</em></a>. It contains various convenience and utility functions as well as wrappers for OS-specific functionalities. The library was originally created as a &quot;side product&quot; of the <a href="http://lamexp.sourceforge.net/"><strong>LameXP</strong></a> application: Over the years, a lot of code, <strong>not</strong> really specific to <em>LameXP</em>, had accumulated in the <em>LameXP</em> code base. Some of that code even had been used in other projects too, in a &quot;copy &amp; paste&quot; fashion – which had lead to redundancy and much complicated maintenance. In order to clean-up the LameXP code base, to eliminate the ugly redundancy and to simplify maintenance, the code in question has finally been refactored into the <strong>MUtilities</strong> (aka &quot;MuldeR's Utilities for Qt&quot;) library. This library now forms the foundation of <em>LameXP</em> and <a href="https://github.com/lordmulder"><em>other OpenSource projects</em></a>.</p>
 <h1 id="project-structure"><span class="header-section-number">2</span> Project Structure</h1>
-<p>The <em>MUtilities</em> project directory is structured as follows:</p>
+<p>The <em>MUtilities</em> project directory is organized as follows:</p>
 <ul>
 <li><code>bin/</code> – compiled library files (static or shared), link those files in projects that use the MUtilities library</li>
 <li><code>docs/</code> – programming interface documentation, generated with Doxygen tool</li>
@@ -62,9 +65,25 @@ document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'" clas'+'s="em' + 'ail">'+e+'<\
 <li><code>test/</code> – unit tests, based on Google Test framework</li>
 <li><code>tmp/</code> – temporary files, automatically generated during the build process</li>
 </ul>
-<h1 id="api-documentation"><span class="header-section-number">3</span> API Documentation</h1>
+<h1 id="example"><span class="header-section-number">3</span> Example</h1>
+<p>Here is a minimal example on how to use the <em>MUtilities</em> library in your project:</p>
+<pre><code>//MUtils
+#include &lt;MUtils/Global.h&gt;
+
+int main(int argc, char **argv)
+{
+    qDebug(&quot;Random number: %u\n&quot;, MUtils::next_rand_u32());
+}</code></pre>
+<h2 id="build-notes"><span class="header-section-number">3.1</span> Build Notes</h2>
+<ul>
+<li>In order to use the <em>MUtilities</em> library in your project, your build environment must have already been set up for building Qt-based projects. Setting up Qt is <em>not</em> covered by this document.</li>
+<li>Additionally, make sure that <em>MUtilities'</em> <code>include/</code> directory is contained in your &quot;Additional Include Directories&quot; and that the <em>MUtilities'</em> <code>bin/</code> directory is contained in your &quot;Additional Library Directories&quot;.</li>
+<li>Finally, make sure that your project links against the <code>MUtils32-1.lib</code> library file. For each build configuration you have to pick the proper <strong>.lib</strong> file from the correspnding <code>bin/&lt;platform&gt;/&lt;config&gt;/</code> directory!</li>
+<li>If your projects intends to use the <em>MUtilities</em> library as a <strong>static</strong> library, then the macro <code>MUTILS_STATIC_LIB</code> <em>must</em> be added to your project's &quot;Preprocessor Definitions&quot;.</li>
+</ul>
+<h1 id="api-documentation"><span class="header-section-number">4</span> API Documentation</h1>
 <p>A fully-fledged documentation of the <em>MUtilities</em> programming interface (API) is available thanks to <a href="http://www.stack.nl/~dimitri/doxygen/"><em>Doxygen</em></a>. Please see <a href="docs/index.html"><strong><code>docs/index.html</code></strong></a> for details!</p>
-<h1 id="license"><span class="header-section-number">4</span> License</h1>
+<h1 id="license"><span class="header-section-number">5</span> License</h1>
 <p>This library is free software. It is released under the terms of the <a href="https://www.gnu.org/licenses/lgpl-2.1.html"><em>GNU Lesser General Public License (LGPL), Version 2.1</em></a>.</p>
 <pre><code>MUtilities - MuldeR&#39;s Utilities for Qt
 Copyright (C) 2004-2016 LoRd_MuldeR &lt;MuldeR2@GMX.de&gt;. Some rights reserved.
@@ -82,7 +101,7 @@ Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA.</code></pre>
-<h1 id="acknowledgement"><span class="header-section-number">5</span> Acknowledgement</h1>
+<h1 id="acknowledgement"><span class="header-section-number">6</span> Acknowledgement</h1>
 <p>The following third-party code is used in the MUtilities library:</p>
 <ul>
 <li><p><strong>Keccak/SHA-3 Reference Implementation</strong><br />

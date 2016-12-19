@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['temp_5ffolder',['temp_folder',['../d5/d3b/_global_8h.html#a9ddb9a2039585b1ef3429db16ea84292',1,'MUtils']]],
-  ['trim_5fleft',['trim_left',['../d5/d3b/_global_8h.html#af089c8a40b6ec2e19db3fe612aa81c8c',1,'MUtils::trim_left(QString &amp;str)'],['../d5/d3b/_global_8h.html#a8680aeaeb1118353bd099e26ba7d6123',1,'MUtils::trim_left(const QString &amp;str)']]],
-  ['trim_5fright',['trim_right',['../d5/d3b/_global_8h.html#a9290a3fe637a05ad2a7515f36fad79bd',1,'MUtils::trim_right(QString &amp;str)'],['../d5/d3b/_global_8h.html#a3eb47d6ca49b2700622e3fe99faf14d8',1,'MUtils::trim_right(const QString &amp;str)']]]
+  ['regexp_5fparse_5fuint32',['regexp_parse_uint32',['../d5/d3b/_global_8h.html#a45cb0d1e6a55cf5ffda3b626c25fd957',1,'MUtils::regexp_parse_uint32(const QRegExp &amp;regexp, quint32 &amp;value)'],['../d5/d3b/_global_8h.html#a367969a260da994876d19c9f7ee40606',1,'MUtils::regexp_parse_uint32(const QRegExp &amp;regexp, quint32 *values, const size_t &amp;count)']]],
+  ['remove_5fdirectory',['remove_directory',['../d5/d3b/_global_8h.html#ac7d2c9bd5c49230b2fed72e3410c3f7d',1,'MUtils']]],
+  ['remove_5ffile',['remove_file',['../d5/d3b/_global_8h.html#a12259acdd6aff74ee83819d3aebd8ba9',1,'MUtils']]]
 ];
