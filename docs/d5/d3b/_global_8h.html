@@ -301,7 +301,7 @@ QString&#160;</td><td class="memItemRight" valign="bottom"><b>MUtils::clean_file
     <tr><td class="paramname">basePath</td><td>Specifies the "base" directory where the unique file is supposed to be created. This must be a valid <em>existing</em> directory.</td></tr>
     <tr><td class="paramname">baseName</td><td>Specifies the desired "base" file name of the unique file. Do <b>not</b> include a file extension.</td></tr>
     <tr><td class="paramname">extension</td><td>Specifies the desired file extensions of the unique file. Do <b>not</b> include a leading dot (<code>.</code>) character.</td></tr>
-    <tr><td class="paramname">fancy</td><td>If set to <code>true</code>, the file name is generated according to the <code>"&lt;basedir&gt;/&lt;basename&gt; (N).&lt;ext&gt;"</code> pattern; if set to <code>false</code>, the file name is generated according to the <code>"&lt;basedir&gt;/&lt;basename&gt;.XXXX.&lt;ext&gt;"</code> pattern.</td></tr>
+    <tr><td class="paramname">fancy</td><td>If set to <code>true</code>, the unique file name is generated according to the <code>"&lt;basedir&gt;/&lt;basename&gt; (N).&lt;ext&gt;"</code> pattern; if set to <code>false</code>, it is generated according to the <code>"&lt;basedir&gt;/&lt;basename&gt;.XXXX.&lt;ext&gt;"</code> pattern. Also, if set to <code>true</code>, a counter is only included in the file name, if the file name <em>without</em> counter already exists; if set to <code>false</code>, a counter is always included. Finally, if set to <code>true</code>, the counter starts at <b>2</b> and is printed in decimal format; if set to <code>false</code>, the counter starts at <b>0</b> and is printed in zero-padded hexadecimal format.</td></tr>
   </table>
   </dd>
 </dl>
