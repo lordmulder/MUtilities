@@ -75,48 +75,12 @@ class QProcess;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/**
-* \mainpage MuldeR's Utilities for Qt
-* 
-* The **MUtilities** library is a collection of routines and classes to extend the [*Qt cross-platform framework*](http://qt-project.org/). It contains various convenience and utility functions as well as wrappers for OS-specific functionalities. The library was originally created as a "side product" of the [**LameXP**](http://lamexp.sourceforge.net/) application: Over the years, a lot of code, **not** really specific to *LameXP*, had accumulated in the *LameXP* code base. Some of that code even had been used in other projects too, in a "copy & paste" fashion &ndash; which had lead to redundancy and much complicated maintenance. In order to clean-up the LameXP code base, to eliminate the ugly redundancy and to simplify maintenance, the code in question has finally been refactored into the **MUtilities** (aka "MuldeR's Utilities for Qt") library. This library now forms the foundation of *LameXP* and [*other OpenSource projects*](https://github.com/lordmulder).
-* 
-* 
-* ### API-Documentation
-* 
-* The public API of the *MUtilities* library is defined in the following header files:
-* - **Global.h** &ndash; miscellaneous useful functions
-* 
-* 
-* ### License
-* 
-* This library is free software. It is released under the terms of the [GNU Lesser General Public License (LGPL), Version 2.1](https://www.gnu.org/licenses/lgpl-2.1.html).
-* 
-* ```
-* MUtilities - MuldeR's Utilities for Qt
-* Copyright (C) 2004-2016 LoRd_MuldeR <MuldeR2@GMX.de>. Some rights reserved.
-* 
-* This library is free software; you can redistribute it and/or
-* modify it under the terms of the GNU Lesser General Public
-* License as published by the Free Software Foundation; either
-* version 2.1 of the License, or (at your option) any later version.
-* 
-* This library is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-* Lesser General Public License for more details.
-* 
-* You should have received a copy of the GNU Lesser General Public
-* License along with this library; if not, write to the Free Software
-* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA.
-* ```
-*/
-
 namespace MUtils
 {
 	/**
 	* \brief Rerieves the full path of the application's *Temp* folder.
 	*
-	* The application's *Temp* folder is a unique application-specific folder, intended to store any temporary files that the application may need. It will be created when this function is called for the first time (lazy initialization); subsequent calls are guaranteed to return the same path. Usually the application's *Temp* folder will be created as a sub-folder of the system's global *Temp* folder, as indicated by the `TMP` or `TEMP` environment variables. However, it may be created at a different place (e.g. in the users *Profile* directory), if those environment variables don't point to a usable directory. In any case, this function makes sure that the application's *Temp* folder exists for the whole lifetime of the application and that it is writable. When the application is about to terminate, the application's *Temp* folder and all files or sub-directories thereof will be *removed* automatically!
+	* The application's *Temp* folder is a unique application-specific folder, intended to store any temporary files that the application may need. It will be created when this function is called for the first time (lazy initialization); subsequent calls are guaranteed to return the same path. Usually the application's *Temp* folder will be created as a sub-folder of the system's global *Temp* folder, as indicated by the `TMP` or `TEMP` environment variables. However, it may be created at a different place (e.g. in the users *Profile* directory), if those environment variables don't point to a usable directory. In any case, this function makes sure that the application's *Temp* folder exists for the whole lifetime of the application and that it is writable. When the application terminates normally, the application's *Temp* folder and all files or sub-directories thereof will be *removed* automatically!
 	*
 	* \return If the function succeeds, it returns a read-only reference to a QString holding the full path of the application's *Temp* folder; otherwise a read-only reference to a default-constructed QString is returned.
 	*/
@@ -130,7 +94,7 @@ namespace MUtils
 	*
 	* The *random* value is created using a "strong" PRNG of the underlying system, if possible. Otherwise a fallback PRNG is used. It is **not** required or useful to call `srand()` or `qsrand()` prior to using this function. If necessary, the seeding of the PRNG happen *automatically* on the first call.
 	*
-	* \return The function retruns a *random* unsigned 32-Bit value.
+	* \return The function returns a *random* unsigned 32-Bit value.
 	*/
 	MUTILS_API quint32 next_rand_u32(void);
 	
@@ -139,7 +103,7 @@ namespace MUtils
 	*
 	* The *random* value is created using a "strong" PRNG of the underlying system, if possible. Otherwise a fallback PRNG is used. It is **not** required or useful to call `srand()` or `qsrand()` prior to using this function. If necessary, the seeding of the PRNG happen *automatically* on the first call.
 	*
-	* \return The function retruns a *random* unsigned 64-Bit value.
+	* \return The function returns a *random* unsigned 64-Bit value.
 	*/
 	MUTILS_API quint64 next_rand_u64(void);
 	
@@ -150,7 +114,7 @@ namespace MUtils
 	*
 	* \param bLong If set to `true`, a "long" random string (32 characters) will be generated; if set to `false`, a "short" random string (16 characters) is generated.
 	*
-	* \return The function retruns a QString holding a *random* hexadecimal string
+	* \return The function returns a QString holding a *random* hexadecimal string
 	*/
 	MUTILS_API QString next_rand_str(const bool &bLong = false);
 
@@ -176,9 +140,9 @@ namespace MUtils
 	*
 	* \param basePath Specifies the "base" directory where the unique file is supposed to be created. This must be a valid *existing* directory.
 	*
-	* \param baseName Specifies the desired "base" file name of the unqiue file. Do **not** include a file extension.
+	* \param baseName Specifies the desired "base" file name of the unique file. Do **not** include a file extension.
 	*
-	* \param extension Specifies the desired file extensions of the unqiue file. Do **not** include a leading dot (`.`) character.
+	* \param extension Specifies the desired file extensions of the unique file. Do **not** include a leading dot (`.`) character.
 	*
 	* \param fancy If set to `true`, the file name is generated according to the `"<basedir>/<basename> (N).<ext>"` pattern; if set to `false`, the file name is generated according to the `"<basedir>/<basename>.XXXX.<ext>"` pattern.
 	*
@@ -209,7 +173,7 @@ namespace MUtils
 	/**
 	* \brief Recursively deletes the specified directory
 	*
-	* The function deletes the specified directory. In *recusive* mode, the directory will be removed including all of its files and sub-directories. Files are deleted using the `remove_file()` function.
+	* The function deletes the specified directory. In *recursive* mode, the directory will be removed including all of its files and sub-directories. Files are deleted using the `remove_file()` function.
 	*
 	* \param folderPath The path to the directory to be deleted. This should be a full path.
 	*
@@ -269,9 +233,10 @@ namespace MUtils
 	* This function implements a sort algorithm that orders alphanumeric strings in the way a human being would. See [*Natural Order String Comparison*](http://sourcefrog.net/projects/natsort/) for details!
 	*
 	* \param list A reference to the QStringList object to be sorted. The list will be sorted "in place".
+	*
+	* \param bIgnoreCase If set to `true`, the list will be sorted disregarding the character case, i.e. upper-case and lower-case characters (of the same letter) are treated the same; if set to `false`, the character case *is* taken into account.
 	*/
 	MUTILS_API void natural_string_sort(QStringList &list, const bool bIgnoreCase);
-
 
 	MUTILS_API QString clean_file_name(const QString &name);
 	MUTILS_API QString clean_file_path(const QString &path);

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.12"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>MuldeR&#39;s Utilities for Qt: MuldeR&#39;s Utilities for Qt</title>
+<title>MuldeR&#39;s Utilities for Qt: Main Page</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -60,17 +60,68 @@ $(function() {
 
 <div class="header">
   <div class="headertitle">
-<div class="title">MuldeR's Utilities for Qt </div>  </div>
+<div class="title">MuldeR's Utilities for Qt Documentation</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p>The <b>MUtilities</b> library is a collection of routines and classes to extend the <a href="http://qt-project.org/"><em>Qt cross-platform framework</em></a>. It contains various convenience and utility functions as well as wrappers for OS-specific functionalities. The library was originally created as a "side product" of the <a href="http://lamexp.sourceforge.net/"><b>LameXP</b></a> application: Over the years, a lot of code, <b>not</b> really specific to <em>LameXP</em>, had accumulated in the <em>LameXP</em> code base. Some of that code even had been used in other projects too, in a "copy &amp; paste" fashion &ndash; which had lead to redundancy and much complicated maintenance. In order to clean-up the LameXP code base, to eliminate the ugly redundancy and to simplify maintenance, the code in question has finally been refactored into the <b>MUtilities</b> (aka "MuldeR's Utilities for Qt") library. This library now forms the foundation of <em>LameXP</em> and <a href="https://github.com/lordmulder"><em>other OpenSource projects</em></a>.</p>
-<h3>API-Documentation</h3>
-<p>The public API of the <em>MUtilities</em> library is defined in the following header files:</p><ul>
+<div class="textblock"><h1>Introduction</h1>
+<p>The <b>MUtilities</b> library is a collection of routines and classes to extend the <a href="http://qt-project.org/"><em>Qt cross-platform framework</em></a>. It contains various convenience and utility functions as well as wrappers for OS-specific functionalities. The library was originally created as a "side product" of the <a href="http://lamexp.sourceforge.net/"><b>LameXP</b></a> application: Over the years, a lot of code, <b>not</b> really specific to <em>LameXP</em>, had accumulated in the <em>LameXP</em> code base. Some of that code even had been used in other projects too, in a "copy &amp; paste" fashion &ndash; which had lead to redundancy and much complicated maintenance. In order to clean-up the LameXP code base, to eliminate the ugly redundancy and to simplify maintenance, the code in question has finally been refactored into the <b>MUtilities</b> (aka "MuldeR's Utilities for Qt") library. This library now forms the foundation of <em>LameXP</em> and <a href="https://github.com/lordmulder"><em>other OpenSource projects</em></a>.</p>
+<h1>Project Structure</h1>
+<p>The <em>MUtilities</em> project directory is organized as follows:</p>
+<ul>
+<li><code>bin/</code> &ndash; compiled library files (static or shared), link those files in projects that use the MUtilities library</li>
+<li><code>docs/</code> &ndash; programming interface documentation, generated with Doxygen tool</li>
+<li><code>etc/</code> &ndash; miscellaneous files, everything that doesn't fit in anywhere else</li>
+<li><code>include/</code> &ndash; public header files, include this directory in projects that use the MUtilities library</li>
+<li><code>obj/</code> &ndash; object code files, intermediate files generated during the build process</li>
+<li><code>res/</code> &ndash; resource files, required for building the MUtilities library</li>
+<li><code>src/</code> &ndash; source code files, required for building the MUtilities library (third-party code in <code>src/3rd_party/</code>)</li>
+<li><code>test/</code> &ndash; unit tests, based on Google Test framework</li>
+<li><code>tmp/</code> &ndash; temporary files, automatically generated during the build process</li>
+</ul>
+<h1>API Documentation</h1>
+<p>The public API of the <em>MUtilities</em> library is defined in the following header files (select file for details):</p><ul>
 <li><b><a class="el" href="d5/d3b/_global_8h.html" title="This file contains miscellaneous functions that are generally useful for Qt-based applications...">Global.h</a></b> &ndash; miscellaneous useful functions</li>
 </ul>
-<h3>License</h3>
-<p>This library is free software. It is released under the terms of the <a href="https://www.gnu.org/licenses/lgpl-2.1.html">GNU Lesser General Public License (LGPL), Version 2.1</a>.</p>
-<div class="fragment"><div class="line">MUtilities - MuldeR<span class="stringliteral">&#39;s Utilities for Qt</span></div><div class="line"><span class="stringliteral">Copyright (C) 2004-2016 LoRd_MuldeR &lt;MuldeR2@GMX.de&gt;. Some rights reserved.</span></div><div class="line"><span class="stringliteral"></span></div><div class="line"><span class="stringliteral">This library is free software; you can redistribute it and/or</span></div><div class="line"><span class="stringliteral">modify it under the terms of the GNU Lesser General Public</span></div><div class="line"><span class="stringliteral">License as published by the Free Software Foundation; either</span></div><div class="line"><span class="stringliteral">version 2.1 of the License, or (at your option) any later version.</span></div><div class="line"><span class="stringliteral"></span></div><div class="line"><span class="stringliteral">This library is distributed in the hope that it will be useful,</span></div><div class="line"><span class="stringliteral">but WITHOUT ANY WARRANTY; without even the implied warranty of</span></div><div class="line"><span class="stringliteral">MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU</span></div><div class="line"><span class="stringliteral">Lesser General Public License for more details.</span></div><div class="line"><span class="stringliteral"></span></div><div class="line"><span class="stringliteral">You should have received a copy of the GNU Lesser General Public</span></div><div class="line"><span class="stringliteral">License along with this library; if not, write to the Free Software</span></div><div class="line"><span class="stringliteral">Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA.</span></div></div><!-- fragment --> </div></div><!-- contents -->
+<h1>Example</h1>
+<p>Here is a minimal example on how to use the <em>MUtilities</em> library in your project: </p><pre class="fragment">//MUtils
+#include &lt;MUtils/Global.h&gt;
+
+int main(int argc, char **argv)
+{
+    qDebug("Random number: %u\n", MUtils::next_rand_u32());
+}
+</pre><h2>Build Notes</h2>
+<ul>
+<li>In order to use the <em>MUtilities</em> library in your project, your build environment must have already been set up for building Qt-based projects. Setting up Qt is <em>not</em> covered by this document.</li>
+<li>Additionally, make sure that <em>MUtilities'</em> <code>include/</code> directory is contained in your "Additional Include Directories" and that the <em>MUtilities'</em> <code>bin/</code> directory is contained in your "Additional Library Directories".</li>
+<li>Finally, make sure that your project links against the <code>MUtils32-1.lib</code> library file. For each build configuration, pick the proper **.lib** file from the corresponding <code>bin/&lt;platform&gt;/&lt;config&gt;/</code> directory!</li>
+<li>If your projects intends to use the <em>MUtilities</em> library as a <b>static</b> library, then the macro <code>MUTILS_STATIC_LIB</code> <em>must</em> be added to your project's "Preprocessor Definitions".</li>
+</ul>
+<h1>License</h1>
+<p>This library is free software. It is released under the terms of the <a href="https://www.gnu.org/licenses/lgpl-2.1.html"><em>GNU Lesser General Public License (LGPL), Version 2.1</em></a>. </p><pre class="fragment">MUtilities - MuldeR's Utilities for Qt
+Copyright (C) 2004-2016 LoRd_MuldeR &lt;MuldeR2@GMX.de&gt;. Some rights reserved.
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA.
+</pre><h1>Acknowledgement</h1>
+<p>The following third-party code is used in the MUtilities library:</p>
+<ul>
+<li><b>Keccak/SHA-3 Reference Implementation</b> Implementation by the Keccak, Keyak and Ketje Teams, namely, Guido Bertoni, Joan Daemen, Michaël Peeters, Gilles Van Assche and Ronny Van Keer No Copyright / Dedicated to the Public Domain</li>
+<li><b>Natural Order String Comparison</b> Copyright (C) 2000, 2004 by Martin Pool <a href="#" onclick="location.href='mai'+'lto:'+'mbp'+'@s'+'our'+'ce'+'fro'+'g.'+'net'; return false;">mbp@s<span style="display: none;">.nosp@m.</span>ourc<span style="display: none;">.nosp@m.</span>efrog<span style="display: none;">.nosp@m.</span>.net</a> Released under the zlib License</li>
+<li><b>Adler-32 Checksum Algorithm (from zlib)</b> Copyright (C) 1995-2013 Jean-loup Gailly and Mark Adler Released under the zlib License </li>
+</ul>
+</div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by &#160;<a href="http://www.doxygen.org/index.html">

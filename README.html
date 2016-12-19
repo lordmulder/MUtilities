@@ -60,7 +60,7 @@ document.write('<a h'+'ref'+'="ma'+'ilto'+':'+e+'" clas'+'s="em' + 'ail">'+e+'<\
 <li><code>etc/</code> – miscellaneous files, everything that doesn't fit in anywhere else</li>
 <li><code>include/</code> – public header files, include this directory in projects that use the MUtilities library</li>
 <li><code>obj/</code> – object code files, intermediate files generated during the build process</li>
-<li><code>res/</code> – resouce files, required for building the MUtilities library</li>
+<li><code>res/</code> – resource files, required for building the MUtilities library</li>
 <li><code>src/</code> – source code files, required for building the MUtilities library (third-party code in <code>src/3rd_party/</code>)</li>
 <li><code>test/</code> – unit tests, based on Google Test framework</li>
 <li><code>tmp/</code> – temporary files, automatically generated during the build process</li>
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
 <ul>
 <li>In order to use the <em>MUtilities</em> library in your project, your build environment must have already been set up for building Qt-based projects. Setting up Qt is <em>not</em> covered by this document.</li>
 <li>Additionally, make sure that <em>MUtilities'</em> <code>include/</code> directory is contained in your &quot;Additional Include Directories&quot; and that the <em>MUtilities'</em> <code>bin/</code> directory is contained in your &quot;Additional Library Directories&quot;.</li>
-<li>Finally, make sure that your project links against the <code>MUtils32-1.lib</code> library file. For each build configuration you have to pick the proper <strong>.lib</strong> file from the correspnding <code>bin/&lt;platform&gt;/&lt;config&gt;/</code> directory!</li>
+<li>Finally, make sure that your project links against the <code>MUtils32-1.lib</code> library file. For each build configuration, pick the proper <strong>.lib</strong> file from the corresponding <code>bin/&lt;platform&gt;/&lt;config&gt;/</code> directory!</li>
 <li>If your projects intends to use the <em>MUtilities</em> library as a <strong>static</strong> library, then the macro <code>MUTILS_STATIC_LIB</code> <em>must</em> be added to your project's &quot;Preprocessor Definitions&quot;.</li>
 </ul>
 <h1 id="api-documentation"><span class="header-section-number">4</span> API Documentation</h1>

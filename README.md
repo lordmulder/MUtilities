@@ -15,7 +15,7 @@ The *MUtilities* project directory is organized as follows:
 * `etc/` &ndash; miscellaneous files, everything that doesn't fit in anywhere else
 * `include/` &ndash; public header files, include this directory in projects that use the MUtilities library
 * `obj/` &ndash; object code files, intermediate files generated during the build process
-* `res/` &ndash; resouce files, required for building the MUtilities library
+* `res/` &ndash; resource files, required for building the MUtilities library
 * `src/` &ndash; source code files, required for building the MUtilities library (third-party code in `src/3rd_party/`)
 * `test/` &ndash; unit tests, based on Google Test framework
 * `tmp/` &ndash; temporary files, automatically generated during the build process
@@ -37,7 +37,7 @@ Here is a minimal example on how to use the *MUtilities* library in your project
 
 * In order to use the *MUtilities* library in your project, your build environment must have already been set up for building Qt-based projects. Setting up Qt is *not* covered by this document.
 * Additionally, make sure that *MUtilities'* `include/` directory is contained in your "Additional Include Directories" and that the *MUtilities'* `bin/` directory is contained in your "Additional Library Directories".
-* Finally, make sure that your project links against the `MUtils32-1.lib` library file. For each build configuration you have to pick the proper **.lib** file from the correspnding `bin/<platform>/<config>/` directory!
+* Finally, make sure that your project links against the `MUtils32-1.lib` library file. For each build configuration, pick the proper **.lib** file from the corresponding `bin/<platform>/<config>/` directory!
 * If your projects intends to use the *MUtilities* library as a **static** library, then the macro `MUTILS_STATIC_LIB` *must* be added to your project's "Preprocessor Definitions".
 
 

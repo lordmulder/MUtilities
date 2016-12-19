@@ -299,8 +299,8 @@ QString&#160;</td><td class="memItemRight" valign="bottom"><b>MUtils::clean_file
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">basePath</td><td>Specifies the "base" directory where the unique file is supposed to be created. This must be a valid <em>existing</em> directory.</td></tr>
-    <tr><td class="paramname">baseName</td><td>Specifies the desired "base" file name of the unqiue file. Do <b>not</b> include a file extension.</td></tr>
-    <tr><td class="paramname">extension</td><td>Specifies the desired file extensions of the unqiue file. Do <b>not</b> include a leading dot (<code>.</code>) character.</td></tr>
+    <tr><td class="paramname">baseName</td><td>Specifies the desired "base" file name of the unique file. Do <b>not</b> include a file extension.</td></tr>
+    <tr><td class="paramname">extension</td><td>Specifies the desired file extensions of the unique file. Do <b>not</b> include a leading dot (<code>.</code>) character.</td></tr>
     <tr><td class="paramname">fancy</td><td>If set to <code>true</code>, the file name is generated according to the <code>"&lt;basedir&gt;/&lt;basename&gt; (N).&lt;ext&gt;"</code> pattern; if set to <code>false</code>, the file name is generated according to the <code>"&lt;basedir&gt;/&lt;basename&gt;.XXXX.&lt;ext&gt;"</code> pattern.</td></tr>
   </table>
   </dd>
@@ -339,7 +339,8 @@ QString&#160;</td><td class="memItemRight" valign="bottom"><b>MUtils::clean_file
 <p>This function implements a sort algorithm that orders alphanumeric strings in the way a human being would. See <a href="http://sourcefrog.net/projects/natsort/"><em>Natural Order String Comparison</em></a> for details!</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">list</td><td>A reference to the QStringList object to be sorted. The list will be sorted "in place". </td></tr>
+    <tr><td class="paramname">list</td><td>A reference to the QStringList object to be sorted. The list will be sorted "in place".</td></tr>
+    <tr><td class="paramname">bIgnoreCase</td><td>If set to <code>true</code>, the list will be sorted disregarding the character case, i.e. upper-case and lower-case characters (of the same letter) are treated the same; if set to <code>false</code>, the character case <em>is</em> taken into account. </td></tr>
   </table>
   </dd>
 </dl>
@@ -370,7 +371,7 @@ QString&#160;</td><td class="memItemRight" valign="bottom"><b>MUtils::clean_file
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>The function retruns a QString holding a <em>random</em> hexadecimal string </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The function returns a QString holding a <em>random</em> hexadecimal string </dd></dl>
 
 </div>
 </div>
@@ -392,7 +393,7 @@ QString&#160;</td><td class="memItemRight" valign="bottom"><b>MUtils::clean_file
 
 <p>Generates a <em>random</em> unsigned 32-Bit value. </p>
 <p>The <em>random</em> value is created using a "strong" PRNG of the underlying system, if possible. Otherwise a fallback PRNG is used. It is <b>not</b> required or useful to call <code>srand()</code> or <code>qsrand()</code> prior to using this function. If necessary, the seeding of the PRNG happen <em>automatically</em> on the first call.</p>
-<dl class="section return"><dt>Returns</dt><dd>The function retruns a <em>random</em> unsigned 32-Bit value. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The function returns a <em>random</em> unsigned 32-Bit value. </dd></dl>
 
 </div>
 </div>
@@ -414,7 +415,7 @@ QString&#160;</td><td class="memItemRight" valign="bottom"><b>MUtils::clean_file
 
 <p>Generates a <em>random</em> unsigned 64-Bit value. </p>
 <p>The <em>random</em> value is created using a "strong" PRNG of the underlying system, if possible. Otherwise a fallback PRNG is used. It is <b>not</b> required or useful to call <code>srand()</code> or <code>qsrand()</code> prior to using this function. If necessary, the seeding of the PRNG happen <em>automatically</em> on the first call.</p>
-<dl class="section return"><dt>Returns</dt><dd>The function retruns a <em>random</em> unsigned 64-Bit value. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The function returns a <em>random</em> unsigned 64-Bit value. </dd></dl>
 
 </div>
 </div>
@@ -557,7 +558,7 @@ QString&#160;</td><td class="memItemRight" valign="bottom"><b>MUtils::clean_file
 </div><div class="memdoc">
 
 <p>Recursively deletes the specified directory. </p>
-<p>The function deletes the specified directory. In <em>recusive</em> mode, the directory will be removed including all of its files and sub-directories. Files are deleted using the <code><a class="el" href="../../d5/d3b/_global_8h.html#a12259acdd6aff74ee83819d3aebd8ba9" title="Deletes the specified file. ">remove_file()</a></code> function.</p>
+<p>The function deletes the specified directory. In <em>recursive</em> mode, the directory will be removed including all of its files and sub-directories. Files are deleted using the <code><a class="el" href="../../d5/d3b/_global_8h.html#a12259acdd6aff74ee83819d3aebd8ba9" title="Deletes the specified file. ">remove_file()</a></code> function.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">folderPath</td><td>The path to the directory to be deleted. This should be a full path.</td></tr>
@@ -614,7 +615,7 @@ QString&#160;</td><td class="memItemRight" valign="bottom"><b>MUtils::clean_file
 </div><div class="memdoc">
 
 <p>Rerieves the full path of the application's <em>Temp</em> folder. </p>
-<p>The application's <em>Temp</em> folder is a unique application-specific folder, intended to store any temporary files that the application may need. It will be created when this function is called for the first time (lazy initialization); subsequent calls are guaranteed to return the same path. Usually the application's <em>Temp</em> folder will be created as a sub-folder of the system's global <em>Temp</em> folder, as indicated by the <code>TMP</code> or <code>TEMP</code> environment variables. However, it may be created at a different place (e.g. in the users <em>Profile</em> directory), if those environment variables don't point to a usable directory. In any case, this function makes sure that the application's <em>Temp</em> folder exists for the whole lifetime of the application and that it is writable. When the application is about to terminate, the application's <em>Temp</em> folder and all files or sub-directories thereof will be <em>removed</em> automatically!</p>
+<p>The application's <em>Temp</em> folder is a unique application-specific folder, intended to store any temporary files that the application may need. It will be created when this function is called for the first time (lazy initialization); subsequent calls are guaranteed to return the same path. Usually the application's <em>Temp</em> folder will be created as a sub-folder of the system's global <em>Temp</em> folder, as indicated by the <code>TMP</code> or <code>TEMP</code> environment variables. However, it may be created at a different place (e.g. in the users <em>Profile</em> directory), if those environment variables don't point to a usable directory. In any case, this function makes sure that the application's <em>Temp</em> folder exists for the whole lifetime of the application and that it is writable. When the application terminates normally, the application's <em>Temp</em> folder and all files or sub-directories thereof will be <em>removed</em> automatically!</p>
 <dl class="section return"><dt>Returns</dt><dd>If the function succeeds, it returns a read-only reference to a QString holding the full path of the application's <em>Temp</em> folder; otherwise a read-only reference to a default-constructed QString is returned. </dd></dl>
 
 </div>
