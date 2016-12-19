@@ -3,7 +3,7 @@ var indexSectionsWithContent =
   0: "_bgijkmnprstuv",
   1: "_bijkrstuv",
   2: "g",
-  3: "mnpt",
+  3: "mnprt",
   4: "m"
 };
 

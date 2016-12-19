@@ -116,7 +116,7 @@ namespace MUtils
 	/**
 	* \brief Rerieves the full path of the application's *Temp* folder.
 	*
-	* The application's *Temp* folder is a unique application-specific folder, intended to store any temporary files that the application may need. It will be created when this function is called for the first time (lazy initialization); subsequent calls are guaranteed to return the same path. Usually the application's *Temp* folder will be created as a sub-folder of the system's global *Temp* folder, as indicated by the `TMP` or `TEMP` environment variables. However, it may be created at a different place(e.g. in the users *Profile* directory), if those environment variables don't point to a usable directory. In any case, this function makes sure that the application's *Temp* folder exists for the whole lifetime of the application and that it is writable. When the application is about to terminate, the application's *Temp* folder and all files or sub-directories thereof will be *removed* automatically!
+	* The application's *Temp* folder is a unique application-specific folder, intended to store any temporary files that the application may need. It will be created when this function is called for the first time (lazy initialization); subsequent calls are guaranteed to return the same path. Usually the application's *Temp* folder will be created as a sub-folder of the system's global *Temp* folder, as indicated by the `TMP` or `TEMP` environment variables. However, it may be created at a different place (e.g. in the users *Profile* directory), if those environment variables don't point to a usable directory. In any case, this function makes sure that the application's *Temp* folder exists for the whole lifetime of the application and that it is writable. When the application is about to terminate, the application's *Temp* folder and all files or sub-directories thereof will be *removed* automatically!
 	*
 	* \return If the function succeeds, it returns a read-only reference to a QString holding the full path of the application's *Temp* folder; otherwise a read-only reference to a default-constructed QString is returned.
 	*/
@@ -195,17 +195,81 @@ namespace MUtils
 	*/
 	MUTILS_API bool parity(quint32 value);
 
-	//Remove File/Dir
+	/**
+	* \brief Deletes the specified file
+	*
+	* The function deletes the specified file, even if it has the "read only" flag set. If the file is currently locked (e.g. by another process), the function retries multiple times to delete the file before it fails.
+	*
+	* \param fileName The path to the file to be deleted. This should be a full path.
+	*
+	* \return The function returns `true`, if the file was deleted successfully or if the file doesn't exist; it returns `false`, if the file could *not* be deleted.
+	*/
 	MUTILS_API bool remove_file(const QString &fileName);
+
+	/**
+	* \brief Recursively deletes the specified directory
+	*
+	* The function deletes the specified directory. In *recusive* mode, the directory will be removed including all of its files and sub-directories. Files are deleted using the `remove_file()` function.
+	*
+	* \param folderPath The path to the directory to be deleted. This should be a full path.
+	*
+	* \param recursive If set to `true` the function removes all files and sub-directories in the specified directory; if set to `false`, the function will *not* try to delete any files or sub-directories, which means that it will fail on non-empty directories.
+	*
+	* \return The function returns `true`, if the directory was deleted successfully or if the directory doesn't exist; it returns `false`, if the directory could *not* be deleted.
+	*/
 	MUTILS_API bool remove_directory(const QString &folderPath, const bool &recursive);
 
-	//String utils
+	/**
+	* \brief Remove *trailing* white-space characters
+	*
+	* The function removes all *trailing* white-space characters from the specified string. Leading white-space characters are *not* removed. White-space characters are defined by the `\s` character class.
+	*
+	* \param str A reference to the QString object to be trimmed. This QString object will be modified directly.
+	*
+	* \return A reference to the trimmed QString object. This is the same QString object that was specified in the `str` parameter.
+	*/
 	MUTILS_API QString& trim_right(QString &str);
+
+	/**
+	* \brief Remove *leading* white-space characters
+	*
+	* The function removes all *leading* white-space characters from the specified string. Trailing white-space characters are *not* removed. White-space characters are defined by the `\s` character class.
+	*
+	* \param str A reference to the QString object to be trimmed. This QString object will be modified directly.
+	*
+	* \return A reference to the trimmed QString object. This is the same QString object that was specified in the `str` parameter.
+	*/
 	MUTILS_API QString& trim_left(QString &str);
+
+	/**
+	* \brief Remove *trailing* white-space characters
+	*
+	* The function removes all *trailing* white-space characters from the specified string. Leading white-space characters are *not* removed. White-space characters are defined by the `\s` character class.
+	*
+	* \param str A read-only reference to the QString object to be trimmed. The original QString object is *not* modified.
+	*
+	* \return A new QString object that equals the original QString object, except that it has all *trailing* white-space characters removed.
+	*/
 	MUTILS_API QString trim_right(const QString &str);
+
+	/**
+	* \brief Remove *trailing* white-space characters
+	*
+	* The function removes all *leading* white-space characters from the specified string. Trailing white-space characters are *not* removed. White-space characters are defined by the `\s` character class.
+	*
+	* \param str A read-only reference to the QString object to be trimmed. The original QString object is *not* modified.
+	*
+	* \return A new QString object that equals the original QString object, except that it has all *leading* white-space characters removed.
+	*/
 	MUTILS_API QString trim_left(const QString &str);
 
-	//String sorting
+	/**
+	* \brief Sort a list of strings using "natural ordering" algorithm
+	*
+	* This function implements a sort algorithm that orders alphanumeric strings in the way a human being would. See [*Natural Order String Comparison*](http://sourcefrog.net/projects/natsort/) for details!
+	*
+	* \param list A reference to the QStringList object to be sorted. The list will be sorted "in place".
+	*/
 	MUTILS_API void natural_string_sort(QStringList &list, const bool bIgnoreCase);
 
 	//Clean file path
