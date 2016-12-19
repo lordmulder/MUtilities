@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 #if _MSC_VER
-//#define _CRT_RAND_S 1
+#define _CRT_RAND_S 1
 #endif
 
 //MUtils
@@ -85,7 +85,6 @@ static quint32 mix_function(const quint32 x, const quint32 y, const quint32 z)
 
 static void seed_rand(void)
 {
-	fprintf(stderr, "SEED RAND (TID: %u)\n", MUtils::OS::thread_id());
 	QDateTime build(MUtils::Version::lib_build_date(), MUtils::Version::lib_build_time());
 	const quint32 seed = mix_function(MUtils::OS::process_id(), MUtils::OS::thread_id(), build.toMSecsSinceEpoch());
 	qsrand(mix_function(clock(), time(NULL), seed));
@@ -407,6 +406,7 @@ bool MUtils::remove_file(const QString &fileName)
 		{
 			return true;
 		}
+		MUtils::OS::sleep_ms(1);
 		fileInfo.refresh();
 	}
 
@@ -466,6 +466,7 @@ bool MUtils::remove_directory(const QString &folderPath, const bool &recursive)
 		{
 			return true;
 		}
+		MUtils::OS::sleep_ms(1);
 		folder.refresh();
 	}
 	
