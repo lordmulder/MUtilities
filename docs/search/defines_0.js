@@ -1,8 +1,5 @@
 var searchData=
 [
-  ['make_5ftemp_5ffile',['make_temp_file',['../d3/da6/namespace_m_utils.html#a29461116550863e8730f3f4ec479bbcb',1,'MUtils']]],
-  ['make_5funique_5ffile',['make_unique_file',['../d3/da6/namespace_m_utils.html#af9afe3821ae9bef7bdf56a4183fdea0d',1,'MUtils']]],
-  ['mutils',['MUtils',['../d3/da6/namespace_m_utils.html',1,'']]],
   ['mutils_5fbool2str',['MUTILS_BOOL2STR',['../d5/d3b/_global_8h.html#a177ecbfe7701c2ac04bb8bdeb208773a',1,'Global.h']]],
   ['mutils_5fdelete',['MUTILS_DELETE',['../d5/d3b/_global_8h.html#ad42b1946a83df3bd76734d5ab691fd0d',1,'Global.h']]],
   ['mutils_5fdelete_5farray',['MUTILS_DELETE_ARRAY',['../d5/d3b/_global_8h.html#aa544a37b80f1ab9d86f439a7666e9aa8',1,'Global.h']]],

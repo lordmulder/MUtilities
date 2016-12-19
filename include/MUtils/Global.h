@@ -20,9 +20,9 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 /**
-* @file
-* @brief This file contains miscellaneous functions that are generally useful for Qt-based applications
-*/
+ * @file
+ * @brief This file contains miscellaneous functions that are generally useful for Qt-based applications
+ */
 
 #pragma once
 
@@ -32,6 +32,9 @@
 class QProcess;
 
 ///////////////////////////////////////////////////////////////////////////////
+
+/** \cond INTERNAL
+ */
 
 //MUtils API
 #ifdef _MSC_VER
@@ -48,7 +51,6 @@ class QProcess;
 #	define MUTILS_API
 #endif
 
-//Helper Macros
 #define MUTILS_MAKE_STRING_HELPER(X) #X
 #define MUTILS_MAKE_STRING(X) MUTILS_MAKE_STRING_HELPER(X)
 #define MUTILS_COMPILER_WARNING(TXT) __pragma(message(__FILE__ "(" MUTILS_MAKE_STRING(__LINE__) ") : warning: " TXT))
@@ -73,6 +75,9 @@ class QProcess;
 	#endif
 #endif
 
+/** \endcond INTERNAL
+ */
+
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace MUtils
@@ -86,7 +91,19 @@ namespace MUtils
 	*/
 	MUTILS_API const QString& temp_folder(void);
 
-	//Process Utils
+	/**
+	* \brief Initialize a given [QProcess](http://doc.qt.io/qt-4.8/qprocess.html) object.
+	*
+	* This function prepares a given [QProcess](http://doc.qt.io/qt-4.8/qprocess.html) object for sub-process creation. It does so by setting up combined *stdout* and *stderr* redirection for the sub-process, cleaning up the sub-process' environment variables, as well as setting up the sub-process' working directory. Optionally, the *Temp* directory for the sub-process can be set to the application-specific *Temp* directory, which is achieved by overwriting the corresponding environment variables (e.g. `TMP` and `TEMP`). Furthermore, additional paths can be added to the `PATH` environment variable of the sub-process.
+	*
+	* \param process A reference to the [QProcess](http://doc.qt.io/qt-4.8/qprocess.html) object to be initialized. The [QProcess](http://doc.qt.io/qt-4.8/qprocess.html) object must be initialized *before* calling the `QProcess::start()` method.
+	*
+	* \param process A read-only reference to a QString holding the path of the working directory for the sub-process.
+	*
+	* \param bReplaceTempDir If set to `true`, the *Temp* directory for the sub-process is set to the application-specific *Temp* directory; if set to `false`, the default *Temp* directory is retained.
+	*
+	* \param extraPaths A read-only pointer to a QStringList object containing additional paths that will be added (prepended) to the sub-process' `PATH` environment variable. This parameter can be `NULL`, in which case *no* additional paths are added.
+	*/
 	MUTILS_API void init_process(QProcess &process, const QString &wokringDir, const bool bReplaceTempDir = true, const QStringList *const extraPaths = NULL);
 
 	/**
@@ -238,7 +255,26 @@ namespace MUtils
 	*/
 	MUTILS_API void natural_string_sort(QStringList &list, const bool bIgnoreCase);
 
+	/**
+	* \brief Clean up a file name string
+	*
+	* This function ensures that the given string is a valid file (or directory) name. It does so by replacing any illegal characters, i.e. any characters *not* allowed in file names (which explicitly *includes* directory separators). Furthermore, the function will trim/remove specific characters that are *not* allowed directly at the beginning or end of a file name. Finally, the function takes care or special "reserved" file names that are forbidden by the file system. You can use this function to convert user inputs into a valid file name.
+	*
+	* \param list A read-only reference to the QString holding the original, potentially invalid file name.
+	*
+	* \return The function returns a QString holding a valid file name. If, however, the input string was empty or contained only white-space characters, the returned sting can be empty.
+	*/
 	MUTILS_API QString clean_file_name(const QString &name);
+
+	/**
+	* \brief Clean up a file path string
+	*
+	* This function ensures that the given string is a valid file (or directory) path. It does so by replacing any illegal characters, i.e. any characters *not* allowed in file paths. Directory separators are preserved, but they will be "canonicalized". Furthermore, in each path component, the function will trim/remove specific characters that are *not* allowed directly at the beginning or end of a path component. Finally, the function takes care or special "reserved" file names that are forbidden by the file system. You can use this function to convert user inputs into a valid file path.
+	*
+	* \param list A read-only reference to the QString holding the original, potentially invalid file path.
+	*
+	* \return The function returns a QString holding a valid file path. If, however, the input string was empty or contained only white-space characters, the returned sting can be empty.
+	*/
 	MUTILS_API QString clean_file_path(const QString &path);
 
 	/**
@@ -290,17 +326,30 @@ namespace MUtils
 
 ///////////////////////////////////////////////////////////////////////////////
 
-//Delete helper
+/** \brief Deletes the object, if and only if the given pointer is *not* NULL. Also sets pointer to NULL after object has been deleted.
+*/
 #define MUTILS_DELETE(PTR) do { if((PTR)) { delete (PTR); (PTR) = NULL; } } while(0)
+
+/** \brief Deletes the array, if and only if the given pointer is *not* NULL. Also sets pointer to NULL after array has been deleted.
+*/
 #define MUTILS_DELETE_ARRAY(PTR) do { if((PTR)) { delete [] (PTR); (PTR) = NULL; } } while(0)
 
-//Zero memory
+/** \brief Clears the specified variable or struct by setting all of its bytes to *zero* (`0x00`). Do **not** use for arrays.
+*/
 #define MUTILS_ZERO_MEMORY(PTR) memset(&(PTR), 0, sizeof((PTR)))
 
-//String conversion macros
+/** \brief Converts a given QString object to a `wchar_t*` pointer. Does **not** copy the string data, so do **not** free the pointer! The returned pointer only remains valid until the underlying QString is modified or goes out of scope.
+*/
 #define MUTILS_WCHR(STR) (reinterpret_cast<const wchar_t*>((STR).utf16()))
+
+/** \brief Converts a given QString object to a `char*` pointer. The string is converted to UTF-8 encoding. The pointer is valid *only* while the expression is being evaluated, so do **not** free or store this pointer! Mainly useful for function calls that require a `char*` argument.
+*/
 #define MUTILS_UTF8(STR) ((STR).toUtf8().constData())
+
+/** \brief Creates a QString object from a given `wchar_t*` buffer. The buffer is expected to conatin a NULL-terminated string in UTF-16 encoding. The string data is copied into the new QString object, however the original buffer will **not** be freed automatically!
+*/
 #define MUTILS_QSTR(STR) (QString::fromUtf16(reinterpret_cast<const unsigned short*>((STR))))
 
-//Boolean helper
+/** \brief Converts a boolean expression into a string. A *true* boolean expression is converted to the string `"1"`; a *false* boolean expression is converted to the string `"0"`.
+*/
 #define MUTILS_BOOL2STR(X) ((X) ? "1" : "0")

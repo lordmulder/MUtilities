@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['make_5ftemp_5ffile',['make_temp_file',['../d5/d3b/_global_8h.html#a67cb16c62b213da5135a6fa076f3f005',1,'MUtils']]],
-  ['make_5funique_5ffile',['make_unique_file',['../d5/d3b/_global_8h.html#a390e56e35eb9329d2e67fa9741d07536',1,'MUtils']]]
+  ['clean_5ffile_5fname',['clean_file_name',['../d3/da6/namespace_m_utils.html#afd8eb699de88edd73e47fe2e41873385',1,'MUtils']]],
+  ['clean_5ffile_5fpath',['clean_file_path',['../d3/da6/namespace_m_utils.html#ad801fab93087c31d764ad15295fe3a88',1,'MUtils']]]
 ];
