@@ -258,7 +258,7 @@ namespace MUtils
 	/**
 	* \brief Clean up a file name string
 	*
-	* This function ensures that the given string is a valid file (or directory) name. It does so by replacing any illegal characters, i.e. any characters *not* allowed in file names (which explicitly *includes* directory separators). Furthermore, the function will trim/remove specific characters that are *not* allowed directly at the beginning or end of a file name. Finally, the function takes care or special "reserved" file names that are forbidden by the file system. You can use this function to convert user inputs into a valid file name.
+	* This function ensures that the given string is a valid file (or directory) name. It does so by replacing any illegal characters, i.e. any characters *not* allowed in file names (which explicitly *includes* directory separators). Furthermore, the function will trim/remove specific characters that are *not* allowed directly at the beginning or end of a file name. Finally, the function takes care of special "reserved" file names that are forbidden by the file system. You can use this function to convert user inputs into a valid file name.
 	*
 	* \param list A read-only reference to the QString holding the original, potentially invalid file name.
 	*
@@ -269,7 +269,7 @@ namespace MUtils
 	/**
 	* \brief Clean up a file path string
 	*
-	* This function ensures that the given string is a valid file (or directory) path. It does so by replacing any illegal characters, i.e. any characters *not* allowed in file paths. Directory separators are preserved, but they will be "canonicalized". Furthermore, in each path component, the function will trim/remove specific characters that are *not* allowed directly at the beginning or end of a path component. Finally, the function takes care or special "reserved" file names that are forbidden by the file system. You can use this function to convert user inputs into a valid file path.
+	* This function ensures that the given string is a valid file (or directory) path. It does so by replacing any illegal characters, i.e. any characters *not* allowed in file paths. Directory separators are preserved, but they will be "canonicalized". Furthermore, in each path component, the function will trim/remove specific characters that are *not* allowed directly at the beginning or end of a path component. Finally, the function takes care of special "reserved" file names that are forbidden by the file system. You can use this function to convert user inputs into a valid file path.
 	*
 	* \param list A read-only reference to the QString holding the original, potentially invalid file path.
 	*
