@@ -13,7 +13,7 @@ tar -cvf ./sources.tar *
 "%~dp0\..\Prerequisites\SevenZip\7za.exe" a -txz "%~dp0\~sources.tar.xz" "sources.tar"
 popd
 
-pushd "%~dp0"
+cd /d "%~dp0"
 rmdir /S /Q "%OUT_PATH%"
 
 pause
