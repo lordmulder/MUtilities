@@ -72,6 +72,9 @@ static QScopedPointer<std::filebuf> g_fileBuf_stderr;
 //The log file
 static QScopedPointer<QFile> g_terminal_log_file;
 
+//Terminal icon
+static HICON g_terminal_icon = NULL;
+
 ///////////////////////////////////////////////////////////////////////////////
 // HELPER FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////
@@ -145,6 +148,15 @@ static inline size_t clean_string(char *const str)
 	return out;
 }
 
+static inline void set_hicon(HICON *const ptr, const HICON val)
+{
+	if (*ptr)
+	{
+		DestroyIcon(*ptr);
+	}
+	*ptr = val;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // TERMINAL SETUP
 ///////////////////////////////////////////////////////////////////////////////
@@ -172,6 +184,7 @@ static void terminal_shutdown(void)
 		if(stdout) freopen_s(&temp[0], "NUL", "wb", stdout);
 		if(stderr) freopen_s(&temp[1], "NUL", "wb", stderr);
 		FreeConsole();
+		set_hicon(&g_terminal_icon, NULL);
 		g_terminal_attached = false;
 	}
 }
@@ -406,13 +419,36 @@ void MUtils::Terminal::set_icon(const QIcon &icon)
 
 	if(g_terminal_attached && (!(icon.isNull() || MUtils::OS::running_on_wine())))
 	{
-		typedef DWORD(__stdcall *SetConsoleIconFun)(HICON);
-		if(const SetConsoleIconFun setConsoleIconFun = MUtils::Win32Utils::resolve<SetConsoleIconFun>(QLatin1String("kernel32"), QLatin1String("SetConsoleIcon")))
+		if(const HICON hIcon = (HICON) MUtils::Win32Utils::qicon_to_hicon(icon, 16, 16))
 		{
-			if(HICON hIcon = (HICON) MUtils::Win32Utils::qicon_to_hicon(icon, 16, 16))
+			typedef BOOL(__stdcall *SetConsoleIconFun)(HICON);
+			bool success = false;
+			if (const SetConsoleIconFun pSetConsoleIconFun = MUtils::Win32Utils::resolve<SetConsoleIconFun>(QLatin1String("kernel32"), QLatin1String("SetConsoleIcon")))
 			{
-				setConsoleIconFun(hIcon);
-				DestroyIcon(hIcon);
+				const DWORD before = GetLastError();
+				qWarning("[Before: 0x%08X]", before);
+				if (pSetConsoleIconFun(hIcon))
+				{
+					success = true;
+				}
+				else
+				{
+					const DWORD error = GetLastError();
+					qWarning("SetConsoleIcon() has failed! [Error: 0x%08X]", error);
+				}
+			}
+			if (!success)
+			{
+				const HWND hwndConsole = GetConsoleWindow();
+				if ((hwndConsole != NULL) && (hwndConsole != INVALID_HANDLE_VALUE))
+				{
+					SendMessage(hwndConsole, WM_SETICON, ICON_SMALL, LPARAM(hIcon));
+					success = true;
+				}
+			}
+			if (success)
+			{
+				set_hicon(&g_terminal_icon, hIcon);
 			}
 		}
 	}

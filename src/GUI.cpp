@@ -95,7 +95,7 @@ namespace MUtils
 					SendMessage(parent->winId(), WM_SETICON, (bIsBigIcon ? ICON_BIG : ICON_SMALL), LPARAM(hIcon));
 				}
 
-				~WindowIconHelper(void)
+				virtual ~WindowIconHelper(void)
 				{
 					if(m_hIcon)
 					{
@@ -115,12 +115,10 @@ bool MUtils::GUI::set_window_icon(QWidget *const window, const QIcon &icon, cons
 	if((!icon.isNull()) && window->winId())
 	{
 		const int extend = (bIsBigIcon ? 32 : 16);
-		if(HICON hIcon = (HICON) MUtils::Win32Utils::qicon_to_hicon(icon, extend, extend))
+		if(const HICON hIcon = (HICON) MUtils::Win32Utils::qicon_to_hicon(icon, extend, extend))
 		{
-			if(new Internal::WindowIconHelper(window, hIcon, bIsBigIcon))
-			{
-				return true;
-			}
+			new Internal::WindowIconHelper(window, hIcon, bIsBigIcon); /*will be free'd using QObject parent mechanism*/
+			return true;
 		}
 	}
 	return false;
