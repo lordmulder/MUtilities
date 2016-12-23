@@ -10,6 +10,7 @@
  * 
  * The public API of the *MUtilities* library is defined in the following header files (select file for details):
  * - **Global.h** &ndash; miscellaneous useful functions
+ * - **CPUFeatures.h** &ndash; functions for detection information about the CPU
  * 
  * 
  * # Example

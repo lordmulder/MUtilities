@@ -28,76 +28,73 @@
 #include <MUtils/OSSupport.h>
 #include "Utils_Win32.h"
 
+#define MY_CPUID(X,Y) __cpuid(((int*)(X)), ((int)(Y)))
+#define CHECK_VENDOR(X,Y,Z) (_stricmp((X), (Y)) ? 0U : (Z));
+#define CHECK_FLAG(X,Y,Z) (((X) & (Y)) ? (Z) : 0U)
+
 MUtils::CPUFetaures::cpu_info_t MUtils::CPUFetaures::detect(void)
 {
 	const OS::ArgumentMap &args = OS::arguments();
 	typedef BOOL (WINAPI *IsWow64ProcessFun)(__in HANDLE hProcess, __out PBOOL Wow64Process);
+	static const quint32 FLAGS_X64 = (FLAG_MMX | FLAG_SSE | FLAG_SSE2);
 
-	cpu_info_t features;
+	cpu_info_t  features;
 	SYSTEM_INFO systemInfo;
-	int CPUInfo[4] = {-1};
-	char CPUIdentificationString[0x40];
-	char CPUBrandString[0x40];
+	uint32_t    cpuInfo[4];
 
-	memset(&features, 0, sizeof(cpu_info_t));
+	//Initialize variables to zero
+	memset(&features,   0, sizeof(cpu_info_t));
 	memset(&systemInfo, 0, sizeof(SYSTEM_INFO));
-	memset(CPUIdentificationString, 0, sizeof(CPUIdentificationString));
-	memset(CPUBrandString, 0, sizeof(CPUBrandString));
-	
-	__cpuid(CPUInfo, 0);
-	memcpy(CPUIdentificationString, &CPUInfo[1], sizeof(int));
-	memcpy(CPUIdentificationString + 4, &CPUInfo[3], sizeof(int));
-	memcpy(CPUIdentificationString + 8, &CPUInfo[2], sizeof(int));
-	features.intel = (_stricmp(CPUIdentificationString, "GenuineIntel") == 0);
-	strncpy_s(features.vendor, 0x40, CPUIdentificationString, _TRUNCATE);
+	memset(cpuInfo,     0, sizeof(cpuInfo));
 
-	if(CPUInfo[0] >= 1)
+	//Detect the CPU identifier string
+	MY_CPUID(&cpuInfo[0], 0);
+	memcpy(&features.idstr[0U * sizeof(uint32_t)], &cpuInfo[1], sizeof(uint32_t));
+	memcpy(&features.idstr[1U * sizeof(uint32_t)], &cpuInfo[3], sizeof(uint32_t));
+	memcpy(&features.idstr[2U * sizeof(uint32_t)], &cpuInfo[2], sizeof(uint32_t));
+	features.idstr[3U * sizeof(uint32_t)] = '\0';
+	features.vendor |= CHECK_VENDOR(features.idstr, "GenuineIntel", VENDOR_INTEL);
+	features.vendor |= CHECK_VENDOR(features.idstr, "AuthenticAMD", VENDOR_AMD);
+
+	//Detect the CPU model and feature flags
+	if(cpuInfo[0] >= 1)
 	{
-		__cpuid(CPUInfo, 1);
-		if(CPUInfo[3] & 0x00800000) features.features |= FLAG_MMX;
-		if(CPUInfo[3] & 0x02000000) features.features |= FLAG_SSE;
-		if(CPUInfo[3] & 0x04000000) features.features |= FLAG_SSE2;
-		if(CPUInfo[2] & 0x00000001) features.features |= FLAG_SSE3;
-		if(CPUInfo[2] & 0x00000200) features.features |= FLAG_SSSE3;
-		if(CPUInfo[2] & 0x00080000) features.features |= FLAG_SSE4;
-		if(CPUInfo[2] & 0x00100000) features.features |= FLAG_SSE42;
-		if ((CPUInfo[2] & 0x18000000) == 0x18000000)
+		MY_CPUID(&cpuInfo[0], 1);
+		features.features |= CHECK_FLAG(cpuInfo[3], 0x00008000, FLAG_CMOV);
+		features.features |= CHECK_FLAG(cpuInfo[3], 0x00800000, FLAG_MMX);
+		features.features |= CHECK_FLAG(cpuInfo[3], 0x02000000, FLAG_SSE);
+		features.features |= CHECK_FLAG(cpuInfo[3], 0x04000000, FLAG_SSE2);
+		features.features |= CHECK_FLAG(cpuInfo[2], 0x00000001, FLAG_SSE3);
+		features.features |= CHECK_FLAG(cpuInfo[2], 0x00000200, FLAG_SSSE3);
+		features.features |= CHECK_FLAG(cpuInfo[2], 0x00080000, FLAG_SSE4);
+		features.features |= CHECK_FLAG(cpuInfo[2], 0x00100000, FLAG_SSE42);
+
+		//Check for AVX
+		if ((cpuInfo[2] & 0x18000000) == 0x18000000)
 		{
 			if((_xgetbv(0) & 0x6ui64) == 0x6ui64) /*AVX requires OS support!*/
 			{
 				features.features |= FLAG_AVX;
 			}
 		}
-		features.stepping = CPUInfo[0] & 0xf;
-		features.model    = ((CPUInfo[0] >> 4) & 0xf) + (((CPUInfo[0] >> 16) & 0xf) << 4);
-		features.family   = ((CPUInfo[0] >> 8) & 0xf) + ((CPUInfo[0] >> 20) & 0xff);
+
+		//Compute the CPU stepping, model and family
+		features.stepping = cpuInfo[0] & 0xf;
+		features.model    = ((cpuInfo[0] >> 4) & 0xf) + (((cpuInfo[0] >> 16) & 0xf) << 4);
+		features.family   = ((cpuInfo[0] >> 8) & 0xf) + ((cpuInfo[0] >> 20) & 0xff);
 	}
 
-	__cpuid(CPUInfo, 0x80000000);
-	int nExIds = qMax<int>(qMin<int>(CPUInfo[0], 0x80000004), 0x80000000);
-
-	for(int i = 0x80000002; i <= nExIds; ++i)
+	//Read the CPU "brand" string
+	MY_CPUID(&cpuInfo[0], 0x80000000);
+	const uint32_t nExIds = qBound(0x80000000, cpuInfo[0], 0x80000004);
+	for(uint32_t i = 0x80000002; i <= nExIds; ++i)
 	{
-		__cpuid(CPUInfo, i);
-		switch(i)
-		{
-		case 0x80000002:
-			memcpy(CPUBrandString, CPUInfo, sizeof(CPUInfo));
-			break;
-		case 0x80000003:
-			memcpy(CPUBrandString + 16, CPUInfo, sizeof(CPUInfo));
-			break;
-		case 0x80000004:
-			memcpy(CPUBrandString + 32, CPUInfo, sizeof(CPUInfo));
-			break;
-		}
+		MY_CPUID(&cpuInfo[0], i);
+		memcpy(&features.brand[(i - 0x80000002) * sizeof(cpuInfo)], &cpuInfo[0], sizeof(cpuInfo));
 	}
+	features.brand[sizeof(features.brand) - 1] = '\0';
 
-	strncpy_s(features.brand, 0x40, CPUBrandString, _TRUNCATE);
-
-	if(strlen(features.brand)  < 1) strncpy_s(features.brand,  0x40, "Unknown", _TRUNCATE);
-	if(strlen(features.vendor) < 1) strncpy_s(features.vendor, 0x40, "Unknown", _TRUNCATE);
-
+	//Detect 64-Bit processors
 #if (!(defined(_M_X64) || defined(_M_IA64)))
 	const IsWow64ProcessFun isWow64ProcessPtr = MUtils::Win32Utils::resolve<IsWow64ProcessFun>(QLatin1String("kernel32"), QLatin1String("IsWow64Process"));
 	if(isWow64ProcessPtr)
@@ -105,24 +102,26 @@ MUtils::CPUFetaures::cpu_info_t MUtils::CPUFetaures::detect(void)
 		BOOL x64flag = FALSE;
 		if(isWow64ProcessPtr(GetCurrentProcess(), &x64flag))
 		{
-			if(x64flag) features.x64 = true;
+			if (x64flag)
+			{
+				features.x64 = true;
+				features.features |= FLAGS_X64; /*x86_64 implies SSE2*/
+			}
 		}
 	}
 #else
 	features.x64 = true;
+	features.features |= FLAGS_X64;
 #endif
 
-	if (features.x64)
-	{
-		features.features |= (FLAG_MMX | FLAG_SSE | FLAG_SSE2); /*x86_64 implies SSE2*/
-	}
-
+	//Make sure that (at least) the MMX flag has been set!
 	if (!(features.features & FLAG_MMX))
 	{
 		qWarning("Warning: CPU does not seem to support MMX. Take care!\n");
 		features.features = 0;
 	}
 
+	//Count the number of available(!) CPU cores
 	DWORD_PTR procAffinity, sysAffinity;
 	if(GetProcessAffinityMask(GetCurrentProcess(), &procAffinity, &sysAffinity))
 	{
@@ -137,11 +136,11 @@ MUtils::CPUFetaures::cpu_info_t MUtils::CPUFetaures::detect(void)
 		features.count = qBound(1UL, systemInfo.dwNumberOfProcessors, 64UL);
 	}
 
+	//Apply manual CPU overwrites
 	bool userFlag = false;
-	if(args.contains("force-cpu-no-64bit")) { userFlag = true; features.x64 = false; }
-	if(args.contains("force-cpu-no-sse"  )) { userFlag = true; features.features &= (~(FLAG_SSE | FLAG_SSE2 | FLAG_SSE3 | FLAG_SSSE3 | FLAG_SSE4 | FLAG_SSE42)); }
-	if(args.contains("force-cpu-no-intel")) { userFlag = true; features.intel = false; }
-
+	if (args.contains(QLatin1String("cpu-no-simd")))   { userFlag = true; features.features = 0U; }
+	if (args.contains(QLatin1String("cpu-no-vendor"))) { userFlag = true; features.vendor   = 0U; }
+	if (args.contains(QLatin1String("cpu-no-x64")))    { userFlag = true; features.x64      = 0U; }
 	if(userFlag)
 	{
 		qWarning("CPU flags overwritten by user-defined parameters. Take care!\n");
