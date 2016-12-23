@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['global_2eh',['Global.h',['../d5/d3b/_global_8h.html',1,'']]]
+  ['detect',['detect',['../d3/d02/namespace_m_utils_1_1_c_p_u_fetaures.html#a5f26f530b11eee62845fb45fba6a32fc',1,'MUtils::CPUFetaures']]]
 ];

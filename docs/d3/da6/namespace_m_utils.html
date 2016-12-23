@@ -60,6 +60,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#namespaces">Namespaces</a> &#124;
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#func-members">Functions</a> &#124;
 <a href="#var-members">Variables</a>  </div>
@@ -67,7 +68,16 @@ $(function() {
 <div class="title">MUtils Namespace Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>Global <a class="el" href="../../d3/da6/namespace_m_utils.html" title="Global MUtils namespace. ">MUtils</a> namespace.  
+<a href="#details">More...</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="namespaces"></a>
+Namespaces</h2></td></tr>
+<tr class="memitem:d3/d02/namespace_m_utils_1_1_c_p_u_fetaures"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d02/namespace_m_utils_1_1_c_p_u_fetaures.html">CPUFetaures</a></td></tr>
+<tr class="memdesc:d3/d02/namespace_m_utils_1_1_c_p_u_fetaures"><td class="mdescLeft">&#160;</td><td class="mdescRight">This namespace contains functions and constants for detecting CPU information. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/dfe/class_m_utils_1_1_i_p_c_channel.html">IPCChannel</a></td></tr>
@@ -159,7 +169,8 @@ class MUTILS_API&#160;</td><td class="memItemRight" valign="bottom"><b>Taskbar7_
 <tr class="separator:a78cd148fbdfdf4f799a3b7562f7981c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>INTERNAL </p>
+<div class="textblock"><p>Global <a class="el" href="../../d3/da6/namespace_m_utils.html" title="Global MUtils namespace. ">MUtils</a> namespace. </p>
+<p>INTERNAL </p>
 </div><h2 class="groupheader">Function Documentation</h2>
 <a id="a2275e64c3c74dea855c39b66be67f705"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a2275e64c3c74dea855c39b66be67f705">&sect;&nbsp;</a></span>available_codepages()</h2>
@@ -206,7 +217,7 @@ class MUTILS_API&#160;</td><td class="memItemRight" valign="bottom"><b>Taskbar7_
 </div><div class="memdoc">
 
 <p>Clean up a file name string. </p>
-<p>This function ensures that the given string is a valid file (or directory) name. It does so by replacing any illegal characters, i.e. any characters <em>not</em> allowed in file names (which explicitly <em>includes</em> directory separators). Furthermore, the function will trim/remove specific characters that are <em>not</em> allowed directly at the beginning or end of a file name. Finally, the function takes care or special "reserved" file names that are forbidden by the file system. You can use this function to convert user inputs into a valid file name.</p>
+<p>This function ensures that the given string is a valid file (or directory) name. It does so by replacing any illegal characters, i.e. any characters <em>not</em> allowed in file names (which explicitly <em>includes</em> directory separators). Furthermore, the function will trim/remove specific characters that are <em>not</em> allowed directly at the beginning or end of a file name. Finally, the function takes care of special "reserved" file names that are forbidden by the file system. You can use this function to convert user inputs into a valid file name.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">list</td><td>A read-only reference to the QString holding the original, potentially invalid file name.</td></tr>
@@ -234,7 +245,7 @@ class MUTILS_API&#160;</td><td class="memItemRight" valign="bottom"><b>Taskbar7_
 </div><div class="memdoc">
 
 <p>Clean up a file path string. </p>
-<p>This function ensures that the given string is a valid file (or directory) path. It does so by replacing any illegal characters, i.e. any characters <em>not</em> allowed in file paths. Directory separators are preserved, but they will be "canonicalized". Furthermore, in each path component, the function will trim/remove specific characters that are <em>not</em> allowed directly at the beginning or end of a path component. Finally, the function takes care or special "reserved" file names that are forbidden by the file system. You can use this function to convert user inputs into a valid file path.</p>
+<p>This function ensures that the given string is a valid file (or directory) path. It does so by replacing any illegal characters, i.e. any characters <em>not</em> allowed in file paths. Directory separators are preserved, but they will be "canonicalized". Furthermore, in each path component, the function will trim/remove specific characters that are <em>not</em> allowed directly at the beginning or end of a path component. Finally, the function takes care of special "reserved" file names that are forbidden by the file system. You can use this function to convert user inputs into a valid file path.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">list</td><td>A read-only reference to the QString holding the original, potentially invalid file path.</td></tr>

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['init_5fprocess',['init_process',['../d3/da6/namespace_m_utils.html#a0ecb5d72f33a7b6feadd7deb8ed46cc3',1,'MUtils']]]
+  ['detect',['detect',['../d3/d02/namespace_m_utils_1_1_c_p_u_fetaures.html#a5f26f530b11eee62845fb45fba6a32fc',1,'MUtils::CPUFetaures']]]
 ];
