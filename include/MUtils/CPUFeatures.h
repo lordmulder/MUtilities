@@ -44,8 +44,8 @@ namespace MUtils
 	namespace CPUFetaures
 	{
 		// CPU vendor flag
-		static const uint8_t VENDOR_INTEL = 0x01U;	///< \brief CPU vendor flag \details Indicates that the CPU's vendor is *Intel*
-		static const uint8_t VENDOR_AMD   = 0x02U;	///< \brief CPU vendor flag \details Indicates that the CPU's vendor is *AMD*
+		static const quint8 VENDOR_INTEL = 0x01U;	///< \brief CPU vendor flag \details Indicates that the CPU's vendor is *Intel*
+		static const quint8 VENDOR_AMD = 0x02U;	///< \brief CPU vendor flag \details Indicates that the CPU's vendor is *AMD*
 
 		// CPU feature flag
 		static const quint32 FLAG_CMOV  = 0x001U;	///< \brief CPU feature flag \details Indicates that the CPU supports the *CMOV* instruction
@@ -69,7 +69,7 @@ namespace MUtils
 			quint32 count;		///< The number of available (logical) processors
 			quint32 features;	///< CPU *feature* flags, indicating suppoprt for extended instruction sets; all flags are OR-combined
 			bool x64;			///< Indicates that the processor and the operating system support 64-Bit (AMD64/EM64T)
-			uint8_t vendor;		///< CPU *vendor* flag; might be zero, if vendor is unknown
+			quint8 vendor;		///< CPU *vendor* flag; might be zero, if vendor is unknown
 			char idstr[13];		///< CPU *identifier* string, exactly 12 characters (e.g. "GenuineIntel" or "AuthenticAMD")
 			char brand[48];		///< CPU *brand* string, up to 48 characters (e.g. "Intel(R) Core(TM) i7-6700K CPU @ 4.00GHz")
 		}
