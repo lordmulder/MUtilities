@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['idstr',['idstr',['../d2/d59/struct_m_utils_1_1_c_p_u_fetaures_1_1cpu__info__t.html#a72bbbd7fc4f456d7d9701c140221bc56',1,'MUtils::CPUFetaures::cpu_info_t']]]
+  ['idstr',['idstr',['../dd/de2/struct_m_utils_1_1_c_p_u_fetaures_1_1__cpu__info__t.html#a58ab7955a771f842c3f16abd8cebb931',1,'MUtils::CPUFetaures::_cpu_info_t']]]
 ];

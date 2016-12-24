@@ -3,7 +3,7 @@ var searchData=
   ['cpufetaures',['CPUFetaures',['../d3/d02/namespace_m_utils_1_1_c_p_u_fetaures.html',1,'MUtils']]],
   ['make_5ftemp_5ffile',['make_temp_file',['../d3/da6/namespace_m_utils.html#a29461116550863e8730f3f4ec479bbcb',1,'MUtils']]],
   ['make_5funique_5ffile',['make_unique_file',['../d3/da6/namespace_m_utils.html#af9afe3821ae9bef7bdf56a4183fdea0d',1,'MUtils']]],
-  ['model',['model',['../d2/d59/struct_m_utils_1_1_c_p_u_fetaures_1_1cpu__info__t.html#a5d2e28946553d2ef9073113acb96f253',1,'MUtils::CPUFetaures::cpu_info_t']]],
+  ['model',['model',['../dd/de2/struct_m_utils_1_1_c_p_u_fetaures_1_1__cpu__info__t.html#a7d0a012412dc4b04f2b5b37e83f5874a',1,'MUtils::CPUFetaures::_cpu_info_t']]],
   ['mutils',['MUtils',['../d3/da6/namespace_m_utils.html',1,'']]],
   ['mutils_5fbool2str',['MUTILS_BOOL2STR',['../d5/d3b/_global_8h.html#a177ecbfe7701c2ac04bb8bdeb208773a',1,'Global.h']]],
   ['mutils_5fdelete',['MUTILS_DELETE',['../d5/d3b/_global_8h.html#ad42b1946a83df3bd76734d5ab691fd0d',1,'Global.h']]],

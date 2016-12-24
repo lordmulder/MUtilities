@@ -1,7 +1,7 @@
 var searchData=
 [
-  ['family',['family',['../d2/d59/struct_m_utils_1_1_c_p_u_fetaures_1_1cpu__info__t.html#a6d658af94408b9b48bd703ca9082b853',1,'MUtils::CPUFetaures::cpu_info_t']]],
-  ['features',['features',['../d2/d59/struct_m_utils_1_1_c_p_u_fetaures_1_1cpu__info__t.html#a08e720085fa03301c1623c606172b9f1',1,'MUtils::CPUFetaures::cpu_info_t']]],
+  ['family',['family',['../dd/de2/struct_m_utils_1_1_c_p_u_fetaures_1_1__cpu__info__t.html#afefb6e7d6165b8de9bee1f17df826392',1,'MUtils::CPUFetaures::_cpu_info_t']]],
+  ['features',['features',['../dd/de2/struct_m_utils_1_1_c_p_u_fetaures_1_1__cpu__info__t.html#a8f312e3386a9f56a8d10b890af3ce3af',1,'MUtils::CPUFetaures::_cpu_info_t']]],
   ['flag_5favx',['FLAG_AVX',['../d3/d02/namespace_m_utils_1_1_c_p_u_fetaures.html#ad8a4de23ab21ecd4871358e7edea90cb',1,'MUtils::CPUFetaures']]],
   ['flag_5fcmov',['FLAG_CMOV',['../d3/d02/namespace_m_utils_1_1_c_p_u_fetaures.html#adf2416d7ed2553f313fb08c289365f5c',1,'MUtils::CPUFetaures']]],
   ['flag_5fmmx',['FLAG_MMX',['../d3/d02/namespace_m_utils_1_1_c_p_u_fetaures.html#a1c2235ceac6576dace2a0ea9ddc1cbdf',1,'MUtils::CPUFetaures']]],
