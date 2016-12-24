@@ -59,9 +59,9 @@ namespace MUtils
 		static const quint32 FLAG_AVX   = 0x100U;	///< \brief CPU feature flag \details Indicates that the CPU supports the *AVX* instruction set extension
 
 		/**
-		* \brief Struct to hold information about the CPU
+		* \brief Struct to hold information about the CPU. See `_cpu_info_t` for details!
 		*/
-		typedef struct
+		typedef struct _cpu_info_t
 		{
 			quint32 family;		///< CPU *family* indicator, which specifies the processor "generation" to which the CPU belongs
 			quint32 model;		///< CPU *model* indicator, which is used to distinguish processor "variants" within a generation
