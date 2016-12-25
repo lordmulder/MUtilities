@@ -49,6 +49,7 @@ MUtils::CPUFetaures::cpu_info_t MUtils::CPUFetaures::detect(void)
 
 	//Detect the CPU identifier string
 	MY_CPUID(&cpuInfo[0], 0);
+	const uint32_t max_basic_cap = cpuInfo[0];
 	memcpy(&features.idstr[0U * sizeof(uint32_t)], &cpuInfo[1], sizeof(uint32_t));
 	memcpy(&features.idstr[1U * sizeof(uint32_t)], &cpuInfo[3], sizeof(uint32_t));
 	memcpy(&features.idstr[2U * sizeof(uint32_t)], &cpuInfo[2], sizeof(uint32_t));
@@ -57,7 +58,7 @@ MUtils::CPUFetaures::cpu_info_t MUtils::CPUFetaures::detect(void)
 	features.vendor |= CHECK_VENDOR(features.idstr, "AuthenticAMD", VENDOR_AMD);
 
 	//Detect the CPU model and feature flags
-	if(cpuInfo[0] >= 1)
+	if(max_basic_cap >= 1)
 	{
 		MY_CPUID(&cpuInfo[0], 1);
 		features.features |= CHECK_FLAG(cpuInfo[3], 0x00008000, FLAG_CMOV);
@@ -66,7 +67,7 @@ MUtils::CPUFetaures::cpu_info_t MUtils::CPUFetaures::detect(void)
 		features.features |= CHECK_FLAG(cpuInfo[3], 0x04000000, FLAG_SSE2);
 		features.features |= CHECK_FLAG(cpuInfo[2], 0x00000001, FLAG_SSE3);
 		features.features |= CHECK_FLAG(cpuInfo[2], 0x00000200, FLAG_SSSE3);
-		features.features |= CHECK_FLAG(cpuInfo[2], 0x00080000, FLAG_SSE4);
+		features.features |= CHECK_FLAG(cpuInfo[2], 0x00080000, FLAG_SSE41);
 		features.features |= CHECK_FLAG(cpuInfo[2], 0x00100000, FLAG_SSE42);
 
 		//Check for AVX
@@ -75,6 +76,7 @@ MUtils::CPUFetaures::cpu_info_t MUtils::CPUFetaures::detect(void)
 			if((_xgetbv(0) & 0x6ui64) == 0x6ui64) /*AVX requires OS support!*/
 			{
 				features.features |= FLAG_AVX;
+				features.features |= CHECK_FLAG(cpuInfo[2], 0x00001000, FLAG_FMA3);
 			}
 		}
 
@@ -84,15 +86,33 @@ MUtils::CPUFetaures::cpu_info_t MUtils::CPUFetaures::detect(void)
 		features.family   = ((cpuInfo[0] >> 8) & 0xf) + ((cpuInfo[0] >> 20) & 0xff);
 	}
 
-	//Read the CPU "brand" string
-	MY_CPUID(&cpuInfo[0], 0x80000000);
-	const uint32_t nExIds = qBound(0x80000000, cpuInfo[0], 0x80000004);
-	for(uint32_t i = 0x80000002; i <= nExIds; ++i)
+	//Detect extended feature flags
+	if (max_basic_cap >= 7)
 	{
-		MY_CPUID(&cpuInfo[0], i);
-		memcpy(&features.brand[(i - 0x80000002) * sizeof(cpuInfo)], &cpuInfo[0], sizeof(cpuInfo));
+		MY_CPUID(&cpuInfo[1], 7);
+		if (features.features & FLAG_AVX)
+		{
+			features.features |= CHECK_FLAG(cpuInfo[2], 0x00000020, FLAG_AVX2);
+		}
 	}
-	features.brand[sizeof(features.brand) - 1] = '\0';
+
+	//Read the CPU "brand" string
+	if (max_basic_cap > 0)
+	{
+		MY_CPUID(&cpuInfo[0], 0x80000000);
+		const uint32_t max_extended_cap = qBound(0x80000000, cpuInfo[0], 0x80000004);
+		if (max_extended_cap >= 0x80000001)
+		{
+			MY_CPUID(&cpuInfo[0], 0x80000001);
+			features.features |= CHECK_FLAG(cpuInfo[2], 0x00000020, FLAG_LZCNT);
+			for (uint32_t i = 0x80000002; i <= max_extended_cap; ++i)
+			{
+				MY_CPUID(&cpuInfo[0], i);
+				memcpy(&features.brand[(i - 0x80000002) * sizeof(cpuInfo)], &cpuInfo[0], sizeof(cpuInfo));
+			}
+			features.brand[sizeof(features.brand) - 1] = '\0';
+		}
+	}
 
 	//Detect 64-Bit processors
 #if (!(defined(_M_X64) || defined(_M_IA64)))

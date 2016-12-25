@@ -54,9 +54,12 @@ namespace MUtils
 		static const quint32 FLAG_SSE2  = 0x008U;	///< \brief CPU feature flag \details Indicates that the CPU supports the *SSE2* instruction set extension
 		static const quint32 FLAG_SSE3  = 0x010U;	///< \brief CPU feature flag \details Indicates that the CPU supports the *SSE3* instruction set extension
 		static const quint32 FLAG_SSSE3 = 0x020U;	///< \brief CPU feature flag \details Indicates that the CPU supports the *SSSE3* instruction set extension
-		static const quint32 FLAG_SSE4  = 0x030U;	///< \brief CPU feature flag \details Indicates that the CPU supports the *SSE4.1* instruction set extension
+		static const quint32 FLAG_SSE41 = 0x040U;	///< \brief CPU feature flag \details Indicates that the CPU supports the *SSE4.1* instruction set extension
 		static const quint32 FLAG_SSE42 = 0x080U;	///< \brief CPU feature flag \details Indicates that the CPU supports the *SSE4.2* instruction set extension
 		static const quint32 FLAG_AVX   = 0x100U;	///< \brief CPU feature flag \details Indicates that the CPU supports the *AVX* instruction set extension
+		static const quint32 FLAG_AVX2  = 0x200U;	///< \brief CPU feature flag \details Indicates that the CPU supports the *AVX2* instruction set extension
+		static const quint32 FLAG_FMA3  = 0x400U;	///< \brief CPU feature flag \details Indicates that the CPU supports the *FMA3* instruction
+		static const quint32 FLAG_LZCNT = 0x800U;	///< \brief CPU feature flag \details Indicates that the CPU supports the *LZCNT* instruction
 
 		/**
 		* \brief Struct to hold information about the CPU. See `_cpu_info_t` for details!
