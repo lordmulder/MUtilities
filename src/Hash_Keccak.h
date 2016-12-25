@@ -48,6 +48,7 @@
 
 //MUtils
 #include <MUtils/Global.h>
+#include <MUtils/Hash.h>
 
 //Qt
 #include <QString>
@@ -95,25 +96,25 @@ namespace MUtils
 			// End Section from KeccakSponge.h
 		}
 
-		class MUTILS_API Keccak
+		class MUTILS_API Keccak : public Hash
 		{
 		public:
 			enum HashBits {hb224, hb256, hb384, hb512};
 		
 			Keccak();
-			~Keccak();
+			virtual ~Keccak();
 		
-			static bool selfTest(void);
+			bool init(const HashBits hashBits=hb256);
 
-			bool init(HashBits hashBits=hb256);
-			bool addData(const QByteArray &data);
-			bool addData(const char *data, int size);
-			const QByteArray &finalize();
+			static Keccak *create(const HashBits hashBits = hb256, const char *const key = NULL);
+			static bool selfTest(void);
 
 		protected:
 			bool m_initialized;
 			Internal::KeccakImpl::hashState *m_state;
-			QByteArray m_hashResult;
+
+			virtual bool process(const quint8 *const data, const quint32 len);
+			virtual QByteArray finalize(void);
 		};
 	}
 };

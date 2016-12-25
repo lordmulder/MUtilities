@@ -36,6 +36,7 @@
 
 //MUtils
 #include <MUtils/Global.h>
+#include <MUtils/Hash.h>
 
 //Qt
 #include <QByteArray>
@@ -47,20 +48,18 @@ namespace MUtils
 	{
 		class MUTILS_API Blake2_Context;
 
-		class MUTILS_API Blake2
+		class MUTILS_API Blake2 : public Hash
 		{
 		public:
-			Blake2(const char* key = NULL);
-			~Blake2(void);
-
-			void update(const QByteArray &data);
-			void update(QFile &file);
-			QByteArray finalize(const bool bAsHex = true);
+			Blake2(const char *const key = NULL);
+			virtual ~Blake2(void);
 
 		private:
-			QByteArray m_hash;
 			Blake2_Context *const m_context;
 			bool m_finalized;
+
+			virtual bool process(const quint8 *const data, const quint32 len);
+			virtual QByteArray finalize(void);
 		};
 		
 	}

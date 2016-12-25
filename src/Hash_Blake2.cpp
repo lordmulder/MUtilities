@@ -32,8 +32,9 @@
    this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 */
 
+#include "Hash_Blake2.h"
+
 //MUtils
-#include <MUtils/Hash_Blake2.h>
 #include <MUtils/Exception.h>
 
 //Internal
@@ -51,7 +52,7 @@ class MUtils::Hash::Blake2_Context
 
 	Blake2_Context(void)
 	{
-		if(!(state = (MUtils::Hash::Internal::Blake2Impl::blake2b_state*) _aligned_malloc(sizeof(MUtils::Hash::Internal::Blake2Impl::blake2b_state), 64)))
+		if(!(state = (MUtils::Hash::Internal::Blake2Impl::blake2b_state*) _aligned_malloc(sizeof(MUtils::Hash::Internal::Blake2Impl::blake2b_state), HASH_SIZE)))
 		{
 			MUTILS_THROW("Aligend malloc has failed!");
 		}
@@ -68,9 +69,8 @@ private:
 	MUtils::Hash::Internal::Blake2Impl::blake2b_state *state;
 };
 
-MUtils::Hash::Blake2::Blake2(const char* key)
+MUtils::Hash::Blake2::Blake2(const char *const key)
 :
-	m_hash(HASH_SIZE, '\0'),
 	m_context(new Blake2_Context()),
 	m_finalized(false)
 {
@@ -89,55 +89,31 @@ MUtils::Hash::Blake2::~Blake2(void)
 	delete m_context;
 }
 
-void MUtils::Hash::Blake2::update(const QByteArray &data)
+bool MUtils::Hash::Blake2::process(const quint8 *const data, const quint32 len)
 {
 	if(m_finalized)
 	{
 		MUTILS_THROW("BLAKE2 was already finalized!");
 	}
 
-	if(data.size() > 0)
+	if(data && (len > 0))
 	{
-		if(blake2b_update(m_context->state, (const uint8_t*) data.constData(), data.size()) != 0)
+		if(blake2b_update(m_context->state, data, len) != 0)
 		{
 			MUTILS_THROW("BLAKE2 internal error!");
 		}
 	}
+
+	return true;
 }
 
-void MUtils::Hash::Blake2::update(QFile &file)
+QByteArray MUtils::Hash::Blake2::finalize(void)
 {
-	bool okay = false;
-	
-	for(;;)
+	QByteArray result(HASH_SIZE, '\0');
+	if(blake2b_final(m_context->state, (uint8_t*) result.data(), result.size()) != 0)
 	{
-		QByteArray data = file.read(16384);
-		if(data.size() > 0)
-		{
-			okay = true;
-			update(data);
-			continue;
-		}
-		break;
+		MUTILS_THROW("BLAKE2 internal error!");
 	}
-
-	if(!okay)
-	{
-		qWarning("[QBlake2Checksum] Could not ready any data from file!");
-	}
-}
-
-QByteArray MUtils::Hash::Blake2::finalize(const bool bAsHex)
-{
-	if(!m_finalized)
-	{
-		if(blake2b_final(m_context->state, (uint8_t*) m_hash.data(), m_hash.size()) != 0)
-		{
-			MUTILS_THROW("BLAKE2 internal error!");
-		}
-
-		m_finalized = true;
-	}
-
-	return bAsHex ? m_hash.toHex() : m_hash;
+	m_finalized = true;
+	return result;
 }
