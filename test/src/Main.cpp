@@ -50,7 +50,7 @@ static void initialize_mutils_log_file(const int argc, const wchar_t *const *con
 	_snwprintf_s(logFilePath, _MAX_PATH, _TRUNCATE, L"%s.log", basePath);
 	if (_wfopen_s(&g_logFile, logFilePath, L"w"))
 	{
-		fprintf(stderr, "Failed to open log file for writing!");
+		fprintf(stderr, "Failed to open log file for writing!\n");
 		g_logFile = NULL;
 	}
 
