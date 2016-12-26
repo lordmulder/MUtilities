@@ -41,7 +41,6 @@ namespace MUtils
 		class MUTILS_API Hash
 		{
 		public:
-			Hash(const char* key = NULL) {};
 			virtual ~Hash(void) {};
 
 			bool update(const quint8 *const data, const quint32 len) { return process(data, len); }
@@ -51,10 +50,15 @@ namespace MUtils
 			QByteArray digest(const bool bAsHex = true) { return bAsHex ? finalize().toHex() : finalize(); }
 
 		protected:
+			Hash(const char* key = NULL) {/*nothing to do*/};
 			virtual bool process(const quint8 *const data, const quint32 len) = 0;
 			virtual QByteArray finalize(void) = 0;
+
+		private:
+			Hash &operator=(const Hash&) { throw "Disabled"; }
+			Hash(const Hash&)            { throw "Disabled"; }
 		};
 
-		Hash *create(const quint16 &hashId, const char *const key = NULL);
+		MUTILS_API Hash *create(const quint16 &hashId, const char *const key = NULL);
 	}
 }
