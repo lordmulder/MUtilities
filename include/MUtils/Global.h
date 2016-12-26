@@ -356,3 +356,9 @@ namespace MUtils
 /** \brief Converts a boolean expression into a string. A *true* boolean expression is converted to the string `"1"`; a *false* boolean expression is converted to the string `"0"`.
 */
 #define MUTILS_BOOL2STR(X) ((X) ? "1" : "0")
+
+/** \brief Disables copy constructor and assignment operator in the specified class. This macro should be used in the "private" section of the class' declaration.
+*/
+#define MUTILS_NO_COPY(CLASS) \
+	CLASS(const CLASS &) { throw "Copy constructor is disabled!"; } \
+	CLASS &operator=(const CLASS &) { throw "Assignment operator is disabled!"; }
