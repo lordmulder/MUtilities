@@ -122,7 +122,7 @@ namespace MUtils
 		* \param hashId Specifies the desired hash function. This must be a valid hash algorithm identifier, as defined in the `Hash.h` header file.
 		*
 		* \param key Specifies on optional key that is used to "seed" the hash function. If a key is given, it must be a NULL-terminated string of appropriate length. If set to `NULL`, the optional seeding is skipped.
-
+		*
 		* \return Returns a pointer to a new MUtils::Hash::Hash object that implements the desired hash function. The function throws if an invalid algorithm identifier was specified!
 		*/
 		MUTILS_API Hash *create(const quint16 &hashId, const char *const key = NULL);
