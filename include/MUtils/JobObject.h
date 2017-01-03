@@ -27,18 +27,18 @@ class QProcess;
 
 namespace MUtils
 {
-	class MUTILS_API JobObject_Private;
-
 	class MUTILS_API JobObject
 	{
 	public:
 		JobObject(void);
 		~JobObject(void);
 
-		bool addProcessToJob(const QProcess *proc);
-		bool terminateJob(unsigned int exitCode);
+		bool isObjectCreated(void);
+		bool addProcessToJob(const QProcess *const process);
+		bool terminateJob(const quint32 &exitCode);
 
 	private:
-		JobObject_Private *const p;
+		uintptr_t m_jobPtr;
+		MUTILS_NO_COPY(JobObject)
 	};
 }

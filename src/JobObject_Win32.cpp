@@ -30,44 +30,28 @@
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN 1
 #include <Windows.h>
-#include <MMSystem.h>
-#include <ShellAPI.h>
-#include <WinInet.h>
 
-namespace MUtils
-{
-	class JobObject_Private
-	{
-		friend class JobObject;
-
-	protected:
-		JobObject_Private(void)
-		{
-			m_hJobObject = NULL;
-		}
-
-		HANDLE m_hJobObject;
-	};
-}
+//Utilities
+#define PTR2HANDLE(X) reinterpret_cast<HANDLE>((X))
+#define HANDLE2PTR(X) reinterpret_cast<uintptr_t>((X))
 
 MUtils::JobObject::JobObject(void)
 :
-	p(new JobObject_Private())
+	m_jobPtr(NULL)
 {
 	const HANDLE jobObject = CreateJobObject(NULL, NULL);
 	if((jobObject != NULL) && (jobObject != INVALID_HANDLE_VALUE))
 	{
 		JOBOBJECT_EXTENDED_LIMIT_INFORMATION jobExtendedLimitInfo;
 		memset(&jobExtendedLimitInfo, 0, sizeof(JOBOBJECT_EXTENDED_LIMIT_INFORMATION));
-		memset(&jobExtendedLimitInfo.BasicLimitInformation, 0, sizeof(JOBOBJECT_BASIC_LIMIT_INFORMATION));
 		jobExtendedLimitInfo.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE | JOB_OBJECT_LIMIT_DIE_ON_UNHANDLED_EXCEPTION;
 		if(SetInformationJobObject(jobObject, JobObjectExtendedLimitInformation, &jobExtendedLimitInfo, sizeof(JOBOBJECT_EXTENDED_LIMIT_INFORMATION)))
 		{
-			p->m_hJobObject = jobObject;
+			m_jobPtr = HANDLE2PTR(jobObject);
 		}
 		else
 		{
-			qWarning("Failed to set job object information!");
+			qWarning("Failed to set up job object limit information!");
 			CloseHandle(jobObject);
 		}
 	}
@@ -79,24 +63,27 @@ MUtils::JobObject::JobObject(void)
 
 MUtils::JobObject::~JobObject(void)
 {
-	if(p->m_hJobObject)
+	if(m_jobPtr)
 	{
-		CloseHandle(p->m_hJobObject);
-		p->m_hJobObject = NULL;
+		CloseHandle(PTR2HANDLE(m_jobPtr));
+		m_jobPtr = NULL;
 	}
-
-	delete p;
 }
 
-bool MUtils::JobObject::addProcessToJob(const QProcess *proc)
+bool MUtils::JobObject::isObjectCreated(void)
 {
-	if(!p->m_hJobObject)
+	return (bool) m_jobPtr;
+}
+
+bool MUtils::JobObject::addProcessToJob(const QProcess *const process)
+{
+	if(!m_jobPtr)
 	{
 		qWarning("Cannot assign process to job: No job bject available!");
 		return false;
 	}
 
-	if(Q_PID pid = proc->pid())
+	if(const Q_PID pid = process->pid())
 	{
 		DWORD exitCode;
 		if(!GetExitCodeProcess(pid->hProcess, &exitCode))
@@ -104,19 +91,16 @@ bool MUtils::JobObject::addProcessToJob(const QProcess *proc)
 			qWarning("Cannot assign process to job: Failed to query process status!");
 			return false;
 		}
-
 		if(exitCode != STILL_ACTIVE)
 		{
 			qWarning("Cannot assign process to job: Process is not running anymore!");
 			return false;
 		}
-
-		if(!AssignProcessToJobObject(p->m_hJobObject, pid->hProcess))
+		if(!AssignProcessToJobObject(PTR2HANDLE(m_jobPtr), pid->hProcess))
 		{
 			qWarning("Failed to assign process to job object!");
 			return false;
 		}
-
 		return true;
 	}
 	else
@@ -126,11 +110,11 @@ bool MUtils::JobObject::addProcessToJob(const QProcess *proc)
 	}
 }
 
-bool MUtils::JobObject::terminateJob(unsigned int exitCode)
+bool MUtils::JobObject::terminateJob(const quint32 &exitCode)
 {
-	if(p->m_hJobObject)
+	if(m_jobPtr)
 	{
-		if(TerminateJobObject(p->m_hJobObject, exitCode))
+		if(TerminateJobObject(PTR2HANDLE(m_jobPtr), exitCode))
 		{
 			return true;
 		}
