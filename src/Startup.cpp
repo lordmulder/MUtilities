@@ -37,6 +37,9 @@
 #include <QFont>
 #include <QMessageBox>
 #include <QtPlugin>
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+#include <QAbstractNativeEventFilter>
+#endif
 
 //CRT
 #include <string.h>
@@ -96,25 +99,58 @@ namespace MUtils
 // MESSAGE HANDLER
 ///////////////////////////////////////////////////////////////////////////////
 
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 static void qt_message_handler(QtMsgType type, const char *const msg)
 {
-	if((!msg) || (!(msg[0])))
+	if (msg && msg[0])
 	{
-		return;
-	}
-
-	MUtils::Terminal::write(type, msg);
-
-	if((type == QtCriticalMsg) || (type == QtFatalMsg))
-	{
-		MUtils::OS::fatal_exit(MUTILS_WCHR(QString::fromUtf8(msg)));
+		MUtils::Terminal::write(type, msg);
+		if ((type == QtCriticalMsg) || (type == QtFatalMsg))
+		{
+			MUtils::OS::fatal_exit(MUTILS_WCHR(QString::fromUtf8(msg)));
+		}
 	}
 }
+#else
+#define qInstallMsgHandler(X) qInstallMessageHandler((X))
+static void qt_message_handler(QtMsgType type, const QMessageLogContext&, const QString &msg)
+{
+	if (!msg.isEmpty())
+	{
+		MUtils::Terminal::write(type, msg.toUtf8().constData());
+		if ((type == QtCriticalMsg) || (type == QtFatalMsg))
+		{
+			MUtils::OS::fatal_exit(MUTILS_WCHR(msg));
+		}
+	}
+}
+#endif
 
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 static bool qt_event_filter(void *message, long *result)
 {
 	return MUtils::OS::handle_os_message(message, result);
 }
+#else
+namespace MUtils
+{
+	namespace Startup
+	{
+		namespace Internal
+		{
+			class NativeEventFilter : public QAbstractNativeEventFilter
+			{
+			public:
+				bool nativeEventFilter(const QByteArray&, void *message, long *result) Q_DECL_OVERRIDE
+				{
+					return MUtils::OS::handle_os_message(message, result);
+				};
+			};
+		}
+	}
+}
+static QScopedPointer<MUtils::Startup::Internal::NativeEventFilter> qt_event_filter;
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 // STARTUP FUNCTION
@@ -229,7 +265,7 @@ QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &
 	//Check Qt version
 #ifdef QT_BUILD_KEY
 	qDebug("Using Qt v%s [%s], %s, %s", qVersion(), QLibraryInfo::buildDate().toString(Qt::ISODate).toLatin1().constData(), (qSharedBuild() ? "DLL" : "Static"), QLibraryInfo::buildKey().toLatin1().constData());
-	qDebug("Compiled with Qt v%s [%s], %s\n", QT_VERSION_STR, QT_PACKAGEDATE_STR, QT_BUILD_KEY);
+	qDebug("Compiled with Qt v%s, %s\n", QT_VERSION_STR, QT_BUILD_KEY);
 	if(_stricmp(qVersion(), QT_VERSION_STR))
 	{
 		qFatal("%s", QApplication::tr("Executable '%1' requires Qt v%2, but found Qt v%3.").arg(executableName, QString::fromLatin1(QT_VERSION_STR), QString::fromLatin1(qVersion())).toLatin1().constData());
@@ -242,7 +278,7 @@ QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &
 	}
 #else
 	qDebug("Using Qt v%s [%s], %s", qVersion(), QLibraryInfo::buildDate().toString(Qt::ISODate).toLatin1().constData(), (qSharedBuild() ? "DLL" : "Static"));
-	qDebug("Compiled with Qt v%s [%s]\n", QT_VERSION_STR, QT_PACKAGEDATE_STR);
+	qDebug("Compiled with Qt v%s\n", QT_VERSION_STR);
 #endif
 
 	//Check the Windows version
@@ -298,7 +334,12 @@ QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &
 	application->setApplicationName(appName);
 	application->setOrganizationName("LoRd_MuldeR");
 	application->setOrganizationDomain("mulder.at.gg");
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
 	application->setEventFilter(qt_event_filter);
+#else
+	qt_event_filter.reset(new Internal::NativeEventFilter);
+	application->installNativeEventFilter(qt_event_filter.data());
+#endif
 
 	//Check for supported image formats
 	QList<QByteArray> supportedFormats = QImageReader::supportedImageFormats();

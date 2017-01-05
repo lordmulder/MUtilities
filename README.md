@@ -70,6 +70,11 @@ This library is free software. It is released under the terms of the [*GNU Lesse
 
 # Acknowledgement
 
+The following people have contributed in the development of the MUtilities library:
+
+* **John Buonagurio &lt;<jbuonagurio@exponent.com>&gt;**  
+  Support for Qt5
+
 The following third-party code is used in the MUtilities library:
 
 * **Keccak/SHA-3 Reference Implementation**  
@@ -77,7 +82,7 @@ The following third-party code is used in the MUtilities library:
   No Copyright / Dedicated to the Public Domain
 
 * **Natural Order String Comparison**  
-  Copyright (C) 2000, 2004 by Martin Pool <mbp@sourcefrog.net>  
+  Copyright (C) 2000, 2004 by Martin Pool &lt;<mbp@sourcefrog.net>&gt;  
   Released under the zlib License
 
 * **Adler-32 Checksum Algorithm (from zlib)**  

@@ -419,7 +419,7 @@ void MUtils::Terminal::set_icon(const QIcon &icon)
 
 	if(g_terminal_attached && (!(icon.isNull() || MUtils::OS::running_on_wine())))
 	{
-		if(const HICON hIcon = (HICON) MUtils::Win32Utils::qicon_to_hicon(icon, 16, 16))
+		if(const HICON hIcon = (HICON) MUtils::Win32Utils::qicon_to_hicon(&icon, 16, 16))
 		{
 			typedef BOOL(__stdcall *SetConsoleIconFun)(HICON);
 			bool success = false;

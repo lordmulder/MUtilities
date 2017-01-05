@@ -25,6 +25,7 @@
 #ifndef _INC_WINDOWS
 #define WIN32_LEAN_AND_MEAN 1
 #include <Windows.h>
+#include <ObjIdl.h>  // required by QWinMime in QtWinExtras
 #endif //_INC_WINDOWS
 
 //Qt
@@ -33,19 +34,29 @@
 #include <QReadWriteLock>
 #include <QLibrary>
 #include <QHash>
+#if QT_VERSION > QT_VERSION_CHECK(5,0,0)
+#include <QtWinExtras>
+#endif
+
+//Qt5 support
+#if QT_VERSION > QT_VERSION_CHECK(5,0,0)
+#define PIXMAP2HICON(X) QtWin::toHICON((X))
+#else
+#define PIXMAP2HICON(X) (X).toWinHICON()
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 // QICON TO HICON
 ///////////////////////////////////////////////////////////////////////////////
 
-uintptr_t MUtils::Win32Utils::qicon_to_hicon(const QIcon &icon, const int w, const int h)
+uintptr_t MUtils::Win32Utils::qicon_to_hicon(const QIcon *const icon, const int w, const int h)
 {
-	if(!icon.isNull())
+	if(!icon->isNull())
 	{
-		QPixmap pixmap = icon.pixmap(w, h);
+		QPixmap pixmap = icon->pixmap(w, h);
 		if(!pixmap.isNull())
 		{
-			return (uintptr_t) pixmap.toWinHICON();
+			return (uintptr_t) PIXMAP2HICON(pixmap);
 		}
 	}
 	return NULL;

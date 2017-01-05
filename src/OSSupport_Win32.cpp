@@ -1236,7 +1236,7 @@ bool MUtils::OS::free_diskspace(const QString &path, quint64 &freeSpace)
 
 bool MUtils::OS::shell_open(const QWidget *parent, const QString &url, const QString &parameters, const QString &directory, const bool explore)
 {
-	return ((int) ShellExecuteW((parent ? parent->winId() : NULL), (explore ? L"explore" : L"open"), MUTILS_WCHR(url), ((!parameters.isEmpty()) ? MUTILS_WCHR(parameters) : NULL), ((!directory.isEmpty()) ? MUTILS_WCHR(directory) : NULL), SW_SHOW)) > 32;
+	return ((int) ShellExecuteW((parent ? reinterpret_cast<HWND>(parent->winId()) : NULL), (explore ? L"explore" : L"open"), MUTILS_WCHR(url), ((!parameters.isEmpty()) ? MUTILS_WCHR(parameters) : NULL), ((!directory.isEmpty()) ? MUTILS_WCHR(directory) : NULL), SW_SHOW)) > 32;
 }
 
 bool MUtils::OS::shell_open(const QWidget *parent, const QString &url, const bool explore)

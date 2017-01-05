@@ -29,7 +29,7 @@ namespace MUtils
 {
 	namespace Win32Utils
 	{
-		uintptr_t qicon_to_hicon(const QIcon &icon, const int w, const int h);
+		uintptr_t qicon_to_hicon(const QIcon *const icon, const int w, const int h);
 		const uintptr_t &resolve_helper(const QString &libraryName, const QString &functionName);
 
 		template<class T>
