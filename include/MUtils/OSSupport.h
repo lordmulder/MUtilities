@@ -28,6 +28,7 @@
 #include <QString>
 #include <QMap>
 #include <QDate>
+#include <QWidget>
 
 //Forward declaration
 class QFile;
