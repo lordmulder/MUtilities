@@ -88,7 +88,7 @@ bool MUtils::GUI::sysmenu_append(const QWidget *win, const unsigned int identifi
 {
 	bool ok = false;
 	
-	if(HMENU hMenu = GetSystemMenu(win->winId(), FALSE))
+	if(HMENU hMenu = GetSystemMenu(reinterpret_cast<HWND>(win->winId()), FALSE))
 	{
 		ok = (AppendMenuW(hMenu, MF_SEPARATOR, 0, 0) == TRUE);
 		ok = (AppendMenuW(hMenu, MF_STRING, identifier, MUTILS_WCHR(text)) == TRUE);
@@ -101,7 +101,7 @@ bool MUtils::GUI::sysmenu_update(const QWidget *win, const unsigned int identifi
 {
 	bool ok = false;
 	
-	if(HMENU hMenu = ::GetSystemMenu(win->winId(), FALSE))
+	if(HMENU hMenu = ::GetSystemMenu(reinterpret_cast<HWND>(win->winId()), FALSE))
 	{
 		ok = (ModifyMenu(hMenu, identifier, MF_STRING | MF_BYCOMMAND, identifier, MUTILS_WCHR(text)) == TRUE);
 	}
@@ -121,7 +121,7 @@ bool MUtils::GUI::enable_close_button(const QWidget *win, const bool &bEnable)
 {
 	bool ok = false;
 
-	if(HMENU hMenu = GetSystemMenu(win->winId(), FALSE))
+	if(HMENU hMenu = GetSystemMenu(reinterpret_cast<HWND>(win->winId()), FALSE))
 	{
 		ok = (EnableMenuItem(hMenu, SC_CLOSE, MF_BYCOMMAND | (bEnable ? MF_ENABLED : MF_GRAYED)) == TRUE);
 	}
@@ -156,8 +156,8 @@ bool MUtils::GUI::bring_to_front(const QWidget *window)
 	{
 		for(int i = 0; (i < 5) && (!ret); i++)
 		{
-			ret = (SetForegroundWindow(window->winId()) != FALSE);
-			SwitchToThisWindow(window->winId(), TRUE);
+			ret = (SetForegroundWindow(reinterpret_cast<HWND>(window->winId())) != FALSE);
+			SwitchToThisWindow(reinterpret_cast<HWND>(window->winId()), TRUE);
 		}
 		LockSetForegroundWindow(LSFW_LOCK);
 	}
@@ -204,7 +204,7 @@ bool MUtils::GUI::sheet_of_glass(QWidget *const window)
 
 	//Enable the "sheet of glass" effect on this window
 	MARGINS margins = {-1, -1, -1, -1};
-	if(HRESULT hr = dwmExtendFrameIntoClientAreaFun(window->winId(), &margins))
+	if(HRESULT hr = dwmExtendFrameIntoClientAreaFun(reinterpret_cast<HWND>(window->winId()), &margins))
 	{
 		qWarning("DwmExtendFrameIntoClientArea function has failed! (error %d)", hr);
 		return false;
@@ -215,7 +215,7 @@ bool MUtils::GUI::sheet_of_glass(QWidget *const window)
 	memset(&bb, 0, sizeof(DWM_BLURBEHIND));
 	bb.fEnable = TRUE;
 	bb.dwFlags = DWM_BB_ENABLE;
-	if(HRESULT hr = dwmEnableBlurBehindWindowFun(window->winId(), &bb))
+	if(HRESULT hr = dwmEnableBlurBehindWindowFun(reinterpret_cast<HWND>(window->winId()), &bb))
 	{
 		qWarning("DwmEnableBlurBehindWindow function has failed! (error %d)", hr);
 		return false;
@@ -258,7 +258,7 @@ bool MUtils::GUI::sheet_of_glass_update(QWidget *const window)
 	memset(&bb, 0, sizeof(DWM_BLURBEHIND));
 	bb.fEnable = TRUE;
 	bb.dwFlags = DWM_BB_ENABLE;
-	if(HRESULT hr = dwmEnableBlurBehindWindowFun(window->winId(), &bb))
+	if(HRESULT hr = dwmEnableBlurBehindWindowFun(reinterpret_cast<HWND>(window->winId()), &bb))
 	{
 		qWarning("DwmEnableBlurBehindWindow function has failed! (error %d)", hr);
 		return false;

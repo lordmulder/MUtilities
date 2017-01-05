@@ -28,6 +28,15 @@
 //Qt
 #include <QWidget>
 #include <QIcon>
+#if QT_VERSION >= 0x050000
+#include <QtWinExtras>
+#endif
+
+#if QT_VERSION >= 0x050000
+#define pixmapToHICON(p) QtWin::toHICON(p)
+#else
+#define pixmapToHICON(p) p.toWinHICON()
+#endif
 
 //Windows includes
 #define NOMINMAX
@@ -153,15 +162,15 @@ bool MUtils::Taskbar7::setOverlayIcon(const QIcon *const icon, const QString &in
 	HRESULT result = HRESULT(-1);
 	if(icon)
 	{
-		if(const HICON hIcon = icon->pixmap(16,16).toWinHICON())
+		if(const HICON hIcon = pixmapToHICON(icon->pixmap(16,16)))
 		{
-			result = p->taskbarList->SetOverlayIcon(m_window->winId(), hIcon, MUTILS_WCHR(info));
+			result = p->taskbarList->SetOverlayIcon(reinterpret_cast<HWND>(m_window->winId()), hIcon, MUTILS_WCHR(info));
 			DestroyIcon(hIcon);
 		}
 	}
 	else
 	{
-		result = p->taskbarList->SetOverlayIcon(m_window->winId(), NULL, MUTILS_WCHR(info));
+		result = p->taskbarList->SetOverlayIcon(reinterpret_cast<HWND>(m_window->winId()), NULL, MUTILS_WCHR(info));
 	}
 	return SUCCEEDED(result);
 }

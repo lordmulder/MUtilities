@@ -92,7 +92,7 @@ namespace MUtils
 					QObject(parent),
 					m_hIcon(hIcon)
 				{
-					SendMessage(parent->winId(), WM_SETICON, (bIsBigIcon ? ICON_BIG : ICON_SMALL), LPARAM(hIcon));
+					SendMessage(reinterpret_cast<HWND>(parent->winId()), WM_SETICON, (bIsBigIcon ? ICON_BIG : ICON_SMALL), LPARAM(hIcon));
 				}
 
 				virtual ~WindowIconHelper(void)
