@@ -102,34 +102,34 @@ namespace MUtils
 #if QT_VERSION >= 0x050000
 static void qt_message_handler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
-    Q_UNUSED(context);
+	Q_UNUSED(context);
 
-    if (msg.isEmpty())
-    {
-        return;
-    }
+	if (msg.isEmpty())
+	{
+		return;
+	}
 
-    MUtils::Terminal::write(type, msg.toLocal8Bit().constData());
+	MUtils::Terminal::write(type, msg.toLocal8Bit().constData());
 
-    if ((type == QtCriticalMsg) || (type == QtFatalMsg))
-    {
-        MUtils::OS::fatal_exit(MUTILS_WCHR(msg));
-    }
+	if ((type == QtCriticalMsg) || (type == QtFatalMsg))
+	{
+		MUtils::OS::fatal_exit(MUTILS_WCHR(msg));
+	}
 }
 #else
 static void qt_message_handler(QtMsgType type, const char *const msg)
 {
-    if ((!msg) || (!(msg[0])))
-    {
-        return;
-    }
+	if ((!msg) || (!(msg[0])))
+	{
+		return;
+	}
 
-    MUtils::Terminal::write(type, msg);
+	MUtils::Terminal::write(type, msg);
 
-    if ((type == QtCriticalMsg) || (type == QtFatalMsg))
-    {
-        MUtils::OS::fatal_exit(MUTILS_WCHR(QString::fromUtf8(msg)));
-    }
+	if ((type == QtCriticalMsg) || (type == QtFatalMsg))
+	{
+		MUtils::OS::fatal_exit(MUTILS_WCHR(QString::fromUtf8(msg)));
+	}
 }
 #endif
 
@@ -137,26 +137,26 @@ static void qt_message_handler(QtMsgType type, const char *const msg)
 #if QT_VERSION >= 0x050000
 namespace MUtils
 {
-    namespace Startup
-    {
-        namespace Internal
-        {
-            class NativeEventFilter : public QAbstractNativeEventFilter
-            {
-            public:
-                bool nativeEventFilter(const QByteArray &eventType, void *message, long *result) Q_DECL_OVERRIDE
-                {
-                    Q_UNUSED(eventType);
-                    return MUtils::OS::handle_os_message(message, result);
-                };
-            };
-        }
-    }
+	namespace Startup
+	{
+		namespace Internal
+		{
+			class NativeEventFilter : public QAbstractNativeEventFilter
+			{
+			public:
+				bool nativeEventFilter(const QByteArray &eventType, void *message, long *result) Q_DECL_OVERRIDE
+				{
+					Q_UNUSED(eventType);
+					return MUtils::OS::handle_os_message(message, result);
+				};
+			};
+		}
+	}
 }
 #else
 static bool qt_event_filter(void *message, long *result)
 {
-    return MUtils::OS::handle_os_message(message, result);
+	return MUtils::OS::handle_os_message(message, result);
 }
 #endif
 
@@ -169,7 +169,7 @@ static int startup_main(int &argc, char **argv, MUtils::Startup::main_function_t
 #if QT_VERSION >= 0x050000
 	qInstallMessageHandler(qt_message_handler);
 #else
-    qInstallMsgHandler(qt_message_handler);
+	qInstallMsgHandler(qt_message_handler);
 #endif
 	MUtils::Terminal::setup(argc, argv, appName, MUTILS_DEBUG || debugConsole);
 	return entry_point(argc, argv);
@@ -347,8 +347,8 @@ QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &
 	application->setOrganizationName("LoRd_MuldeR");
 	application->setOrganizationDomain("mulder.at.gg");
 #if QT_VERSION >= 0x050000
-    MUtils::Startup::Internal::NativeEventFilter filter;
-    application->installNativeEventFilter(&filter);
+	MUtils::Startup::Internal::NativeEventFilter filter;
+	application->installNativeEventFilter(&filter);
 #else
 	application->setEventFilter(qt_event_filter);
 #endif

@@ -55,7 +55,7 @@ uintptr_t MUtils::Win32Utils::qicon_to_hicon(const QIcon &icon, const int w, con
 		QPixmap pixmap = icon.pixmap(w, h);
 		if(!pixmap.isNull())
 		{
-            return (uintptr_t) pixmapToHICON(pixmap);
+			return (uintptr_t) pixmapToHICON(pixmap);
 		}
 	}
 	return NULL;
