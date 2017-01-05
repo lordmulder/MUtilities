@@ -25,6 +25,7 @@
 #ifndef _INC_WINDOWS
 #define WIN32_LEAN_AND_MEAN 1
 #include <Windows.h>
+#include <ObjIdl.h>  // required by QWinMime in QtWinExtras
 #endif //_INC_WINDOWS
 
 //Qt
