@@ -40,7 +40,7 @@ namespace MUtils
 		MUTILS_API int startup(int &argc, char **argv, main_function_t *const entry_point, const char* const appName, const bool &debugConsole);
 
 		//Initialize Qt
-		MUTILS_API QApplication *create_qt(int &argc, char **argv, const QString &appName);
+		MUTILS_API QApplication *create_qt(int &argc, char **argv, const QString &appName, const QString &appAuthor = QLatin1String("LoRd_MuldeR"), const QString &appDomain = QLatin1String("muldersoft.com"));
 	}
 }
 

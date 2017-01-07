@@ -39,10 +39,20 @@
 #include <QtPlugin>
 #if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
 #include <QAbstractNativeEventFilter>
+#else
+#define QAbstractNativeEventFilter QObject
+#define Q_DECL_OVERRIDE
 #endif
 
 //CRT
 #include <string.h>
+
+//MSVC
+#if defined(_MSC_VER)
+#define FORCE_INLINE __forceinline
+#else
+#define FORCE_INLINE inline
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 // Qt Static Initialization
@@ -126,12 +136,10 @@ static void qt_message_handler(QtMsgType type, const QMessageLogContext&, const 
 }
 #endif
 
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-static bool qt_event_filter(void *message, long *result)
-{
-	return MUtils::OS::handle_os_message(message, result);
-}
-#else
+///////////////////////////////////////////////////////////////////////////////
+// EVENT FILTER
+///////////////////////////////////////////////////////////////////////////////
+
 namespace MUtils
 {
 	namespace Startup
@@ -143,27 +151,43 @@ namespace MUtils
 			public:
 				bool nativeEventFilter(const QByteArray&, void *message, long *result) Q_DECL_OVERRIDE
 				{
-					return MUtils::OS::handle_os_message(message, result);
+					return filterEvent(message, result);
 				};
+
+				static FORCE_INLINE bool filterEvent(void *message, long *result)
+				{
+					return MUtils::OS::handle_os_message(message, result);
+				}
+
+				static NativeEventFilter *instance(void)
+				{
+					while (m_instance.isNull())
+					{
+						m_instance.reset(new NativeEventFilter());
+					}
+					return m_instance.data();
+				}
+
+			private:
+				NativeEventFilter(void) {}
+				static QScopedPointer<MUtils::Startup::Internal::NativeEventFilter> m_instance;
 			};
 		}
 	}
 }
-static QScopedPointer<MUtils::Startup::Internal::NativeEventFilter> qt_event_filter;
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 // STARTUP FUNCTION
 ///////////////////////////////////////////////////////////////////////////////
 
-static int startup_main(int &argc, char **argv, MUtils::Startup::main_function_t *const entry_point, const char* const appName, const bool &debugConsole)
+static FORCE_INLINE int startup_main(int &argc, char **argv, MUtils::Startup::main_function_t *const entry_point, const char* const appName, const bool &debugConsole)
 {
 	qInstallMsgHandler(qt_message_handler);
 	MUtils::Terminal::setup(argc, argv, appName, MUTILS_DEBUG || debugConsole);
 	return entry_point(argc, argv);
 }
 
-static int startup_helper(int &argc, char **argv, MUtils::Startup::main_function_t *const entry_point, const char* const appName, const bool &debugConsole)
+static FORCE_INLINE int startup_helper(int &argc, char **argv, MUtils::Startup::main_function_t *const entry_point, const char* const appName, const bool &debugConsole)
 {
 	int iResult = -1;
 	try
@@ -220,7 +244,7 @@ int MUtils::Startup::startup(int &argc, char **argv, main_function_t *const entr
 static QMutex g_init_lock;
 static const char *const g_imageformats[] = {"bmp", "png", "jpg", "gif", "ico", "xpm", "svg", NULL};
 
-static QString getExecutableName(int &argc, char **argv)
+static FORCE_INLINE QString getExecutableName(int &argc, char **argv)
 {
 	if(argc >= 1)
 	{
@@ -241,22 +265,23 @@ static QString getExecutableName(int &argc, char **argv)
 	return QLatin1String("Program.exe");
 }
 
-static void qt_registry_cleanup(void)
+static FORCE_INLINE void qt_registry_cleanup(void)
 {
 	static const wchar_t *const QT_JUNK_KEY = L"Software\\Trolltech\\OrganizationDefaults";
 	MUtils::Registry::reg_key_delete(MUtils::Registry::root_user, MUTILS_QSTR(QT_JUNK_KEY), true, true);
 }
 
-QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &appName)
+QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &appName, const QString &appAuthor, const QString &appDomain)
 {
 	QMutexLocker lock(&g_init_lock);
 	const OS::ArgumentMap &arguments = MUtils::OS::arguments();
 
 	//Don't initialized again, if done already
-	if(QApplication::instance() != NULL)
+	QScopedPointer<QApplication> application(dynamic_cast<QApplication*>(QApplication::instance()));
+	if(!application.isNull())
 	{
 		qWarning("Qt is already initialized!");
-		return NULL;
+		return application.take();
 	}
 
 	//Extract executable name from argv[] array
@@ -321,7 +346,7 @@ QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &
 	QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
 
 	//Create Qt application instance
-	QApplication *application = new QApplication(argc, argv);
+	application.reset(new QApplication(argc, argv));
 
 	//Register the Qt clean-up function
 	atexit(qt_registry_cleanup);
@@ -332,13 +357,12 @@ QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &
 
 	//Set application properties
 	application->setApplicationName(appName);
-	application->setOrganizationName("LoRd_MuldeR");
-	application->setOrganizationDomain("mulder.at.gg");
+	application->setOrganizationDomain(appDomain);
+	application->setOrganizationName(appAuthor);
 #if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-	application->setEventFilter(qt_event_filter);
+	application->setEventFilter(&Internal::NativeEventFilter::filterEvent);
 #else
-	qt_event_filter.reset(new Internal::NativeEventFilter);
-	application->installNativeEventFilter(qt_event_filter.data());
+	application->installNativeEventFilter(Internal::NativeEventFilter::instance());
 #endif
 
 	//Check for supported image formats
@@ -348,7 +372,6 @@ QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &
 		if(!supportedFormats.contains(g_imageformats[i]))
 		{
 			qFatal("Qt initialization error: QImageIOHandler for '%s' missing!", g_imageformats[i]);
-			MUTILS_DELETE(application);
 			return NULL;
 		}
 	}
@@ -378,13 +401,12 @@ QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &
 		messageBox.addButton("Ignore", QMessageBox::NoRole);
 		if(messageBox.exec() == 0)
 		{
-			MUTILS_DELETE(application);
 			return NULL;
 		}
 	}
 
-	//Qt created successfully
-	return application;
+	//QApplication created successfully
+	return application.take();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
