@@ -12,6 +12,7 @@
  * - **Global.h** &ndash; miscellaneous useful functions
  * - **CPUFeatures.h** &ndash; functions for detection information about the CPU
  * - **Hash.h** &ndash; functions for cryptographic hash computation
+ * - **JobObject.h** &ndash; functions for creating and managing job objects
  * 
  * 
  * # Example

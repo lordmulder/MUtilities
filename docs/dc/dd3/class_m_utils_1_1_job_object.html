@@ -70,19 +70,156 @@ $(function() {
 <div class="title">MUtils::JobObject Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p>This class represents a job object.  
+ <a href="../../dc/dd3/class_m_utils_1_1_job_object.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="../../d4/d85/_job_object_8h_source.html">JobObject.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a1d86b1a284da53bbcf92713d494c2304"><td class="memItemLeft" align="right" valign="top"><a id="a1d86b1a284da53bbcf92713d494c2304"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>isObjectCreated</b> (void)</td></tr>
+<tr class="memitem:a4ec8b0013bca35149def434b738d80fb"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/dd3/class_m_utils_1_1_job_object.html#a4ec8b0013bca35149def434b738d80fb">JobObject</a> (void)</td></tr>
+<tr class="memdesc:a4ec8b0013bca35149def434b738d80fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a new <a class="el" href="../../dc/dd3/class_m_utils_1_1_job_object.html" title="This class represents a job object. ">JobObject</a> instance.  <a href="#a4ec8b0013bca35149def434b738d80fb">More...</a><br /></td></tr>
+<tr class="separator:a4ec8b0013bca35149def434b738d80fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0e2d6461729d16b615548e7b1594c893"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/dd3/class_m_utils_1_1_job_object.html#a0e2d6461729d16b615548e7b1594c893">~JobObject</a> (void)</td></tr>
+<tr class="memdesc:a0e2d6461729d16b615548e7b1594c893"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destroys the <a class="el" href="../../dc/dd3/class_m_utils_1_1_job_object.html" title="This class represents a job object. ">JobObject</a> instance.  <a href="#a0e2d6461729d16b615548e7b1594c893">More...</a><br /></td></tr>
+<tr class="separator:a0e2d6461729d16b615548e7b1594c893"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1d86b1a284da53bbcf92713d494c2304"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/dd3/class_m_utils_1_1_job_object.html#a1d86b1a284da53bbcf92713d494c2304">isObjectCreated</a> (void)</td></tr>
+<tr class="memdesc:a1d86b1a284da53bbcf92713d494c2304"><td class="mdescLeft">&#160;</td><td class="mdescRight">Test whether job object was created successfully.  <a href="#a1d86b1a284da53bbcf92713d494c2304">More...</a><br /></td></tr>
 <tr class="separator:a1d86b1a284da53bbcf92713d494c2304"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1ea821a376842494b0d0ef0b17bfaecc"><td class="memItemLeft" align="right" valign="top"><a id="a1ea821a376842494b0d0ef0b17bfaecc"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>addProcessToJob</b> (const QProcess *const process)</td></tr>
+<tr class="memitem:a1ea821a376842494b0d0ef0b17bfaecc"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/dd3/class_m_utils_1_1_job_object.html#a1ea821a376842494b0d0ef0b17bfaecc">addProcessToJob</a> (const QProcess *const process)</td></tr>
+<tr class="memdesc:a1ea821a376842494b0d0ef0b17bfaecc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a process to the job object.  <a href="#a1ea821a376842494b0d0ef0b17bfaecc">More...</a><br /></td></tr>
 <tr class="separator:a1ea821a376842494b0d0ef0b17bfaecc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abe785eacf0468533ca90c6f77d734cda"><td class="memItemLeft" align="right" valign="top"><a id="abe785eacf0468533ca90c6f77d734cda"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>terminateJob</b> (const quint32 &amp;exitCode)</td></tr>
+<tr class="memitem:abe785eacf0468533ca90c6f77d734cda"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/dd3/class_m_utils_1_1_job_object.html#abe785eacf0468533ca90c6f77d734cda">terminateJob</a> (const quint32 &amp;exitCode)</td></tr>
+<tr class="memdesc:abe785eacf0468533ca90c6f77d734cda"><td class="mdescLeft">&#160;</td><td class="mdescRight">Terminate all sub-processes of the job object.  <a href="#abe785eacf0468533ca90c6f77d734cda">More...</a><br /></td></tr>
 <tr class="separator:abe785eacf0468533ca90c6f77d734cda"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>This class represents a job object. </p>
+<p>Call <a class="el" href="../../dc/dd3/class_m_utils_1_1_job_object.html#a1ea821a376842494b0d0ef0b17bfaecc" title="Add a process to the job object. ">addProcessToJob()</a> to add another sub-process to this job object. Call <a class="el" href="../../dc/dd3/class_m_utils_1_1_job_object.html#abe785eacf0468533ca90c6f77d734cda" title="Terminate all sub-processes of the job object. ">terminateJob()</a> to terminate all sub-processes that belong to this job object. Note that all sub-processes that belong to this job object will also be terminated when <em>this</em> process exits, gracefully or due to a crash.</p>
+<p>Also, when the <a class="el" href="../../dc/dd3/class_m_utils_1_1_job_object.html" title="This class represents a job object. ">JobObject</a> instance is destroyed, all sub-process that belong to its corresponding job object and that are still running will be terminated! </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a id="a4ec8b0013bca35149def434b738d80fb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4ec8b0013bca35149def434b738d80fb">&sect;&nbsp;</a></span>JobObject()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">MUtils::JobObject::JobObject </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Create a new <a class="el" href="../../dc/dd3/class_m_utils_1_1_job_object.html" title="This class represents a job object. ">JobObject</a> instance. </p>
+<p>Creating a new <a class="el" href="../../dc/dd3/class_m_utils_1_1_job_object.html" title="This class represents a job object. ">JobObject</a> instance automatically creates a new job object on the system-level. Check <a class="el" href="../../dc/dd3/class_m_utils_1_1_job_object.html#a1d86b1a284da53bbcf92713d494c2304" title="Test whether job object was created successfully. ">isObjectCreated()</a> to test whether the job object was successfully created or not. </p>
+
+</div>
+</div>
+<a id="a0e2d6461729d16b615548e7b1594c893"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0e2d6461729d16b615548e7b1594c893">&sect;&nbsp;</a></span>~JobObject()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">MUtils::JobObject::~JobObject </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Destroys the <a class="el" href="../../dc/dd3/class_m_utils_1_1_job_object.html" title="This class represents a job object. ">JobObject</a> instance. </p>
+<p>If the job object still has any running sub-processes left when the corresponding <a class="el" href="../../dc/dd3/class_m_utils_1_1_job_object.html" title="This class represents a job object. ">JobObject</a> instance is destroyed, these sub-process are terminated! </p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a1ea821a376842494b0d0ef0b17bfaecc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1ea821a376842494b0d0ef0b17bfaecc">&sect;&nbsp;</a></span>addProcessToJob()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool MUtils::JobObject::addProcessToJob </td>
+          <td>(</td>
+          <td class="paramtype">const QProcess *const&#160;</td>
+          <td class="paramname"><em>process</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Add a process to the job object. </p>
+<p>This function adds a another sub-process to the job object that is represented by this <a class="el" href="../../dc/dd3/class_m_utils_1_1_job_object.html" title="This class represents a job object. ">JobObject</a> instance. Job object limitations apply to the sub-process a</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">process</td><td>A read-only pointer to the <a href="http://doc.qt.io/qt-4.8/qprocess.html">QProcess</a> object that represents the sub-process to be added to the job object. The sub-process must be in the "running" state; otherwise the function will fail.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The function returns <code>true</code>, if and only if the process was successfully added to the job object; otherwise it returns <code>false</code>. </dd></dl>
+
+</div>
+</div>
+<a id="a1d86b1a284da53bbcf92713d494c2304"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1d86b1a284da53bbcf92713d494c2304">&sect;&nbsp;</a></span>isObjectCreated()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool MUtils::JobObject::isObjectCreated </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Test whether job object was created successfully. </p>
+<p>The job object will be created automatically when a new <a class="el" href="../../dc/dd3/class_m_utils_1_1_job_object.html" title="This class represents a job object. ">JobObject</a> instance is created. However, the constructor has <b>no</b> to tell whether the job object was created successfully on the system-level. Call this function to test whether the job object has been created.</p>
+<dl class="section return"><dt>Returns</dt><dd>The function returns <code>true</code>, if and only if a job object was successfully created; otherwise it returns <code>false</code>. </dd></dl>
+
+</div>
+</div>
+<a id="abe785eacf0468533ca90c6f77d734cda"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abe785eacf0468533ca90c6f77d734cda">&sect;&nbsp;</a></span>terminateJob()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool MUtils::JobObject::terminateJob </td>
+          <td>(</td>
+          <td class="paramtype">const quint32 &amp;&#160;</td>
+          <td class="paramname"><em>exitCode</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Terminate all sub-processes of the job object. </p>
+<p>This function immediately terminates <em>all</em> running sub-processes that belong to the job object represented by this <a class="el" href="../../dc/dd3/class_m_utils_1_1_job_object.html" title="This class represents a job object. ">JobObject</a> instance at once.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">exitCode</td><td>The exit code to be set for the sub-process when they are terminated.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The function returns <code>true</code>, if the sub-processes were destroyed successfully, even if there were no running sub-process left; otherwise it returns <code>false</code>. </dd></dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li>include/MUtils/<a class="el" href="../../d4/d85/_job_object_8h_source.html">JobObject.h</a></li>
 </ul>
