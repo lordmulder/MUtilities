@@ -1,7 +1,8 @@
 var searchData=
 [
-  ['regexp_5fparse_5fuint32',['regexp_parse_uint32',['../d3/da6/namespace_m_utils.html#ad2a851b289ee66873d3a1ec86f5f34eb',1,'MUtils::regexp_parse_uint32(const QRegExp &amp;regexp, quint32 &amp;value)'],['../d3/da6/namespace_m_utils.html#a81704d66d34e37d3e0e159b5f436babf',1,'MUtils::regexp_parse_uint32(const QRegExp &amp;regexp, quint32 *values, const size_t &amp;count)']]],
-  ['registrykey',['RegistryKey',['../da/d35/class_m_utils_1_1_registry_1_1_registry_key.html',1,'MUtils::Registry']]],
-  ['remove_5fdirectory',['remove_directory',['../d3/da6/namespace_m_utils.html#a4d451ddc82668d1298f2922f62474b5d',1,'MUtils']]],
-  ['remove_5ffile',['remove_file',['../d3/da6/namespace_m_utils.html#a5a14e75627eebd09efc37898d74c5ac6',1,'MUtils']]]
+  ['os_5ftype_5ft',['os_type_t',['../d1/d7d/namespace_m_utils_1_1_o_s_1_1_version.html#a0571c442a535da3a8541642f8cead00e',1,'MUtils::OS::Version']]],
+  ['os_5funknown',['OS_UNKNOWN',['../d1/d7d/namespace_m_utils_1_1_o_s_1_1_version.html#a0571c442a535da3a8541642f8cead00ea6fa12cbf650f5b33e76bbffd4fb5ec84',1,'MUtils::OS::Version']]],
+  ['os_5fversion_5ft',['os_version_t',['../d1/d7d/namespace_m_utils_1_1_o_s_1_1_version.html#a199c9376f9941b2ec9721eab0b544da0',1,'MUtils::OS::Version']]],
+  ['os_5fwindows',['OS_WINDOWS',['../d1/d7d/namespace_m_utils_1_1_o_s_1_1_version.html#a0571c442a535da3a8541642f8cead00eae668bf9aca53081658d391823e37acf7',1,'MUtils::OS::Version']]],
+  ['ossupport_2eh',['OSSupport.h',['../d3/dc1/_o_s_support_8h.html',1,'']]]
 ];

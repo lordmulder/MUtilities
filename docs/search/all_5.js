@@ -13,5 +13,9 @@ var searchData=
   ['flag_5fsse3',['FLAG_SSE3',['../d3/d02/namespace_m_utils_1_1_c_p_u_fetaures.html#a52bb099e73cb9f6d02ef6ac9f89b4061',1,'MUtils::CPUFetaures']]],
   ['flag_5fsse41',['FLAG_SSE41',['../d3/d02/namespace_m_utils_1_1_c_p_u_fetaures.html#a425bc8f89d64bf6dafdbd00c89b9874b',1,'MUtils::CPUFetaures']]],
   ['flag_5fsse42',['FLAG_SSE42',['../d3/d02/namespace_m_utils_1_1_c_p_u_fetaures.html#afcb03b5edb1518bfca9984ff9ccc4f99',1,'MUtils::CPUFetaures']]],
-  ['flag_5fssse3',['FLAG_SSSE3',['../d3/d02/namespace_m_utils_1_1_c_p_u_fetaures.html#a5125a29c37e57656f45ad168e654fd05',1,'MUtils::CPUFetaures']]]
+  ['flag_5fssse3',['FLAG_SSSE3',['../d3/d02/namespace_m_utils_1_1_c_p_u_fetaures.html#a5125a29c37e57656f45ad168e654fd05',1,'MUtils::CPUFetaures']]],
+  ['folder_5flocalappdata',['FOLDER_LOCALAPPDATA',['../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54a0fb64b1e975f9ff0cc97df6e3b7f8110',1,'MUtils::OS']]],
+  ['folder_5fprogramfiles',['FOLDER_PROGRAMFILES',['../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54abb6f5bd0b6564b2f093f5a2d1c055183',1,'MUtils::OS']]],
+  ['folder_5fsystemfolder',['FOLDER_SYSTEMFOLDER',['../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54a7c25655022efd34417acfaa11f8491b3',1,'MUtils::OS']]],
+  ['folder_5fsystroot_5fdir',['FOLDER_SYSTROOT_DIR',['../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54af32b4c27ec428ad2bf69d8c8802de21c',1,'MUtils::OS']]]
 ];

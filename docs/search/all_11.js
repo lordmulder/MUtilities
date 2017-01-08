@@ -1,7 +1,9 @@
 var searchData=
 [
-  ['vendor',['vendor',['../dd/de2/struct_m_utils_1_1_c_p_u_fetaures_1_1__cpu__info__t.html#a932a85bcdb1be4b191d8ecd61b87ad26',1,'MUtils::CPUFetaures::_cpu_info_t']]],
-  ['vendor_5famd',['VENDOR_AMD',['../d3/d02/namespace_m_utils_1_1_c_p_u_fetaures.html#a37e26e9e81b42bd517928449fa28fc4e',1,'MUtils::CPUFetaures']]],
-  ['vendor_5fintel',['VENDOR_INTEL',['../d3/d02/namespace_m_utils_1_1_c_p_u_fetaures.html#af1d34d67451c27e125b507089bfd147f',1,'MUtils::CPUFetaures']]],
-  ['version',['Version',['../d1/d32/class_m_utils_1_1_version.html',1,'MUtils']]]
+  ['taskbar7',['Taskbar7',['../d2/d52/class_m_utils_1_1_taskbar7.html',1,'MUtils']]],
+  ['temp_5ffolder',['temp_folder',['../d3/da6/namespace_m_utils.html#a3f198156e8be91f3e74dd9ed69ffaa34',1,'MUtils']]],
+  ['terminatejob',['terminateJob',['../dc/dd3/class_m_utils_1_1_job_object.html#abe785eacf0468533ca90c6f77d734cda',1,'MUtils::JobObject']]],
+  ['trim_5fleft',['trim_left',['../d3/da6/namespace_m_utils.html#a20b8fc56856ee904caaded756399e705',1,'MUtils::trim_left(QString &amp;str)'],['../d3/da6/namespace_m_utils.html#ae43bc17b6fa4ee2287099c4ae095483b',1,'MUtils::trim_left(const QString &amp;str)']]],
+  ['trim_5fright',['trim_right',['../d3/da6/namespace_m_utils.html#a6118cf23d2b771fae1ad159c7ea6686a',1,'MUtils::trim_right(QString &amp;str)'],['../d3/da6/namespace_m_utils.html#a3bcb0fce5181ded3c54456379147009d',1,'MUtils::trim_right(const QString &amp;str)']]],
+  ['type',['type',['../dc/d55/struct_m_utils_1_1_o_s_1_1_version_1_1__os__version__t.html#a4c4b496ec1964c26ebf8c138bace655a',1,'MUtils::OS::Version::_os_version_t']]]
 ];

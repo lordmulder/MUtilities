@@ -1,8 +1,7 @@
 var searchData=
 [
-  ['taskbar7',['Taskbar7',['../d2/d52/class_m_utils_1_1_taskbar7.html',1,'MUtils']]],
-  ['temp_5ffolder',['temp_folder',['../d3/da6/namespace_m_utils.html#a3f198156e8be91f3e74dd9ed69ffaa34',1,'MUtils']]],
-  ['terminatejob',['terminateJob',['../dc/dd3/class_m_utils_1_1_job_object.html#abe785eacf0468533ca90c6f77d734cda',1,'MUtils::JobObject']]],
-  ['trim_5fleft',['trim_left',['../d3/da6/namespace_m_utils.html#a20b8fc56856ee904caaded756399e705',1,'MUtils::trim_left(QString &amp;str)'],['../d3/da6/namespace_m_utils.html#ae43bc17b6fa4ee2287099c4ae095483b',1,'MUtils::trim_left(const QString &amp;str)']]],
-  ['trim_5fright',['trim_right',['../d3/da6/namespace_m_utils.html#a6118cf23d2b771fae1ad159c7ea6686a',1,'MUtils::trim_right(QString &amp;str)'],['../d3/da6/namespace_m_utils.html#a3bcb0fce5181ded3c54456379147009d',1,'MUtils::trim_right(const QString &amp;str)']]]
+  ['regexp_5fparse_5fuint32',['regexp_parse_uint32',['../d3/da6/namespace_m_utils.html#ad2a851b289ee66873d3a1ec86f5f34eb',1,'MUtils::regexp_parse_uint32(const QRegExp &amp;regexp, quint32 &amp;value)'],['../d3/da6/namespace_m_utils.html#a81704d66d34e37d3e0e159b5f436babf',1,'MUtils::regexp_parse_uint32(const QRegExp &amp;regexp, quint32 *values, const size_t &amp;count)']]],
+  ['registrykey',['RegistryKey',['../da/d35/class_m_utils_1_1_registry_1_1_registry_key.html',1,'MUtils::Registry']]],
+  ['remove_5fdirectory',['remove_directory',['../d3/da6/namespace_m_utils.html#a4d451ddc82668d1298f2922f62474b5d',1,'MUtils']]],
+  ['remove_5ffile',['remove_file',['../d3/da6/namespace_m_utils.html#a5a14e75627eebd09efc37898d74c5ac6',1,'MUtils']]]
 ];

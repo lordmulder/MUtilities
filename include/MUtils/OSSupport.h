@@ -19,6 +19,11 @@
 // http://www.gnu.org/licenses/lgpl-2.1.txt
 //////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * @file
+ * @brief This file contains function that wrap OS-specific functionality in a platform-independent way
+ */
+
 #pragma once
 
 //MUtils
@@ -35,27 +40,40 @@ class QFile;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+/**
+* \brief Global MUtils namespace
+*/
 namespace MUtils
 {
+	/**
+	* \brief MUtils OS-specific functions namespace
+	*/
 	namespace OS
 	{
+		/**
+		* \brief OS version information namespace
+		*/
 		namespace Version
 		{
-			//Supported OS types
+			/**
+			* \brief This enumeration specifies the type of the underlaying operating system
+			*/
 			typedef enum
 			{
-				OS_UNKNOWN = 0,
-				OS_WINDOWS = 1
+				OS_UNKNOWN = 0,  ///< Unknown operating system
+				OS_WINDOWS = 1   ///< Microsoft(R) Windows
 			}
 			os_type_t;
 
-			//OS version struct
+			/**
+			* \brief This struct contains version information about the underlaying operating system. See `_os_version_t` for details!
+			*/
 			typedef struct _os_version_t
 			{
-				unsigned int type;
-				unsigned int versionMajor;
-				unsigned int versionMinor;
-				unsigned int versionBuild;
+				unsigned int type;          ///< The type of the underlaying operating system, as `os_type_t`
+				unsigned int versionMajor;  ///< The *major* version of the underlaying operating system
+				unsigned int versionMinor;  ///< The *minor* version of the underlaying operating system
+				unsigned int versionBuild;  ///< The *build* number of the underlaying operating system
 				bool overrideFlag;
 
 				MUTILS_API bool operator== (const _os_version_t &rhs) const;
@@ -68,38 +86,42 @@ namespace MUtils
 			os_version_t;
 
 			//Known Windows NT versions
-			MUTILS_API extern const os_version_t WINDOWS_WIN2K;	// 2000
-			MUTILS_API extern const os_version_t WINDOWS_WINXP;	// XP
-			MUTILS_API extern const os_version_t WINDOWS_XPX64;	// XP_x64
-			MUTILS_API extern const os_version_t WINDOWS_VISTA;	// Vista
-			MUTILS_API extern const os_version_t WINDOWS_WIN70;	// 7
-			MUTILS_API extern const os_version_t WINDOWS_WIN80;	// 8
-			MUTILS_API extern const os_version_t WINDOWS_WIN81;	// 8.1
-			MUTILS_API extern const os_version_t WINDOWS_WN100;	// 10
+			MUTILS_API extern const os_version_t WINDOWS_WIN2K;  ///< \brief Operating system version constant \details Microsoft(R) Windows 2000
+			MUTILS_API extern const os_version_t WINDOWS_WINXP;  ///< \brief Operating system version constant \details Microsoft(R) Windows XP
+			MUTILS_API extern const os_version_t WINDOWS_XPX64;  ///< \brief Operating system version constant \details Microsoft(R) Windows XP x64-edition
+			MUTILS_API extern const os_version_t WINDOWS_VISTA;  ///< \brief Operating system version constant \details Microsoft(R) Windows Vista
+			MUTILS_API extern const os_version_t WINDOWS_WIN70;  ///< \brief Operating system version constant \details Microsoft(R) Windows 7
+			MUTILS_API extern const os_version_t WINDOWS_WIN80;  ///< \brief Operating system version constant \details Microsoft(R) Windows 8
+			MUTILS_API extern const os_version_t WINDOWS_WIN81;  ///< \brief Operating system version constant \details Microsoft(R) Windows 8.1
+			MUTILS_API extern const os_version_t WINDOWS_WN100;  ///< \brief Operating system version constant \details Microsoft(R) Windows 10
 
 			//Unknown OS
-			MUTILS_API extern const os_version_t UNKNOWN_OPSYS;	// N/A
+			MUTILS_API extern const os_version_t UNKNOWN_OPSYS;  ///< \brief Operating system version constant \details Unknown operating system version
 		}
 
-		//Known Folders IDs
+		/**
+		* \brief This enumeration specifies "known" folder identifiers
+		*/
 		typedef enum
 		{
-			FOLDER_LOCALAPPDATA = 0,
-			FOLDER_PROGRAMFILES = 2,
-			FOLDER_SYSTEMFOLDER = 3,
-			FOLDER_SYSTROOT_DIR = 4
+			FOLDER_LOCALAPPDATA = 0,  ///< Local application data (non-roaming)
+			FOLDER_PROGRAMFILES = 2,  ///< Program files
+			FOLDER_SYSTEMFOLDER = 3,  ///< System directory
+			FOLDER_SYSTROOT_DIR = 4   ///< System "root" directory
 		}
 		known_folder_t;
 		
-		//Network connection types
+		/**
+		* \brief This enumeration specifies network connection types
+		*/
 		typedef enum
 		{
-			NETWORK_TYPE_ERR = 0,	/*unknown*/
-			NETWORK_TYPE_NON = 1,	/*not connected*/
-			NETWORK_TYPE_YES = 2	/*connected*/
+			NETWORK_TYPE_ERR = 0,  ///< Network connection is unknown
+			NETWORK_TYPE_NON = 1,  ///< Computer is **not** connected to a network
+			NETWORK_TYPE_YES = 2   ///< Computer *is* connected to a network
 		}
 		network_type_t;
-				
+		
 		//System message
 		MUTILS_API void system_message_nfo(const wchar_t *const title, const wchar_t *const text);
 		MUTILS_API void system_message_wrn(const wchar_t *const title, const wchar_t *const text);
@@ -133,13 +155,27 @@ namespace MUtils
 		MUTILS_API bool is_elevated(bool *bIsUacEnabled = NULL);
 		MUTILS_API bool user_is_admin(void);
 
-		//Network Status
+		/**
+		* \brief Check the network status
+		*
+		* Checks whether the computer is *currently* connected to a network. Note that an existing network connection does **not** necessarily imply actual Internet access!
+		*
+		* \return The function returns the current network status as a `OS::network_type_t` value.
+		*/
 		MUTILS_API int network_status(void);
 
 		//Message handler
 		MUTILS_API bool handle_os_message(const void *const message, long *result);
 
-		//Sleep
+		/**
+		* \brief Suspend calling thread
+		*
+		* This function suspends the calling thread. The thread will give up its current time-slice and enter "sleeping" state. The thread will remain in "sleeping" for the specified duration. After the specified duration has elapsed, the thread will be resumed.
+		*
+		* Note that it depends on the operating system's scheduling decisions, when the thread will actually be allowed to execute again! While the thread is still in "sleeping" state, it can **not** be selected for execution by the operating system's scheduler. Once the thread is *no* longer in "sleeping" state, i.e. the specified period has elapsed, the thread *can* be selected for execution by the operating system's scheduler again - but this does **not** need to happen *immediately*! The scheduler decides which thread is allowed to execute next, taking into consideration thread priorities.
+		*
+		* \param duration The amount of time that the thread will be suspended, in milliseconds. A value of **0** means that the thread will *not* actually enter "sleeping" state, but it will still give up its current time-slice!
+		*/
 		MUTILS_API void sleep_ms(const size_t &duration);
 
 		//Is executable/library file?
