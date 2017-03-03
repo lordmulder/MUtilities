@@ -31,6 +31,7 @@
 #include <QApplication>
 #include <QWidget>
 #include <QMutex>
+#include <QDesktopWidget>
 
 //Win32 API
 #ifndef _INC_WINDOWS
@@ -84,38 +85,38 @@ namespace MUtils
 	{
 		namespace Internal
 		{
-			class WindowIconHelper : public QObject
-			{
-			public:
-				WindowIconHelper(QWidget *const parent, const HICON hIcon, const bool &bIsBigIcon)
+		class WindowIconHelper : public QObject
+		{
+		public:
+			WindowIconHelper(QWidget *const parent, const HICON hIcon, const bool &bIsBigIcon)
 				:
-					QObject(parent),
-					m_hIcon(hIcon)
-				{
-					SendMessage(reinterpret_cast<HWND>(parent->winId()), WM_SETICON, (bIsBigIcon ? ICON_BIG : ICON_SMALL), LPARAM(hIcon));
-				}
+				QObject(parent),
+				m_hIcon(hIcon)
+			{
+				SendMessage(reinterpret_cast<HWND>(parent->winId()), WM_SETICON, (bIsBigIcon ? ICON_BIG : ICON_SMALL), LPARAM(hIcon));
+			}
 
-				virtual ~WindowIconHelper(void)
+			virtual ~WindowIconHelper(void)
+			{
+				if (m_hIcon)
 				{
-					if(m_hIcon)
-					{
-						DestroyIcon(m_hIcon);
-					}
+					DestroyIcon(m_hIcon);
 				}
+			}
 
-			private:
-				const HICON m_hIcon;
-			};
+		private:
+			const HICON m_hIcon;
+		};
 		}
 	}
 }
 
 bool MUtils::GUI::set_window_icon(QWidget *const window, const QIcon &icon, const bool bIsBigIcon)
 {
-	if((!icon.isNull()) && window->winId())
+	if ((!icon.isNull()) && window->winId())
 	{
 		const int extend = (bIsBigIcon ? 32 : 16);
-		if(const HICON hIcon = (HICON) MUtils::Win32Utils::qicon_to_hicon(&icon, extend, extend))
+		if (const HICON hIcon = (HICON)MUtils::Win32Utils::qicon_to_hicon(&icon, extend, extend))
 		{
 			new Internal::WindowIconHelper(window, hIcon, bIsBigIcon); /*will be free'd using QObject parent mechanism*/
 			return true;
@@ -136,28 +137,28 @@ void MUtils::GUI::blink_window(QWidget *const poWindow, const unsigned int &coun
 	const double minOpac = 0.3;
 	const double delOpac = 0.1;
 
-	if(!g_blinkMutex.tryLock())
+	if (!g_blinkMutex.tryLock())
 	{
 		qWarning("Blinking is already in progress, skipping!");
 		return;
 	}
-	
+
 	try
 	{
 		const int steps = static_cast<int>(ceil(maxOpac - minOpac) / delOpac);
 		const int sleep = static_cast<int>(floor(static_cast<double>(delay) / static_cast<double>(steps)));
 		const double opacity = poWindow->windowOpacity();
-	
-		for(unsigned int i = 0; i < count; i++)
+
+		for (unsigned int i = 0; i < count; i++)
 		{
-			for(double x = maxOpac; x >= minOpac; x -= delOpac)
+			for (double x = maxOpac; x >= minOpac; x -= delOpac)
 			{
 				poWindow->setWindowOpacity(x);
 				QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 				MUtils::OS::sleep_ms(sleep);
 			}
 
-			for(double x = minOpac; x <= maxOpac; x += delOpac)
+			for (double x = minOpac; x <= maxOpac; x += delOpac)
 			{
 				poWindow->setWindowOpacity(x);
 				QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
@@ -168,12 +169,54 @@ void MUtils::GUI::blink_window(QWidget *const poWindow, const unsigned int &coun
 		poWindow->setWindowOpacity(opacity);
 		QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 	}
-	catch(...)
+	catch (...)
 	{
 		qWarning("Exception error while blinking!");
 	}
 
 	g_blinkMutex.unlock();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// DPI SCALING
+///////////////////////////////////////////////////////////////////////////////
+
+double MUtils::GUI::dpi_scale(void)
+{
+	if (const QApplication *const app = dynamic_cast<QApplication*>(QCoreApplication::instance()))
+	{
+		const double dpiX = static_cast<double>(app->desktop()->logicalDpiX());
+		const double dpiY = static_cast<double>(app->desktop()->logicalDpiY());
+		return qBound(1.0, ((dpiX + dpiY) / 192.0), 2.0);
+	}
+	return -1.0;
+}
+
+bool MUtils::GUI::scale_widget(QWidget *const widget, const bool recenter)
+{
+	if (widget && (!widget->parentWidget()))
+	{
+		const double dpiScale = dpi_scale();
+		if ((dpiScale > 0.0) && (!qFuzzyCompare(dpiScale, 1.0)))
+		{
+			const QSize originalSize = widget->size();
+			widget->resize(qRound(originalSize.width() * dpiScale), qRound(originalSize.height() * dpiScale));
+			return recenter ? center_widget(widget) : true;
+		}
+	}
+	return false;
+}
+
+bool MUtils::GUI::center_widget(QWidget *const widget)
+{
+	if (widget && (!widget->parentWidget()))
+	{
+		const QRect desktopRect = QApplication::desktop()->screenGeometry();
+		const QRect thisRect = widget->geometry();
+		widget->move((desktopRect.width() - thisRect.width()) / 2, (desktopRect.height() - thisRect.height()) / 2);
+		return true;
+	}
+	return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

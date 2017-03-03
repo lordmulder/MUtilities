@@ -62,6 +62,11 @@ namespace MUtils
 		//Theme support
 		MUTILS_API bool themes_enabled(void);
 
+		//DPI information
+		MUTILS_API double dpi_scale(void);
+		MUTILS_API bool scale_widget(QWidget *const widget, const bool recenter = true);
+		MUTILS_API bool center_widget(QWidget *const widget);
+
 		//System menu
 		MUTILS_API bool sysmenu_append(const QWidget *const win, const unsigned int identifier, const QString &text);
 		MUTILS_API bool sysmenu_update(const QWidget *const win, const unsigned int identifier, const QString &text);
