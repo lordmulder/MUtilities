@@ -31,6 +31,7 @@
 #include <QUrl>
 #include <QEventLoop>
 #include <QTimer>
+#include <QElapsedTimer>
 
 using namespace MUtils;
 
@@ -95,7 +96,9 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	"www.bucketheadpikes.com",
 	"www.buckethead-coop.com",
 	"www.buzzfeed.com",
+	"www.cam.ac.uk",
 	"www.ccc.de",
+	"home.cern",
 	"www.citizeninsomniac.com",
 	"www.cnet.com",
 	"cnzz.com",
@@ -110,6 +113,7 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	"blog.fefe.de",
 	"www.ffmpeg.org",
 	"blog.flickr.net",
+	"www.fraunhofer.de",
 	"free-codecs.com",
 	"git-scm.com",
 	"doc.gitlab.com",
@@ -119,8 +123,10 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	"go.com",
 	"code.google.com",
 	"haali.su",
+	"www.harvard.edu",
 	"www.heise.de",
 	"www.huffingtonpost.co.uk",
+	"www.hu-berlin.de",
 	"www.iana.org",
 	"www.imdb.com",
 	"www.imgburn.com",
@@ -140,8 +146,10 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	"go.mail.ru",
 	"marknelson.us",
 	"www.mediafire.com",
+	"web.mit.edu",
 	"www.mod-technologies.com",
 	"ftp.mozilla.org",
+	"www.mpg.de",
 	"mplayerhq.hu",
 	"www.msn.com",
 	"wiki.multimedia.cx",
@@ -152,6 +160,7 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	"netrenderer.de",
 	"www.nytimes.com",
 	"www.opera.com",
+	"www.oxford.gov.uk",
 	"www.partha.com",
 	"pastebin.com",
 	"pastie.org",
@@ -162,6 +171,7 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	"www.qt.io",
 	"www.quakelive.com",
 	"rationalqm.us",
+	"www.rwth-aachen.de",
 	"www.seamonkey-project.org",
 	"selfhtml.org",
 	"www.sina.com.cn",
@@ -171,10 +181,12 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	"www.spiegel.de",
 	"www.sputnikmusic.com",
 	"stackoverflow.com",
+	"www.stanford.edu",
 	"www.t-online.de",
 	"www.tagesschau.de",
 	"tdm-gcc.tdragon.net",
 	"www.tdrsmusic.com",
+	"tu-dresden.de",
 	"www.ubuntu.com",
 	"www.uol.com.br",
 	"www.videohelp.com",
@@ -199,6 +211,9 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 };
 
 static const int MIN_CONNSCORE = 5;
+static const int MAX_CONN_TIMEOUT = 8000;
+static const int DOWNLOAD_TIMEOUT = 30000;
+
 static const int VERSION_INFO_EXPIRES_MONTHS = 6;
 static char *USER_AGENT_STR = "Mozilla/5.0 (X11; Linux i686; rv:10.0) Gecko/20100101 Firefox/10.0"; /*use something innocuous*/
 
@@ -325,19 +340,38 @@ void UpdateChecker::checkForUpdates(void)
 
 	// ----- Test Known Hosts Connectivity ----- //
 
-	int connectionScore = 0, connectionRetry = MIN_CONNSCORE;
-
+	int connectionScore = 0, connectionTimout = 125;
 	QStringList hostList = buildRandomList(known_hosts);
-	while((!hostList.isEmpty()) && (connectionScore < MIN_CONNSCORE) && (connectionRetry > 0))
+
+	while (connectionScore < MIN_CONNSCORE)
 	{
-		connectionRetry--;
-		if(tryContactHost(hostList.takeFirst()))
+		connectionTimout *= 2;
+		if (connectionTimout > MAX_CONN_TIMEOUT)
 		{
-			connectionScore += 1;
-			connectionRetry = MIN_CONNSCORE;
+			break;
 		}
-		setProgress(qBound(1, connectionScore + 1, MIN_CONNSCORE + 1));
-		msleep(25);
+		QElapsedTimer elapsedTimer;
+		const int globalTimout = 250 + (13 * connectionTimout);
+		elapsedTimer.start();
+		while (!elapsedTimer.hasExpired(globalTimout))
+		{
+			const QString hostName = hostList.takeFirst();
+			if (tryContactHost(hostName, connectionTimout))
+			{
+				connectionScore += 1;
+				setProgress(qBound(1, connectionScore + 1, MIN_CONNSCORE + 1));
+				elapsedTimer.restart();
+				if (connectionScore >= MIN_CONNSCORE)
+				{
+					break; /*success*/
+				}
+			}
+			else
+			{
+				hostList.append(hostName); /*re-schedule*/
+			}
+			msleep(1);
+		}
 	}
 
 	if(connectionScore < MIN_CONNSCORE)
@@ -411,7 +445,7 @@ void UpdateChecker::testKnownHosts(void)
 		QString currentHost = hostList.takeFirst();
 		qDebug("Testing: %s", currentHost.toLatin1().constData());
 		log("", "Testing:", currentHost, "");
-		if (!tryContactHost(currentHost))
+		if (!tryContactHost(currentHost, DOWNLOAD_TIMEOUT))
 		{
 			qWarning("\nConnectivity test FAILED on the following host:\n%s\n", currentHost.toLatin1().constData());
 		}
@@ -452,16 +486,22 @@ void UpdateChecker::log(const QString &str1, const QString &str2, const QString 
 bool UpdateChecker::tryUpdateMirror(UpdateCheckerInfo *updateInfo, const QString &url)
 {
 	bool success = false;
-	log("", "Trying mirror:", url);
+	log("", "Trying mirror:", url, "");
+
+	if (!tryContactHost(QUrl(url).host(), MAX_CONN_TIMEOUT))
+	{
+		log("", "Mirror is unreachable!");
+		return false;
+	}
 
 	const QString randPart = next_rand_str();
 	const QString outFileVers = QString("%1/%2.ver").arg(temp_folder(), randPart);
 	const QString outFileSign = QString("%1/%2.sig").arg(temp_folder(), randPart);
 
-	if(getUpdateInfo(url, outFileVers, outFileSign))
+	if (getUpdateInfo(url, outFileVers, outFileSign))
 	{
 		log("", "Download okay, checking signature:");
-		if(checkSignature(outFileVers, outFileSign))
+		if (checkSignature(outFileVers, outFileSign))
 		{
 			log("", "Signature okay, parsing info:");
 			success = parseVersionInfo(outFileVers, updateInfo);
@@ -484,7 +524,7 @@ bool UpdateChecker::tryUpdateMirror(UpdateCheckerInfo *updateInfo, const QString
 
 bool UpdateChecker::getUpdateInfo(const QString &url, const QString &outFileVers, const QString &outFileSign)
 {
-	log("", "Downloading update info:");
+	log("Downloading update info:");
 	if(!getFile(QString("%1%2"     ).arg(url, mirror_url_postfix[m_betaUpdates ? 1 : 0]), outFileVers))
 	{
 		return false;
@@ -606,11 +646,11 @@ bool UpdateChecker::parseVersionInfo(const QString &file, UpdateCheckerInfo *upd
 // EXTERNAL TOOLS
 //----------------------------------------------------------
 
-bool UpdateChecker::getFile(const QString &url, const QString &outFile, const unsigned int maxRedir, bool *httpOk)
+bool UpdateChecker::getFile(const QString &url, const QString &outFile, const unsigned int maxRedir)
 {
 	for (int i = 0; i < 2; i++)
 	{
-		if (getFile(url, (i > 0), outFile, maxRedir, httpOk))
+		if (getFile(url, (i > 0), outFile, maxRedir))
 		{
 			return true;
 		}
@@ -618,11 +658,10 @@ bool UpdateChecker::getFile(const QString &url, const QString &outFile, const un
 	return false;
 }
 
-bool UpdateChecker::getFile(const QString &url, const bool forceIp4, const QString &outFile, const unsigned int maxRedir, bool *httpOk)
+bool UpdateChecker::getFile(const QString &url, const bool forceIp4, const QString &outFile, const unsigned int maxRedir)
 {
 	QFileInfo output(outFile);
 	output.setCaching(false);
-	if (httpOk) *httpOk = false;
 
 	if (output.exists())
 	{
@@ -643,7 +682,7 @@ bool UpdateChecker::getFile(const QString &url, const bool forceIp4, const QStri
 	}
 
 	args << "--no-config" << "--no-cache" << "--no-dns-cache" << "--no-check-certificate" << "--no-hsts";
-	args << QString().sprintf("--max-redirect=%u", maxRedir) << "--timeout=15";
+	args << QString().sprintf("--max-redirect=%u", maxRedir) << QString().sprintf("--timeout=%u", DOWNLOAD_TIMEOUT / 1000);
 	args << QString("--referer=%1://%2/").arg(QUrl(url).scheme(), QUrl(url).host()) << "-U" << USER_AGENT_STR;
 	args << "-O" << output.fileName() << url;
 
@@ -665,7 +704,7 @@ bool UpdateChecker::getFile(const QString &url, const bool forceIp4, const QStri
 		return false;
 	}
 
-	timer.start(25000);
+	timer.start(DOWNLOAD_TIMEOUT);
 
 	while (process.state() != QProcess::NotRunning)
 	{
@@ -673,12 +712,7 @@ bool UpdateChecker::getFile(const QString &url, const bool forceIp4, const QStri
 		const bool bTimeOut = (!timer.isActive());
 		while (process.canReadLine())
 		{
-			QString line = QString::fromLatin1(process.readLine()).simplified();
-			if (line.contains(httpResponseOK))
-			{
-				line.append(" [OK]");
-				if (httpOk) *httpOk = true;
-			}
+			const QString line = QString::fromLatin1(process.readLine()).simplified();
 			log(line);
 		}
 		if (bTimeOut)
@@ -698,7 +732,7 @@ bool UpdateChecker::getFile(const QString &url, const bool forceIp4, const QStri
 	return (process.exitCode() == 0) && output.exists() && output.isFile();
 }
 
-bool UpdateChecker::tryContactHost(const QString &hostname)
+bool UpdateChecker::tryContactHost(const QString &hostname, const int &timeoutMsec)
 {
 	log(QString("Connecting to host: %1").arg(hostname));
 
@@ -724,7 +758,7 @@ bool UpdateChecker::tryContactHost(const QString &hostname)
 		return false;
 	}
 
-	timer.start(10000);
+	timer.start(timeoutMsec);
 
 	while (process.state() != QProcess::NotRunning)
 	{
