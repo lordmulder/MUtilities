@@ -102,6 +102,7 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	"www.citizeninsomniac.com",
 	"www.cnet.com",
 	"cnzz.com",
+	"www.cuhk.edu.hk",
 	"www.codeplex.com",
 	"www.codeproject.com",
 	"www.der-postillon.com",
@@ -125,12 +126,14 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	"haali.su",
 	"www.harvard.edu",
 	"www.heise.de",
+	"www.helmholtz.de",
 	"www.huffingtonpost.co.uk",
 	"www.hu-berlin.de",
 	"www.iana.org",
 	"www.imdb.com",
 	"www.imgburn.com",
 	"imgur.com",
+	"www.iuj.ac.jp",
 	"www.jd.com",
 	"www.jiscdigitalmedia.ac.uk",
 	"kannmanumdieuhrzeitschonnbierchentrinken.de",
@@ -154,6 +157,7 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	"www.msn.com",
 	"wiki.multimedia.cx",
 	"www.nch.com.au",
+	"neocities.org",
 	"mirror.netcologne.de",
 	"oss.netfarm.it",
 	"blog.netflix.com",
@@ -216,6 +220,19 @@ static const int DOWNLOAD_TIMEOUT = 30000;
 
 static const int VERSION_INFO_EXPIRES_MONTHS = 6;
 static char *USER_AGENT_STR = "Mozilla/5.0 (X11; Linux i686; rv:10.0) Gecko/20100101 Firefox/10.0"; /*use something innocuous*/
+
+#define CHECK_CANCELLED() do \
+{ \
+	if(m_cancelled) \
+	{ \
+		m_success = false; \
+		log("", "Update check has been cancelled by user!"); \
+		setProgress(m_maxProgress); \
+		setStatus(UpdateStatus_CancelledByUser); \
+		return; \
+	} \
+} \
+while(0)
 
 ////////////////////////////////////////////////////////////
 // Helper Functions
@@ -289,7 +306,7 @@ UpdateChecker::UpdateChecker(const QString &binWGet, const QString &binNC, const
 	m_testMode(testMode),
 	m_maxProgress(getMaxProgress())
 {
-	m_success = false;
+	m_success = m_cancelled = false;
 	m_status = UpdateStatus_NotStartedYet;
 	m_progress = 0;
 
@@ -301,6 +318,16 @@ UpdateChecker::UpdateChecker(const QString &binWGet, const QString &binNC, const
 
 UpdateChecker::~UpdateChecker(void)
 {
+}
+
+////////////////////////////////////////////////////////////
+// Public slots
+////////////////////////////////////////////////////////////
+
+void UpdateChecker::start(Priority priority)
+{
+	m_cancelled = m_success = false;
+	QThread::start(priority);
 }
 
 ////////////////////////////////////////////////////////////
@@ -318,7 +345,6 @@ void UpdateChecker::checkForUpdates(void)
 {
 	// ----- Initialization ----- //
 
-	m_success = false;
 	m_updateInfo->resetInfo();
 	setProgress(0);
 
@@ -340,19 +366,14 @@ void UpdateChecker::checkForUpdates(void)
 
 	// ----- Test Known Hosts Connectivity ----- //
 
-	int connectionScore = 0, connectionTimout = 125;
+	int connectionScore = 0;
 	QStringList hostList = buildRandomList(known_hosts);
 
-	while (connectionScore < MIN_CONNSCORE)
+	for(int connectionTimout = 125; connectionTimout <= MAX_CONN_TIMEOUT; connectionTimout *= 2)
 	{
-		connectionTimout *= 2;
-		if (connectionTimout > MAX_CONN_TIMEOUT)
-		{
-			break;
-		}
 		QElapsedTimer elapsedTimer;
-		const int globalTimout = 250 + (13 * connectionTimout);
 		elapsedTimer.start();
+		const int globalTimout = 2 * MIN_CONNSCORE * connectionTimout;
 		while (!elapsedTimer.hasExpired(globalTimout))
 		{
 			const QString hostName = hostList.takeFirst();
@@ -363,17 +384,19 @@ void UpdateChecker::checkForUpdates(void)
 				elapsedTimer.restart();
 				if (connectionScore >= MIN_CONNSCORE)
 				{
-					break; /*success*/
+					goto endLoop; /*success*/
 				}
 			}
 			else
 			{
 				hostList.append(hostName); /*re-schedule*/
 			}
+			CHECK_CANCELLED();
 			msleep(1);
 		}
 	}
 
+endLoop:
 	if(connectionScore < MIN_CONNSCORE)
 	{
 		log("", "Connectivity test has failed: Internet connection appears to be broken!");
@@ -390,10 +413,11 @@ void UpdateChecker::checkForUpdates(void)
 	QStringList mirrorList = buildRandomList(update_mirrors);
 	while(!mirrorList.isEmpty())
 	{
-		QString currentMirror = mirrorList.takeFirst();
+		const QString currentMirror = mirrorList.takeFirst();
 		setProgress(m_progress + 1);
 		if(!m_success)
 		{
+			CHECK_CANCELLED();
 			if(tryUpdateMirror(m_updateInfo.data(), currentMirror))
 			{
 				m_success = true;
@@ -405,6 +429,7 @@ void UpdateChecker::checkForUpdates(void)
 		}
 	}
 	
+	CHECK_CANCELLED();
 	setProgress(m_maxProgress);
 
 	if(m_success)
@@ -715,12 +740,12 @@ bool UpdateChecker::getFile(const QString &url, const bool forceIp4, const QStri
 			const QString line = QString::fromLatin1(process.readLine()).simplified();
 			log(line);
 		}
-		if (bTimeOut)
+		if (bTimeOut || m_cancelled)
 		{
 			qWarning("WGet process timed out <-- killing!");
 			process.kill();
 			process.waitForFinished();
-			log("!!! TIMEOUT !!!");
+			log(bTimeOut ? "!!! TIMEOUT !!!": "!!! CANCELLED !!!");
 			return false;
 		}
 	}
@@ -769,12 +794,12 @@ bool UpdateChecker::tryContactHost(const QString &hostname, const int &timeoutMs
 			QString line = QString::fromLatin1(process.readLine()).simplified();
 			log(line);
 		}
-		if (bTimeOut)
+		if (bTimeOut || m_cancelled)
 		{
 			qWarning("NC process timed out <-- killing!");
 			process.kill();
 			process.waitForFinished();
-			log("!!! TIMEOUT !!!");
+			log(bTimeOut ? "!!! TIMEOUT !!!" : "!!! CANCELLED !!!");
 			return false;
 		}
 	}

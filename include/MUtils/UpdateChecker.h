@@ -76,7 +76,8 @@ namespace MUtils
 			UpdateStatus_CompletedNewVersionOlder  = 5,
 			UpdateStatus_ErrorNoConnection         = 6,
 			UpdateStatus_ErrorConnectionTestFailed = 7,
-			UpdateStatus_ErrorFetchUpdateInfo      = 8
+			UpdateStatus_ErrorFetchUpdateInfo      = 8,
+			UpdateStatus_CancelledByUser           = 9
 		}
 		update_status_t;
 
@@ -88,6 +89,11 @@ namespace MUtils
 		const int  getMaximumProgress(void)          const { return m_maxProgress; };
 		const int  getCurrentProgress(void)          const { return m_progress; };
 		const UpdateCheckerInfo *getUpdateInfo(void) const { return m_updateInfo.data(); }
+
+		void cancel(void) { m_cancelled = true; }
+
+	public slots:
+		void start(Priority = InheritPriority);
 
 	protected:
 		void run(void);
@@ -115,6 +121,7 @@ namespace MUtils
 		const QString m_binaryKeys;
 
 		volatile bool m_success;
+		volatile bool m_cancelled;
 
 		int m_status;
 		int m_progress;
