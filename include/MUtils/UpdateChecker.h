@@ -137,6 +137,6 @@ namespace MUtils
 		bool getFile(const QString &url, const QString &outFile, const unsigned int maxRedir = 5U);
 		bool getFile(const QString &url, const bool forceIp4, const QString &outFile, const unsigned int maxRedir = 5U);
 		bool checkSignature(const QString &file, const QString &signature);
-		bool tryUpdateMirror(UpdateCheckerInfo *updateInfo, const QString &url);
+		bool tryUpdateMirror(UpdateCheckerInfo *updateInfo, const QString &url, const bool &quick);
 	};
 }

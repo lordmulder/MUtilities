@@ -215,7 +215,8 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 };
 
 static const int MIN_CONNSCORE = 5;
-static const int MAX_CONN_TIMEOUT = 8000;
+static const int QUICK_MIRRORS = 3;
+static const int MAX_CONN_TIMEOUT =  8000;
 static const int DOWNLOAD_TIMEOUT = 30000;
 
 static const int VERSION_INFO_EXPIRES_MONTHS = 6;
@@ -240,9 +241,13 @@ while(0)
 
 static int getMaxProgress(void)
 {
-	int counter = MIN_CONNSCORE + 2;
-	for(int i = 0; update_mirrors[i]; i++) counter++;
-	return counter;
+	int counter = 0;
+	while (update_mirrors[counter])
+	{
+		counter++;
+	}
+	counter += MIN_CONNSCORE + QUICK_MIRRORS + 2;
+	return counter; ;
 }
 
 static QStringList buildRandomList(const char *const values[])
@@ -367,7 +372,7 @@ void UpdateChecker::checkForUpdates(void)
 	// ----- Test Known Hosts Connectivity ----- //
 
 	int connectionScore = 0;
-	QStringList hostList = buildRandomList(known_hosts);
+	QStringList mirrorList = buildRandomList(known_hosts);
 
 	for(int connectionTimout = 125; connectionTimout <= MAX_CONN_TIMEOUT; connectionTimout *= 2)
 	{
@@ -376,7 +381,7 @@ void UpdateChecker::checkForUpdates(void)
 		const int globalTimout = 2 * MIN_CONNSCORE * connectionTimout;
 		while (!elapsedTimer.hasExpired(globalTimout))
 		{
-			const QString hostName = hostList.takeFirst();
+			const QString hostName = mirrorList.takeFirst();
 			if (tryContactHost(hostName, connectionTimout))
 			{
 				connectionScore += 1;
@@ -389,7 +394,7 @@ void UpdateChecker::checkForUpdates(void)
 			}
 			else
 			{
-				hostList.append(hostName); /*re-schedule*/
+				mirrorList.append(hostName); /*re-schedule*/
 			}
 			CHECK_CANCELLED();
 			msleep(1);
@@ -410,27 +415,35 @@ endLoop:
 	log("----", "", "Checking for updates online...");
 	setStatus(UpdateStatus_FetchingUpdates);
 
-	QStringList mirrorList = buildRandomList(update_mirrors);
+	int mirrorCount = 0;
+	mirrorList = buildRandomList(update_mirrors);
+
 	while(!mirrorList.isEmpty())
 	{
-		const QString currentMirror = mirrorList.takeFirst();
 		setProgress(m_progress + 1);
-		if(!m_success)
+		const QString currentMirror = mirrorList.takeFirst();
+		const bool isQuick = (mirrorCount++ < QUICK_MIRRORS);
+		if(tryUpdateMirror(m_updateInfo.data(), currentMirror, isQuick))
 		{
-			CHECK_CANCELLED();
-			if(tryUpdateMirror(m_updateInfo.data(), currentMirror))
-			{
-				m_success = true;
-			}
+			m_success = true; /*success*/
+			break;
 		}
-		else
+		if (isQuick)
 		{
-			msleep(25);
+			mirrorList.append(currentMirror); /*re-schedule*/
 		}
+		CHECK_CANCELLED();
+		msleep(1);
 	}
 	
-	CHECK_CANCELLED();
-	setProgress(m_maxProgress);
+	while (m_progress < m_maxProgress)
+	{
+		msleep(16);
+		setProgress(m_progress + 1);
+		CHECK_CANCELLED();
+	}
+
+	// ----- Generate final result ----- //
 
 	if(m_success)
 	{
@@ -508,14 +521,14 @@ void UpdateChecker::log(const QString &str1, const QString &str2, const QString 
 	if(!str4.isNull()) emit messageLogged(str4);
 }
 
-bool UpdateChecker::tryUpdateMirror(UpdateCheckerInfo *updateInfo, const QString &url)
+bool UpdateChecker::tryUpdateMirror(UpdateCheckerInfo *updateInfo, const QString &url, const bool &quick)
 {
 	bool success = false;
 	log("", "Trying mirror:", url, "");
 
-	if (!tryContactHost(QUrl(url).host(), MAX_CONN_TIMEOUT))
+	if (!tryContactHost(QUrl(url).host(), quick ? (MAX_CONN_TIMEOUT / 10) : MAX_CONN_TIMEOUT))
 	{
-		log("", "Mirror is unreachable!");
+		log("", quick ? "Mirror is too slow!" :"Mirror is unreachable!");
 		return false;
 	}
 
