@@ -374,7 +374,7 @@ void UpdateChecker::checkForUpdates(void)
 	int connectionScore = 0;
 	QStringList mirrorList = buildRandomList(known_hosts);
 
-	for(int connectionTimout = 125; connectionTimout <= MAX_CONN_TIMEOUT; connectionTimout *= 2)
+	for(int connectionTimout = 250; connectionTimout <= MAX_CONN_TIMEOUT; connectionTimout *= 2)
 	{
 		QElapsedTimer elapsedTimer;
 		elapsedTimer.start();
