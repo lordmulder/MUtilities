@@ -298,11 +298,11 @@ bool UpdateCheckerInfo::isComplete(void)
 // Constructor & Destructor
 ////////////////////////////////////////////////////////////
 
-UpdateChecker::UpdateChecker(const QString &binWGet, const QString &binNC, const QString &binGnuPG, const QString &binKeys, const QString &applicationId, const quint32 &installedBuildNo, const bool betaUpdates, const bool testMode)
+UpdateChecker::UpdateChecker(const QString &binWGet, const QString &binMCat, const QString &binGnuPG, const QString &binKeys, const QString &applicationId, const quint32 &installedBuildNo, const bool betaUpdates, const bool testMode)
 :
 	m_updateInfo(new UpdateCheckerInfo()),
 	m_binaryWGet(binWGet),
-	m_binaryNC(binNC),
+	m_binaryMCat(binMCat),
 	m_binaryGnuPG(binGnuPG),
 	m_binaryKeys(binKeys),
 	m_applicationId(applicationId),
@@ -541,7 +541,7 @@ bool UpdateChecker::tryUpdateMirror(UpdateCheckerInfo *updateInfo, const QString
 		log("", "Download okay, checking signature:");
 		if (checkSignature(outFileVers, outFileSign))
 		{
-			log("", "Signature okay, parsing info:");
+			log("", "Signature okay, parsing info:", "");
 			success = parseVersionInfo(outFileVers, updateInfo);
 		}
 		else
@@ -562,19 +562,19 @@ bool UpdateChecker::tryUpdateMirror(UpdateCheckerInfo *updateInfo, const QString
 
 bool UpdateChecker::getUpdateInfo(const QString &url, const QString &outFileVers, const QString &outFileSign)
 {
-	log("Downloading update info:");
-	if(!getFile(QString("%1%2"     ).arg(url, mirror_url_postfix[m_betaUpdates ? 1 : 0]), outFileVers))
+	log("Downloading update info:", "");
+	if(getFile(QString("%1%2").arg(url, mirror_url_postfix[m_betaUpdates ? 1 : 0]), outFileVers))
 	{
-		return false;
+		if (!m_cancelled)
+		{
+			log("", "Downloading signature:", "");
+			if (getFile(QString("%1%2.sig2").arg(url, mirror_url_postfix[m_betaUpdates ? 1 : 0]), outFileSign))
+			{
+				return true;
+			}
+		}
 	}
-
-	log("", "Downloading signature:");
-	if(!getFile(QString("%1%2.sig2").arg(url, mirror_url_postfix[m_betaUpdates ? 1 : 0]), outFileSign))
-	{
-		return false;
-	}
-
-	return true;
+	return false;
 }
 
 bool UpdateChecker::parseVersionInfo(const QString &file, UpdateCheckerInfo *updateInfo)
@@ -692,6 +692,10 @@ bool UpdateChecker::getFile(const QString &url, const QString &outFile, const un
 		{
 			return true;
 		}
+		if (m_cancelled)
+		{
+			break; /*cancelled*/
+		}
 	}
 	return false;
 }
@@ -772,13 +776,13 @@ bool UpdateChecker::getFile(const QString &url, const bool forceIp4, const QStri
 
 bool UpdateChecker::tryContactHost(const QString &hostname, const int &timeoutMsec)
 {
-	log(QString("Connecting to host: %1").arg(hostname));
+	log(QString("Connecting to host: %1").arg(hostname), "");
 
 	QProcess process;
 	init_process(process, temp_folder());
 
 	QStringList args;
-	args << "-z" << hostname << QString::number(80);
+	args << "--retry" << QString::number(3) << hostname << QString::number(80);
 
 	QEventLoop loop;
 	connect(&process, SIGNAL(error(QProcess::ProcessError)), &loop, SLOT(quit()));
@@ -789,7 +793,7 @@ bool UpdateChecker::tryContactHost(const QString &hostname, const int &timeoutMs
 	timer.setSingleShot(true);
 	connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
 
-	process.start(m_binaryNC, args);
+	process.start(m_binaryMCat, args);
 
 	if (!process.waitForStarted())
 	{
@@ -809,7 +813,7 @@ bool UpdateChecker::tryContactHost(const QString &hostname, const int &timeoutMs
 		}
 		if (bTimeOut || m_cancelled)
 		{
-			qWarning("NC process timed out <-- killing!");
+			qWarning("MCat process timed out <-- killing!");
 			process.kill();
 			process.waitForFinished();
 			log(bTimeOut ? "!!! TIMEOUT !!!" : "!!! CANCELLED !!!");
