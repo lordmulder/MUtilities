@@ -561,7 +561,52 @@ void MUtils::natural_string_sort(QStringList &list, const bool bIgnoreCase)
 // CLEAN FILE PATH
 ///////////////////////////////////////////////////////////////////////////////
 
-QString MUtils::clean_file_name(const QString &name)
+static QMutex                                              g_clean_file_name_mutex;
+static QScopedPointer<const QList<QPair<QRegExp,QString>>> g_clean_file_name_regex;
+
+static void clean_file_name_make_pretty(QString &str)
+{
+	static const struct { const char *p; const char *r; } PATTERN[] =
+	{
+		{ "^\\s*\"([^\"]*)\"\\s*$",    "\\1"                         },  //Remove straight double quotes around the whole string
+		{ "\"([^\"]*)\"",              "\xE2\x80\x9C\\1\xE2\x80\x9D" },  //Replace remaining pairs of straight double quotes with opening/closing double quote
+		{ "^[\\\\/:]+([^\\\\/:]+.*)$", "\\1"                         },  //Remove leading slash, backslash and colon characters
+		{ "^(.*[^\\\\/:]+)[\\\\/:]+$", "\\1"                         },  //Remove trailing slash, backslash and colon characters
+		{ "(\\s*[\\\\/:]\\s*)+",       " - "                         },  //Replace any slash, backslash or colon character that appears in the middle
+		{ NULL, NULL }
+	};
+
+	QMutexLocker locker(&g_clean_file_name_mutex);
+
+	if (g_clean_file_name_regex.isNull())
+	{
+		QScopedPointer<QList<QPair<QRegExp, QString>>> list(new QList<QPair<QRegExp, QString>>());
+		for (size_t i = 0; PATTERN[i].p; ++i)
+		{
+			list->append(qMakePair(QRegExp(QString::fromUtf8(PATTERN[i].p), Qt::CaseInsensitive), PATTERN[i].r ? QString::fromUtf8(PATTERN[i].r) : QString()));
+		}
+		g_clean_file_name_regex.reset(list.take());
+	}
+
+	bool keepOnGoing = !str.isEmpty();
+	while(keepOnGoing)
+	{
+		const QString prev = str;
+		keepOnGoing = false;
+		for (QList<QPair<QRegExp, QString>>::ConstIterator iter = g_clean_file_name_regex->constBegin(); iter != g_clean_file_name_regex->constEnd(); ++iter)
+		{
+			str.replace(iter->first, iter->second);
+			if (str.compare(prev))
+			{
+				keepOnGoing = !str.isEmpty();
+				break;
+			}
+		}
+		str = str.simplified();
+	}
+}
+
+QString MUtils::clean_file_name(const QString &name, const bool &pretty)
 {
 	static const QLatin1Char REPLACEMENT_CHAR('_');
 	static const char FILENAME_ILLEGAL_CHARS[] = "<>:\"/\\|?*";
@@ -573,11 +618,9 @@ QString MUtils::clean_file_name(const QString &name)
 	};
 
 	QString result(name);
-	if (result.contains(QLatin1Char('"')))
+	if (pretty)
 	{
-		QRegExp quoted("\"(.+)\"");
-		quoted.setMinimal(true);
-		result.replace(quoted, "``\\1´´");
+		clean_file_name_make_pretty(result);
 	}
 
 	for(QString::Iterator iter = result.begin(); iter != result.end(); iter++)
@@ -630,7 +673,7 @@ static QPair<QString,QString> clean_file_path_get_prefix(const QString path)
 	return qMakePair(QString(), posixPath);
 }
 
-QString MUtils::clean_file_path(const QString &path)
+QString MUtils::clean_file_path(const QString &path, const bool &pretty)
 {
 	const QPair<QString, QString> prefix = clean_file_path_get_prefix(path);
 
@@ -641,7 +684,7 @@ QString MUtils::clean_file_path(const QString &path)
 		{
 			continue; //handle case "c:\"
 		}
-		parts[i] = MUtils::clean_file_name(parts[i]);
+		parts[i] = MUtils::clean_file_name(parts[i], pretty);
 	}
 
 	const QString cleanPath = parts.join(QLatin1String("/"));

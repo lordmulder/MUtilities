@@ -144,12 +144,12 @@ Functions</h2></td></tr>
 <tr class="memitem:a4d4c545ea06892f6487f15a48808564f"><td class="memItemLeft" align="right" valign="top">MUTILS_API void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/da6/namespace_m_utils.html#a4d4c545ea06892f6487f15a48808564f">natural_string_sort</a> (QStringList &amp;list, const bool bIgnoreCase)</td></tr>
 <tr class="memdesc:a4d4c545ea06892f6487f15a48808564f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sort a list of strings using "natural ordering" algorithm.  <a href="#a4d4c545ea06892f6487f15a48808564f">More...</a><br /></td></tr>
 <tr class="separator:a4d4c545ea06892f6487f15a48808564f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afd8eb699de88edd73e47fe2e41873385"><td class="memItemLeft" align="right" valign="top">MUTILS_API QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/da6/namespace_m_utils.html#afd8eb699de88edd73e47fe2e41873385">clean_file_name</a> (const QString &amp;name)</td></tr>
-<tr class="memdesc:afd8eb699de88edd73e47fe2e41873385"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clean up a file name string.  <a href="#afd8eb699de88edd73e47fe2e41873385">More...</a><br /></td></tr>
-<tr class="separator:afd8eb699de88edd73e47fe2e41873385"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad801fab93087c31d764ad15295fe3a88"><td class="memItemLeft" align="right" valign="top">MUTILS_API QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/da6/namespace_m_utils.html#ad801fab93087c31d764ad15295fe3a88">clean_file_path</a> (const QString &amp;path)</td></tr>
-<tr class="memdesc:ad801fab93087c31d764ad15295fe3a88"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clean up a file path string.  <a href="#ad801fab93087c31d764ad15295fe3a88">More...</a><br /></td></tr>
-<tr class="separator:ad801fab93087c31d764ad15295fe3a88"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeb7783b8ecbe163501ce60dce8b6709f"><td class="memItemLeft" align="right" valign="top">MUTILS_API QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/da6/namespace_m_utils.html#aeb7783b8ecbe163501ce60dce8b6709f">clean_file_name</a> (const QString &amp;name, const bool &amp;pretty)</td></tr>
+<tr class="memdesc:aeb7783b8ecbe163501ce60dce8b6709f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clean up a file name string.  <a href="#aeb7783b8ecbe163501ce60dce8b6709f">More...</a><br /></td></tr>
+<tr class="separator:aeb7783b8ecbe163501ce60dce8b6709f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb5da6435b27e10443060dd2550784f3"><td class="memItemLeft" align="right" valign="top">MUTILS_API QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/da6/namespace_m_utils.html#adb5da6435b27e10443060dd2550784f3">clean_file_path</a> (const QString &amp;path, const bool &amp;pretty)</td></tr>
+<tr class="memdesc:adb5da6435b27e10443060dd2550784f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clean up a file path string.  <a href="#adb5da6435b27e10443060dd2550784f3">More...</a><br /></td></tr>
+<tr class="separator:adb5da6435b27e10443060dd2550784f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad2a851b289ee66873d3a1ec86f5f34eb"><td class="memItemLeft" align="right" valign="top">MUTILS_API bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/da6/namespace_m_utils.html#ad2a851b289ee66873d3a1ec86f5f34eb">regexp_parse_uint32</a> (const QRegExp &amp;regexp, quint32 &amp;value)</td></tr>
 <tr class="memdesc:ad2a851b289ee66873d3a1ec86f5f34eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse regular expression results.  <a href="#ad2a851b289ee66873d3a1ec86f5f34eb">More...</a><br /></td></tr>
 <tr class="separator:ad2a851b289ee66873d3a1ec86f5f34eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -201,8 +201,8 @@ class MUTILS_API&#160;</td><td class="memItemRight" valign="bottom"><b>Taskbar7_
 
 </div>
 </div>
-<a id="afd8eb699de88edd73e47fe2e41873385"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afd8eb699de88edd73e47fe2e41873385">&sect;&nbsp;</a></span>clean_file_name()</h2>
+<a id="aeb7783b8ecbe163501ce60dce8b6709f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeb7783b8ecbe163501ce60dce8b6709f">&sect;&nbsp;</a></span>clean_file_name()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -211,8 +211,18 @@ class MUTILS_API&#160;</td><td class="memItemRight" valign="bottom"><b>Taskbar7_
           <td class="memname">MUTILS_API QString MUtils::clean_file_name </td>
           <td>(</td>
           <td class="paramtype">const QString &amp;&#160;</td>
-          <td class="paramname"><em>name</em></td><td>)</td>
+          <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">const bool &amp;&#160;</td>
+          <td class="paramname"><em>pretty</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -221,7 +231,8 @@ class MUTILS_API&#160;</td><td class="memItemRight" valign="bottom"><b>Taskbar7_
 <p>This function ensures that the given string is a valid file (or directory) name. It does so by replacing any illegal characters, i.e. any characters <em>not</em> allowed in file names (which explicitly <em>includes</em> directory separators). Furthermore, the function will trim/remove specific characters that are <em>not</em> allowed directly at the beginning or end of a file name. Finally, the function takes care of special "reserved" file names that are forbidden by the file system. You can use this function to convert user inputs into a valid file name.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">list</td><td>A read-only reference to the QString holding the original, potentially invalid file name.</td></tr>
+    <tr><td class="paramname">name</td><td>A read-only reference to the QString holding the original, potentially invalid file name.</td></tr>
+    <tr><td class="paramname">pretty</td><td>If set to <code>true</code>, the function tries to generate a "pretty" file name from the given file name. Otherwise, the function simply replaces each forbidden file name character by an underscore character.</td></tr>
   </table>
   </dd>
 </dl>
@@ -229,8 +240,8 @@ class MUTILS_API&#160;</td><td class="memItemRight" valign="bottom"><b>Taskbar7_
 
 </div>
 </div>
-<a id="ad801fab93087c31d764ad15295fe3a88"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad801fab93087c31d764ad15295fe3a88">&sect;&nbsp;</a></span>clean_file_path()</h2>
+<a id="adb5da6435b27e10443060dd2550784f3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adb5da6435b27e10443060dd2550784f3">&sect;&nbsp;</a></span>clean_file_path()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -239,8 +250,18 @@ class MUTILS_API&#160;</td><td class="memItemRight" valign="bottom"><b>Taskbar7_
           <td class="memname">MUTILS_API QString MUtils::clean_file_path </td>
           <td>(</td>
           <td class="paramtype">const QString &amp;&#160;</td>
-          <td class="paramname"><em>path</em></td><td>)</td>
+          <td class="paramname"><em>path</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">const bool &amp;&#160;</td>
+          <td class="paramname"><em>pretty</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -249,7 +270,8 @@ class MUTILS_API&#160;</td><td class="memItemRight" valign="bottom"><b>Taskbar7_
 <p>This function ensures that the given string is a valid file (or directory) path. It does so by replacing any illegal characters, i.e. any characters <em>not</em> allowed in file paths. Directory separators are preserved, but they will be "canonicalized". Furthermore, in each path component, the function will trim/remove specific characters that are <em>not</em> allowed directly at the beginning or end of a path component. Finally, the function takes care of special "reserved" file names that are forbidden by the file system. You can use this function to convert user inputs into a valid file path.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">list</td><td>A read-only reference to the QString holding the original, potentially invalid file path.</td></tr>
+    <tr><td class="paramname">path</td><td>A read-only reference to the QString holding the original, potentially invalid file path.</td></tr>
+    <tr><td class="paramname">pretty</td><td>If set to <code>true</code>, the function tries to generate "pretty" file names from the given file names. Otherwise, the function simply replaces each forbidden file name character by an underscore character.</td></tr>
   </table>
   </dd>
 </dl>

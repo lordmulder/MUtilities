@@ -263,22 +263,26 @@ namespace MUtils
 	*
 	* This function ensures that the given string is a valid file (or directory) name. It does so by replacing any illegal characters, i.e. any characters *not* allowed in file names (which explicitly *includes* directory separators). Furthermore, the function will trim/remove specific characters that are *not* allowed directly at the beginning or end of a file name. Finally, the function takes care of special "reserved" file names that are forbidden by the file system. You can use this function to convert user inputs into a valid file name.
 	*
-	* \param list A read-only reference to the QString holding the original, potentially invalid file name.
+	* \param name A read-only reference to the QString holding the original, potentially invalid file name.
+	*
+	* \param pretty If set to `true`, the function tries to generate a "pretty" file name from the given file name. Otherwise, the function simply replaces each forbidden file name character by an underscore character.
 	*
 	* \return The function returns a QString holding a valid file name. If, however, the input string was empty or contained only white-space characters, the returned sting can be empty.
 	*/
-	MUTILS_API QString clean_file_name(const QString &name);
+	MUTILS_API QString clean_file_name(const QString &name, const bool &pretty);
 
 	/**
 	* \brief Clean up a file path string
 	*
 	* This function ensures that the given string is a valid file (or directory) path. It does so by replacing any illegal characters, i.e. any characters *not* allowed in file paths. Directory separators are preserved, but they will be "canonicalized". Furthermore, in each path component, the function will trim/remove specific characters that are *not* allowed directly at the beginning or end of a path component. Finally, the function takes care of special "reserved" file names that are forbidden by the file system. You can use this function to convert user inputs into a valid file path.
 	*
-	* \param list A read-only reference to the QString holding the original, potentially invalid file path.
+	* \param path A read-only reference to the QString holding the original, potentially invalid file path.
+	*
+	* \param pretty If set to `true`, the function tries to generate "pretty" file names from the given file names. Otherwise, the function simply replaces each forbidden file name character by an underscore character.
 	*
 	* \return The function returns a QString holding a valid file path. If, however, the input string was empty or contained only white-space characters, the returned sting can be empty.
 	*/
-	MUTILS_API QString clean_file_path(const QString &path);
+	MUTILS_API QString clean_file_path(const QString &path, const bool &pretty);
 
 	/**
 	* \brief Parse regular expression results

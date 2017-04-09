@@ -65,6 +65,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-types">Public Types</a> &#124;
+<a href="#pub-slots">Public Slots</a> &#124;
 <a href="#signals">Signals</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
@@ -96,10 +97,17 @@ Public Types</h2></td></tr>
 <b>UpdateStatus_ErrorNoConnection</b> = 6, 
 <b>UpdateStatus_ErrorConnectionTestFailed</b> = 7, 
 <br />
-&#160;&#160;<b>UpdateStatus_ErrorFetchUpdateInfo</b> = 8
+&#160;&#160;<b>UpdateStatus_ErrorFetchUpdateInfo</b> = 8, 
+<b>UpdateStatus_CancelledByUser</b> = 9
 <br />
  }</td></tr>
 <tr class="separator:aff186e28bb0b6050d9a9224657d0c6a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-slots"></a>
+Public Slots</h2></td></tr>
+<tr class="memitem:add6f1f5bd1dada7fc989c84e597ac4d7"><td class="memItemLeft" align="right" valign="top"><a id="add6f1f5bd1dada7fc989c84e597ac4d7"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>start</b> (Priority=InheritPriority)</td></tr>
+<tr class="separator:add6f1f5bd1dada7fc989c84e597ac4d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="signals"></a>
 Signals</h2></td></tr>
@@ -115,9 +123,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>messageLogged</b> (co
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a31feb1a3987f97b62217701ac4f5bc46"><td class="memItemLeft" align="right" valign="top"><a id="a31feb1a3987f97b62217701ac4f5bc46"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>UpdateChecker</b> (const QString &amp;binWGet, const QString &amp;binNC, const QString &amp;binGnuPG, const QString &amp;binKeys, const QString &amp;applicationId, const quint32 &amp;installedBuildNo, const bool betaUpdates, const bool testMode=false)</td></tr>
-<tr class="separator:a31feb1a3987f97b62217701ac4f5bc46"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4514c18f67d6b800a6102f251255cef5"><td class="memItemLeft" align="right" valign="top"><a id="a4514c18f67d6b800a6102f251255cef5"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>UpdateChecker</b> (const QString &amp;binWGet, const QString &amp;binMCat, const QString &amp;binGnuPG, const QString &amp;binKeys, const QString &amp;applicationId, const quint32 &amp;installedBuildNo, const bool betaUpdates, const bool testMode=false)</td></tr>
+<tr class="separator:a4514c18f67d6b800a6102f251255cef5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a50f6b68b977f213cdc812d3634519cb1"><td class="memItemLeft" align="right" valign="top"><a id="a50f6b68b977f213cdc812d3634519cb1"></a>
 const int&#160;</td><td class="memItemRight" valign="bottom"><b>getUpdateStatus</b> (void) const</td></tr>
 <tr class="separator:a50f6b68b977f213cdc812d3634519cb1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -133,6 +141,9 @@ const int&#160;</td><td class="memItemRight" valign="bottom"><b>getCurrentProgre
 <tr class="memitem:afd219fb3d8223dae6a6b80765683e5b3"><td class="memItemLeft" align="right" valign="top"><a id="afd219fb3d8223dae6a6b80765683e5b3"></a>
 const <a class="el" href="../../d1/d0d/class_m_utils_1_1_update_checker_info.html">UpdateCheckerInfo</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getUpdateInfo</b> (void) const</td></tr>
 <tr class="separator:afd219fb3d8223dae6a6b80765683e5b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a166ded79a9b92116db7d22cef73850fc"><td class="memItemLeft" align="right" valign="top"><a id="a166ded79a9b92116db7d22cef73850fc"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>cancel</b> (void)</td></tr>
+<tr class="separator:a166ded79a9b92116db7d22cef73850fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
