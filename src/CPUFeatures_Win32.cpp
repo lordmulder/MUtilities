@@ -45,7 +45,7 @@ MUtils::CPUFetaures::cpu_info_t MUtils::CPUFetaures::detect(void)
 	//Initialize variables to zero
 	memset(&features,   0, sizeof(cpu_info_t));
 	memset(&systemInfo, 0, sizeof(SYSTEM_INFO));
-	memset(cpuInfo,     0, sizeof(cpuInfo));
+	memset(&cpuInfo[0], 0, sizeof(cpuInfo));
 
 	//Detect the CPU identifier string
 	MY_CPUID(&cpuInfo[0], 0);
@@ -89,10 +89,10 @@ MUtils::CPUFetaures::cpu_info_t MUtils::CPUFetaures::detect(void)
 	//Detect extended feature flags
 	if (max_basic_cap >= 7)
 	{
-		MY_CPUID(&cpuInfo[1], 7);
+		MY_CPUID(&cpuInfo[0], 7);
 		if (features.features & FLAG_AVX)
 		{
-			features.features |= CHECK_FLAG(cpuInfo[2], 0x00000020, FLAG_AVX2);
+			features.features |= CHECK_FLAG(cpuInfo[1], 0x00000020, FLAG_AVX2);
 		}
 	}
 
