@@ -222,9 +222,10 @@ static const int DOWNLOAD_TIMEOUT = 30000;
 static const int VERSION_INFO_EXPIRES_MONTHS = 6;
 static char *USER_AGENT_STR = "Mozilla/5.0 (X11; Linux i686; rv:10.0) Gecko/20100101 Firefox/10.0"; /*use something innocuous*/
 
+#define IS_CANCELLED (!(!m_cancelled))
 #define CHECK_CANCELLED() do \
 { \
-	if(m_cancelled) \
+	if(IS_CANCELLED) \
 	{ \
 		m_success = false; \
 		log("", "Update check has been cancelled by user!"); \
@@ -311,7 +312,7 @@ UpdateChecker::UpdateChecker(const QString &binWGet, const QString &binMCat, con
 	m_testMode(testMode),
 	m_maxProgress(getMaxProgress())
 {
-	m_success = m_cancelled = false;
+	m_success = false;
 	m_status = UpdateStatus_NotStartedYet;
 	m_progress = 0;
 
@@ -331,7 +332,8 @@ UpdateChecker::~UpdateChecker(void)
 
 void UpdateChecker::start(Priority priority)
 {
-	m_cancelled = m_success = false;
+	m_success = false;
+	m_cancelled.fetchAndStoreOrdered(0);
 	QThread::start(priority);
 }
 
@@ -692,7 +694,7 @@ bool UpdateChecker::getFile(const QString &url, const QString &outFile, const un
 		{
 			return true;
 		}
-		if (m_cancelled)
+		if (IS_CANCELLED)
 		{
 			break; /*cancelled*/
 		}
@@ -757,7 +759,7 @@ bool UpdateChecker::getFile(const QString &url, const bool forceIp4, const QStri
 			const QString line = QString::fromLatin1(process.readLine()).simplified();
 			log(line);
 		}
-		if (bTimeOut || m_cancelled)
+		if (bTimeOut || IS_CANCELLED)
 		{
 			qWarning("WGet process timed out <-- killing!");
 			process.kill();
@@ -811,7 +813,7 @@ bool UpdateChecker::tryContactHost(const QString &hostname, const int &timeoutMs
 			QString line = QString::fromLatin1(process.readLine()).simplified();
 			log(line);
 		}
-		if (bTimeOut || m_cancelled)
+		if (bTimeOut || IS_CANCELLED)
 		{
 			qWarning("MCat process timed out <-- killing!");
 			process.kill();

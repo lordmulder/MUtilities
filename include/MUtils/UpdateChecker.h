@@ -90,7 +90,7 @@ namespace MUtils
 		const int  getCurrentProgress(void)          const { return m_progress; };
 		const UpdateCheckerInfo *getUpdateInfo(void) const { return m_updateInfo.data(); }
 
-		void cancel(void) { m_cancelled = true; }
+		bool cancel(void) { return m_cancelled.ref(); }
 
 	public slots:
 		void start(Priority = InheritPriority);
@@ -121,7 +121,7 @@ namespace MUtils
 		const QString m_binaryKeys;
 
 		volatile bool m_success;
-		volatile bool m_cancelled;
+		QAtomicInt m_cancelled;
 
 		int m_status;
 		int m_progress;
