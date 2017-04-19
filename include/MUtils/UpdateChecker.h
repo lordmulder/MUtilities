@@ -120,7 +120,7 @@ namespace MUtils
 		const QString m_binaryGnuPG;
 		const QString m_binaryKeys;
 
-		volatile bool m_success;
+		QAtomicInt m_success;
 		QAtomicInt m_cancelled;
 
 		int m_status;

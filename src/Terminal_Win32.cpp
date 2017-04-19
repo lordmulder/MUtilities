@@ -59,7 +59,7 @@
 static MUtils::Internal::CriticalSection g_terminal_lock;
 
 //Is terminal attached?
-static volatile bool g_terminal_attached = false;
+static QAtomicInt g_terminal_attached;
 
 //Terminal output buffer
 static const size_t BUFF_SIZE = 8192;
@@ -176,7 +176,7 @@ static void terminal_shutdown(void)
 {
 	MUtils::Internal::CSLocker lock(g_terminal_lock);
 
-	if (g_terminal_attached)
+	if (g_terminal_attached.fetchAndStoreOrdered(0) > 0)
 	{
 		g_fileBuf_stdout.reset();
 		g_fileBuf_stderr.reset();
@@ -185,7 +185,6 @@ static void terminal_shutdown(void)
 		if(stderr) freopen_s(&temp[1], "NUL", "wb", stderr);
 		FreeConsole();
 		set_hicon(&g_terminal_icon, NULL);
-		g_terminal_attached = false;
 	}
 }
 
@@ -229,7 +228,7 @@ void MUtils::Terminal::setup(int &argc, char **argv, const char* const appName, 
 
 	if(enableConsole)
 	{
-		if(!g_terminal_attached)
+		if(!g_terminal_attached.fetchAndStoreOrdered(1))
 		{
 			if(AllocConsole() != FALSE)
 			{
@@ -241,11 +240,14 @@ void MUtils::Terminal::setup(int &argc, char **argv, const char* const appName, 
 					_snprintf_s(title, 128, _TRUNCATE, "%s | Debug Console", appName);
 					SetConsoleTitleA(title);
 				}
-				g_terminal_attached = true;
+			}
+			else
+			{
+				g_terminal_attached.fetchAndStoreOrdered(0); /*failed*/
 			}
 		}
 
-		if(g_terminal_attached)
+		if(MUTILS_BOOLIFY(g_terminal_attached))
 		{
 			g_fileBuf_stdout.reset(terminal_connect(stdout, std::cout));
 			g_fileBuf_stderr.reset(terminal_connect(stderr, std::cerr));
@@ -394,7 +396,7 @@ void MUtils::Terminal::write(const int &type, const char *const message)
 {
 	MUtils::Internal::CSLocker lock(g_terminal_lock);
 
-	if(g_terminal_attached)
+	if(MUTILS_BOOLIFY(g_terminal_attached))
 	{
 		write_to_terminal(type, message);
 	}
@@ -417,7 +419,7 @@ void MUtils::Terminal::set_icon(const QIcon &icon)
 {
 	MUtils::Internal::CSLocker lock(g_terminal_lock);
 
-	if(g_terminal_attached && (!(icon.isNull() || MUtils::OS::running_on_wine())))
+	if(MUTILS_BOOLIFY(g_terminal_attached) && (!(icon.isNull() || MUtils::OS::running_on_wine())))
 	{
 		if(const HICON hIcon = (HICON) MUtils::Win32Utils::qicon_to_hicon(&icon, 16, 16))
 		{

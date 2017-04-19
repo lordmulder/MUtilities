@@ -222,12 +222,11 @@ static const int DOWNLOAD_TIMEOUT = 30000;
 static const int VERSION_INFO_EXPIRES_MONTHS = 6;
 static char *USER_AGENT_STR = "Mozilla/5.0 (X11; Linux i686; rv:10.0) Gecko/20100101 Firefox/10.0"; /*use something innocuous*/
 
-#define IS_CANCELLED (!(!m_cancelled))
 #define CHECK_CANCELLED() do \
 { \
-	if(IS_CANCELLED) \
+	if(MUTILS_BOOLIFY(m_cancelled)) \
 	{ \
-		m_success = false; \
+		m_success.fetchAndStoreOrdered(0); \
 		log("", "Update check has been cancelled by user!"); \
 		setProgress(m_maxProgress); \
 		setStatus(UpdateStatus_CancelledByUser); \
@@ -312,7 +311,6 @@ UpdateChecker::UpdateChecker(const QString &binWGet, const QString &binMCat, con
 	m_testMode(testMode),
 	m_maxProgress(getMaxProgress())
 {
-	m_success = false;
 	m_status = UpdateStatus_NotStartedYet;
 	m_progress = 0;
 
@@ -332,7 +330,7 @@ UpdateChecker::~UpdateChecker(void)
 
 void UpdateChecker::start(Priority priority)
 {
-	m_success = false;
+	m_success.fetchAndStoreOrdered(0);
 	m_cancelled.fetchAndStoreOrdered(0);
 	QThread::start(priority);
 }
@@ -427,7 +425,7 @@ endLoop:
 		const bool isQuick = (mirrorCount++ < QUICK_MIRRORS);
 		if(tryUpdateMirror(m_updateInfo.data(), currentMirror, isQuick))
 		{
-			m_success = true; /*success*/
+			m_success.ref(); /*success*/
 			break;
 		}
 		if (isQuick)
@@ -447,7 +445,7 @@ endLoop:
 
 	// ----- Generate final result ----- //
 
-	if(m_success)
+	if(MUTILS_BOOLIFY(m_success))
 	{
 		if(m_updateInfo->m_buildNo > m_installedBuildNo)
 		{
@@ -694,7 +692,7 @@ bool UpdateChecker::getFile(const QString &url, const QString &outFile, const un
 		{
 			return true;
 		}
-		if (IS_CANCELLED)
+		if (MUTILS_BOOLIFY(m_cancelled))
 		{
 			break; /*cancelled*/
 		}
@@ -759,7 +757,7 @@ bool UpdateChecker::getFile(const QString &url, const bool forceIp4, const QStri
 			const QString line = QString::fromLatin1(process.readLine()).simplified();
 			log(line);
 		}
-		if (bTimeOut || IS_CANCELLED)
+		if (bTimeOut || MUTILS_BOOLIFY(m_cancelled))
 		{
 			qWarning("WGet process timed out <-- killing!");
 			process.kill();
@@ -813,7 +811,7 @@ bool UpdateChecker::tryContactHost(const QString &hostname, const int &timeoutMs
 			QString line = QString::fromLatin1(process.readLine()).simplified();
 			log(line);
 		}
-		if (bTimeOut || IS_CANCELLED)
+		if (bTimeOut || MUTILS_BOOLIFY(m_cancelled))
 		{
 			qWarning("MCat process timed out <-- killing!");
 			process.kill();

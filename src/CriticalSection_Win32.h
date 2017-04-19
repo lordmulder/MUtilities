@@ -78,11 +78,10 @@ namespace MUtils
 		public:
 			inline CSLocker(CriticalSection &criticalSection)
 			:
-				m_locked(false),
 				m_criticalSection(criticalSection)
 			{
 				m_criticalSection.enter();
-				m_locked = true;
+				m_locked.ref();
 			}
 
 			inline ~CSLocker(void)
@@ -92,14 +91,13 @@ namespace MUtils
 
 			inline void forceUnlock(void)
 			{
-				if(m_locked)
+				if (m_locked.fetchAndStoreOrdered(0) > 0)
 				{
 					m_criticalSection.leave();
-					m_locked = false;
 				}
 			}
 		protected:
-			volatile bool m_locked;
+			QAtomicInt m_locked;
 			CriticalSection &m_criticalSection;
 		};
 	}

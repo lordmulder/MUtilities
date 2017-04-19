@@ -51,7 +51,7 @@
 	{ \
 		return false; \
 	} \
-	if(!(p->initialized || initialize())) \
+	if(!(MUTILS_BOOLIFY(p->initialized) || initialize())) \
 	{ \
 		qWarning("Taskbar initialization failed!"); \
 		return false; \
@@ -73,13 +73,11 @@ namespace MUtils
 		Taskbar7_Private(void)
 		{
 			taskbarList = NULL;
-			supported   = false;
-			initialized = false;
 		}
 
 		ITaskbarList3 *taskbarList;
-		volatile bool supported;
-		volatile bool initialized;
+		QAtomicInt supported;
+		QAtomicInt initialized;
 	};
 }
 
@@ -96,9 +94,16 @@ MUtils::Taskbar7::Taskbar7(QWidget *const window)
 	{
 		MUTILS_THROW("Taskbar7: Window pointer must not be NULL!");
 	}
-	if(!(p->supported = (OS::os_version() >= OS::Version::WINDOWS_WIN70)))
+	if (!p->supported)
 	{
-		qWarning("Taskbar7: Taskbar progress not supported on this platform.");
+		if (OS::os_version() >= OS::Version::WINDOWS_WIN70)
+		{
+			p->supported.ref();
+		}
+		else
+		{
+			qWarning("Taskbar7: Taskbar progress not supported on this platform.");
+		}
 	}
 }
 
@@ -190,7 +195,7 @@ bool MUtils::Taskbar7::initialize(void)
 		p->taskbarList = ptbl;
 	}
 
-	while(!p->initialized)
+	if(!p->initialized)
 	{
 		bool okay = false;
 		for(int i = 0; i < 8; i++)
@@ -207,7 +212,7 @@ bool MUtils::Taskbar7::initialize(void)
 			qWarning("ITaskbarList3::HrInit() has failed!");
 			return false;
 		}
-		p->initialized = true;
+		p->initialized.ref(); /*success*/
 	}
 
 	return true;

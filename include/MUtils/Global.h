@@ -361,6 +361,10 @@ namespace MUtils
 */
 #define MUTILS_BOOL2STR(X) ((X) ? "1" : "0")
 
+/** \brief Converts a given expression into a boolean expression, by application of double negation operator.
+*/
+#define MUTILS_BOOLIFY(X) (!(!(X)))
+
 /** \brief Disables copy constructor and assignment operator in the specified class. This macro should be used in the "private" section of the class' declaration.
 */
 #define MUTILS_NO_COPY(CLASS) \
