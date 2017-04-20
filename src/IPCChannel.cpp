@@ -152,7 +152,7 @@ namespace MUtils
 		friend class IPCChannel;
 
 	protected:
-		volatile bool initialized;
+		QAtomicInt initialized;
 		QScopedPointer<QSharedMemory> sharedmem;
 		QScopedPointer<QSystemSemaphore> semaphore_rd;
 		QScopedPointer<QSystemSemaphore> semaphore_wr;
@@ -172,7 +172,6 @@ MUtils::IPCChannel::IPCChannel(const QString &applicationId, const quint32 &appV
 	m_appVersionNo(appVersionNo),
 	m_headerStr(QCryptographicHash::hash(MAKE_ID(applicationId, appVersionNo, channelId, "header").toLatin1(), QCryptographicHash::Sha1).toHex())
 {
-	p->initialized = false;
 	if(m_headerStr.length() != Internal::HDR_LEN)
 	{
 		MUTILS_THROW("Invalid header length has been detected!");
@@ -181,7 +180,7 @@ MUtils::IPCChannel::IPCChannel(const QString &applicationId, const quint32 &appV
 
 MUtils::IPCChannel::~IPCChannel(void)
 {
-	if(p->initialized)
+	if(MUTILS_BOOLIFY(p->initialized))
 	{
 		if(p->sharedmem->isAttached())
 		{
@@ -200,7 +199,7 @@ int MUtils::IPCChannel::initialize(void)
 {
 	QWriteLocker writeLock(&p->lock);
 	
-	if(p->initialized)
+	if(MUTILS_BOOLIFY(p->initialized))
 	{
 		return RET_ALREADY_INITIALIZED;
 	}
@@ -258,7 +257,7 @@ int MUtils::IPCChannel::initialize(void)
 				qWarning("Failed to access shared memory: %s", MUTILS_UTF8(errorMessage));
 				return RET_FAILURE;
 			}
-			p->initialized = true;
+			p->initialized.ref();
 			return RET_SUCCESS_SLAVE;
 		}
 		else
@@ -300,7 +299,7 @@ int MUtils::IPCChannel::initialize(void)
 	//qDebug("IPC KEY #2: %s", MUTILS_UTF8(p->semaphore_rd->key()));
 	//qDebug("IPC KEY #3: %s", MUTILS_UTF8(p->semaphore_wr->key()));
 
-	p->initialized = true;
+	p->initialized.ref();
 	return RET_SUCCESS_MASTER;
 }
 

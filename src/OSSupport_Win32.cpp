@@ -1668,7 +1668,7 @@ static volatile bool g_debug_check = check_debugger_helper();
 ///////////////////////////////////////////////////////////////////////////////
 
 static MUtils::Internal::CriticalSection g_fatal_exit_lock;
-static volatile bool g_fatal_exit_flag = true;
+static QAtomicInt g_fatal_exit_flag;
 
 static DWORD WINAPI fatal_exit_helper(LPVOID lpParameter)
 {
@@ -1680,12 +1680,10 @@ void MUtils::OS::fatal_exit(const wchar_t* const errorMessage)
 {
 	g_fatal_exit_lock.enter();
 	
-	if(!g_fatal_exit_flag)
+	if(!g_fatal_exit_flag.testAndSetOrdered(0, 1))
 	{
 		return; /*prevent recursive invocation*/
 	}
-
-	g_fatal_exit_flag = false;
 
 	if(g_main_thread_id != GetCurrentThreadId())
 	{
@@ -1695,9 +1693,13 @@ void MUtils::OS::fatal_exit(const wchar_t* const errorMessage)
 		}
 	}
 
-	if(HANDLE hThread = CreateThread(NULL, 0, fatal_exit_helper, (LPVOID) errorMessage, 0, NULL))
+	if(HANDLE hThread = CreateThread(NULL, 0, fatal_exit_helper, (LPVOID)errorMessage, 0, NULL))
 	{
 		WaitForSingleObject(hThread, INFINITE);
+	}
+	else
+	{
+		fatal_exit_helper((LPVOID)errorMessage);
 	}
 
 	for(;;)
