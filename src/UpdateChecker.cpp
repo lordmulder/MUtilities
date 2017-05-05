@@ -53,7 +53,7 @@ static const char *update_mirrors[] =
 	"http://muldersoft.com/",
 	"http://mulder.bplaced.net/",
 	"http://mulder.6te.net/",
-	"http://mulder.webuda.com/",
+	"http://mulder.000webhostapp.com/",	//"http://mulder.webuda.com/",
 	"http://mulder.pe.hu/",
 	"http://muldersoft.square7.ch/",
 	"http://muldersoft.co.nf/",
