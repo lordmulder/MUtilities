@@ -131,7 +131,7 @@ namespace MUtils
 		inline void log(const QString &str1, const QString &str2 = QString(), const QString &str3 = QString(), const QString &str4 = QString());
 
 		bool getUpdateInfo(const QString &url, const QString &outFileVers, const QString &outFileSign);
-		bool tryContactHost(const QString &hostname, const int &timeoutMsec);
+		bool tryContactHost(const QString &hostname, const int &timeoutMsec, quint32 *const ipAddrOut = NULL);
 		bool parseVersionInfo(const QString &file, UpdateCheckerInfo *updateInfo);
 
 		bool getFile(const QString &url, const QString &outFile, const unsigned int maxRedir = 5U);

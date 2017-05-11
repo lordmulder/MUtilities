@@ -32,6 +32,7 @@
 #include <QEventLoop>
 #include <QTimer>
 #include <QElapsedTimer>
+#include <QSet>
 
 using namespace MUtils;
 
@@ -94,7 +95,6 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	"www.bing.com",
 	"www.bingeandgrab.com",
 	"www.bucketheadpikes.com",
-	"www.buckethead-coop.com",
 	"www.buzzfeed.com",
 	"www.cam.ac.uk",
 	"www.ccc.de",
@@ -108,6 +108,7 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	"www.der-postillon.com",
 	"www.ebay.com",
 	"www.equation.com",
+	"www.ethz.ch",
 	"www.farbrausch.de",
 	"fc2.com",
 	"fedoraproject.org",
@@ -165,6 +166,7 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	"www.nytimes.com",
 	"www.opera.com",
 	"www.oxford.gov.uk",
+	"www.ox-fanzine.de",
 	"www.partha.com",
 	"pastebin.com",
 	"pastie.org",
@@ -175,6 +177,7 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	"www.qt.io",
 	"www.quakelive.com",
 	"rationalqm.us",
+	"www.reddit.com",
 	"www.rwth-aachen.de",
 	"www.seamonkey-project.org",
 	"selfhtml.org",
@@ -192,7 +195,15 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	"www.tdrsmusic.com",
 	"tu-dresden.de",
 	"www.ubuntu.com",
+	"portal.uned.es",
+	"www.unibuc.ro",
+	"www.uniroma1.it",
+	"www.univ-paris1.fr",
+	"www.univer.kharkov.ua",
+	"www.univie.ac.at",
 	"www.uol.com.br",
+	"www.uva.nl",
+	"www.uw.edu.pl",
 	"www.videohelp.com",
 	"www.videolan.org",
 	"virtualdub.org",
@@ -477,13 +488,25 @@ void UpdateChecker::testKnownHosts(void)
 	qDebug("\n[Known Hosts]");
 	log("Testing all known hosts...", "", "---");
 
-	int hostCount = hostList.count();
+	QSet<quint32> ipAddrSet;
+	quint32 ipAddr;
 	while(!hostList.isEmpty())
 	{
-		QString currentHost = hostList.takeFirst();
+		const QString currentHost = hostList.takeFirst();
 		qDebug("Testing: %s", currentHost.toLatin1().constData());
 		log("", "Testing:", currentHost, "");
-		if (!tryContactHost(currentHost, DOWNLOAD_TIMEOUT))
+		if (tryContactHost(currentHost, DOWNLOAD_TIMEOUT, &ipAddr))
+		{
+			if (ipAddrSet.contains(ipAddr))
+			{
+				qWarning("Duplicate IP-address 0x%08X was encountered!", ipAddr);
+			}
+			else
+			{
+				ipAddrSet << ipAddr; /*not encountered yet*/
+			}
+		}
+		else
 		{
 			qWarning("\nConnectivity test FAILED on the following host:\n%s\n", currentHost.toLatin1().constData());
 		}
@@ -774,7 +797,7 @@ bool UpdateChecker::getFile(const QString &url, const bool forceIp4, const QStri
 	return (process.exitCode() == 0) && output.exists() && output.isFile();
 }
 
-bool UpdateChecker::tryContactHost(const QString &hostname, const int &timeoutMsec)
+bool UpdateChecker::tryContactHost(const QString &hostname, const int &timeoutMsec, quint32 *const ipAddrOut)
 {
 	log(QString("Connecting to host: %1").arg(hostname), "");
 
@@ -793,6 +816,13 @@ bool UpdateChecker::tryContactHost(const QString &hostname, const int &timeoutMs
 	timer.setSingleShot(true);
 	connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
 
+	QScopedPointer<QRegExp> ipAddr;
+	if (ipAddrOut)
+	{
+		*ipAddrOut = 0;
+		ipAddr.reset(new QRegExp("Connecting\\s+to\\s+(\\d+)\\.(\\d+)\\.(\\d+)\\.(\\d+):(\\d+)", Qt::CaseInsensitive));
+	}
+	
 	process.start(m_binaryMCat, args);
 
 	if (!process.waitForStarted())
@@ -808,7 +838,21 @@ bool UpdateChecker::tryContactHost(const QString &hostname, const int &timeoutMs
 		const bool bTimeOut = (!timer.isActive());
 		while (process.canReadLine())
 		{
-			QString line = QString::fromLatin1(process.readLine()).simplified();
+			const QString line = QString::fromLatin1(process.readLine()).simplified();
+			if (!ipAddr.isNull())
+			{
+				if (ipAddr->indexIn(line) >= 0)
+				{
+					quint32 values[4];
+					if (MUtils::regexp_parse_uint32((*ipAddr), values, 4))
+					{
+						*ipAddrOut |= ((values[0] & 0xFF) << 0x18);
+						*ipAddrOut |= ((values[1] & 0xFF) << 0x10);
+						*ipAddrOut |= ((values[2] & 0xFF) << 0x08);
+						*ipAddrOut |= ((values[3] & 0xFF) << 0x00);
+					}
+				}
+			}
 			log(line);
 		}
 		if (bTimeOut || MUTILS_BOOLIFY(m_cancelled))
