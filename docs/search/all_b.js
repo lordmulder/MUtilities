@@ -6,6 +6,7 @@ var searchData=
   ['model',['model',['../dd/de2/struct_m_utils_1_1_c_p_u_fetaures_1_1__cpu__info__t.html#a7d0a012412dc4b04f2b5b37e83f5874a',1,'MUtils::CPUFetaures::_cpu_info_t']]],
   ['mutils',['MUtils',['../d3/da6/namespace_m_utils.html',1,'']]],
   ['mutils_5fbool2str',['MUTILS_BOOL2STR',['../d5/d3b/_global_8h.html#a177ecbfe7701c2ac04bb8bdeb208773a',1,'Global.h']]],
+  ['mutils_5fboolify',['MUTILS_BOOLIFY',['../d5/d3b/_global_8h.html#a8455a4d868742129d26356469fae26ba',1,'Global.h']]],
   ['mutils_5fdelete',['MUTILS_DELETE',['../d5/d3b/_global_8h.html#ad42b1946a83df3bd76734d5ab691fd0d',1,'Global.h']]],
   ['mutils_5fdelete_5farray',['MUTILS_DELETE_ARRAY',['../d5/d3b/_global_8h.html#aa544a37b80f1ab9d86f439a7666e9aa8',1,'Global.h']]],
   ['mutils_5fno_5fcopy',['MUTILS_NO_COPY',['../d5/d3b/_global_8h.html#a8e7b4857b78f9749233e5abc96534ca8',1,'Global.h']]],
