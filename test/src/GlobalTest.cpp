@@ -125,7 +125,7 @@ TEST_F(GlobalTest, TrimStringRight)
 
 #define TEST_CLEAN_FILE(X,Y,Z) do \
 { \
-	ASSERT_QSTR(MUtils::clean_file_##X((Y)), (Z)); \
+	ASSERT_QSTR(MUtils::clean_file_##X((Y), false), (Z)); \
 } \
 while(0)
 
