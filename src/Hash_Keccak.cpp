@@ -155,7 +155,7 @@ MUtils::Hash::Keccak *MUtils::Hash::Keccak::create(const HashBits hashBit, const
 	}
 	if (key)
 	{
-		keccak->update(((const uint8_t*)key), strlen(key));
+		keccak->update(((const Internal::KeccakImpl::UINT8*)key), strlen(key));
 	}
 	return keccak;
 }
