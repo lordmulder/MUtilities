@@ -26,6 +26,7 @@
     <ClCompile Include="src\Global.cpp" />
     <ClCompile Include="src\GUI.cpp" />
     <ClCompile Include="src\GUI_Win32.cpp" />
+    <ClCompile Include="src\Hash.cpp" />
     <ClCompile Include="src\Hash_Blake2.cpp" />
     <ClCompile Include="src\IPCChannel.cpp" />
     <ClCompile Include="src\JobObject_Win32.cpp" />
@@ -47,10 +48,9 @@
     <ClInclude Include="include\MUtils\Exception.h" />
     <ClInclude Include="include\MUtils\Global.h" />
     <ClInclude Include="include\MUtils\GUI.h" />
-    <ClInclude Include="include\MUtils\Hash_Blake2.h" />
+    <ClInclude Include="include\MUtils\Hash.h" />
     <ClInclude Include="include\MUtils\IPCChannel.h" />
     <ClInclude Include="include\MUtils\JobObject.h" />
-    <ClInclude Include="include\MUtils\Hash_Keccak.h" />
     <ClInclude Include="include\MUtils\OSSupport.h" />
     <ClInclude Include="include\MUtils\Registry.h" />
     <ClInclude Include="include\MUtils\Sound.h" />
@@ -63,6 +63,7 @@
     <ClInclude Include="src\3rd_party\keccak\include\keccak_impl.h" />
     <ClInclude Include="src\3rd_party\strnatcmp\include\strnatcmp.h" />
     <ClInclude Include="src\DirLocker.h" />
+    <ClInclude Include="src\Utils_Win32.h" />
     <CustomBuild Include="include\Mutils\UpdateChecker.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe" -o "$(SolutionDir)tmp\$(ProjectName)\MOC_%(Filename).cpp" "%(FullPath)"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MOC "$(SolutionDir)tmp\$(ProjectName)\MOC_%(Filename).cpp"</Message>
