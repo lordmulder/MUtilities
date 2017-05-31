@@ -31,4 +31,4 @@
 
 #define VER_MUTILS_MAJOR					1
 #define VER_MUTILS_MINOR_HI					0
-#define VER_MUTILS_MINOR_LO					7
+#define VER_MUTILS_MINOR_LO					8
