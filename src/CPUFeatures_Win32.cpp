@@ -23,6 +23,9 @@
 #define WIN32_LEAN_AND_MEAN 1
 #include <Windows.h>
 
+//ASM
+#include <intrin.h>
+
 //MUtils
 #include <MUtils/CPUFeatures.h>
 #include <MUtils/OSSupport.h>
