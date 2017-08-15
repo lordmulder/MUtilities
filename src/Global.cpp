@@ -598,11 +598,11 @@ static void clean_file_name_make_pretty(QString &str)
 			str.replace(iter->first, iter->second);
 			if (str.compare(prev))
 			{
+				str = str.simplified();
 				keepOnGoing = !str.isEmpty();
 				break;
 			}
 		}
-		str = str.simplified();
 	}
 }
 
