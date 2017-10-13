@@ -122,6 +122,20 @@ namespace MUtils
 		}
 		network_type_t;
 		
+		/**
+		* \brief This enumeration specifies drive types
+		*/
+		typedef enum
+		{
+			DRIVE_TYPE_ERR = 0,  ///< The drive type cannot be determined
+			DRIVE_TYPE_FDD = 1,  ///< Floppy Drive, or Flash Card reader
+			DRIVE_TYPE_HDD = 2,  ///< Hard Disk drive or Solid-State Drive
+			DRIVE_TYPE_NET = 3,  ///< Remote/Network drive
+			DRIVE_TYPE_OPT = 4,  ///< Optical disk srive, e.g. CD or DVD
+			DRIVE_TYPE_RAM = 5   ///< RAM disk
+		}
+		drive_type_t;
+
 		//System message
 		MUTILS_API void system_message_nfo(const wchar_t *const title, const wchar_t *const text);
 		MUTILS_API void system_message_wrn(const wchar_t *const title, const wchar_t *const text);
@@ -188,6 +202,19 @@ namespace MUtils
 
 		//Free diskspace
 		MUTILS_API bool free_diskspace(const QString &path, quint64 &freeSpace);
+
+		/**
+		* \brief Detect drive type
+		*
+		* This function detetcs the type of the drive to which the given path is pointing.
+		*
+		* \param path The path to the drive whose type is to be detected. On the Windows platform, only the drive letter is relevant.
+		*
+		* \param fast_seeking Pointer to a variable that will be set to TRUE, if the drive supports "fast" seeking (e.g. SSD or similar device), or to FALSE otherwise. This parameter is optional and may be NULL.
+		*
+		* \return The function returns the type of the drive as a `OS::drive_type_t` value. In case of error, the value `DRIVE_TYPE_ERR` will be returned.
+		*/
+		MUTILS_API drive_type_t get_drive_type(const QString &path, bool *fast_seeking = NULL);
 
 		//Shell open
 		MUTILS_API bool shell_open(const QWidget *parent, const QString &url, const bool explore = false);

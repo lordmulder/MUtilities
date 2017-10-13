@@ -27,6 +27,7 @@
 #include <Shellapi.h>
 #include <PowrProf.h>
 #include <Mmsystem.h>
+#include <WinIoCtl.h>
 #pragma warning(push)
 #pragma warning(disable:4091) //for MSVC2015
 #include <ShlObj.h>
@@ -48,6 +49,7 @@
 #include <QDir>
 #include <QWidget>
 #include <QProcess>
+#include <QSet>
 
 //Main thread ID
 static const DWORD g_main_thread_id = GetCurrentThreadId();
@@ -1228,6 +1230,121 @@ bool MUtils::OS::free_diskspace(const QString &path, quint64 &freeSpace)
 
 	freeSpace = -1;
 	return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// DRIVE TYPE
+///////////////////////////////////////////////////////////////////////////////
+
+static wchar_t get_drive_letter(const QString &path)
+{
+	QString nativePath = QDir::toNativeSeparators(path);
+	while (nativePath.startsWith("\\\\?\\") || nativePath.startsWith("\\\\.\\"))
+	{
+		nativePath = QDir::toNativeSeparators(nativePath.mid(4));
+	}
+	if ((path.length() > 1) && (path[1] == QLatin1Char(':')))
+	{
+		const wchar_t letter = static_cast<wchar_t>(path[0].unicode());
+		if (((letter >= 'A') && (letter <= 'Z')) || ((letter >= 'a') && (letter <= 'z')))
+		{
+			return towupper(letter);
+		}
+	}
+	return L'\0'; /*invalid path spec*/
+}
+
+static QSet<DWORD> get_physical_drive_ids(const wchar_t drive_letter)
+{
+	QSet<DWORD> physical_drives;
+	wchar_t driveName[8];
+	_snwprintf_s(driveName, 8, _TRUNCATE, L"\\\\.\\%c:", drive_letter);
+	const HANDLE hDrive = CreateFileW(driveName, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+	if (hDrive && (hDrive != INVALID_HANDLE_VALUE))
+	{
+		const size_t BUFF_SIZE = sizeof(VOLUME_DISK_EXTENTS) + (32U * sizeof(DISK_EXTENT));
+		VOLUME_DISK_EXTENTS *const diskExtents = (VOLUME_DISK_EXTENTS*)_malloca(BUFF_SIZE);
+		DWORD dwSize;
+		if (DeviceIoControl(hDrive, IOCTL_VOLUME_GET_VOLUME_DISK_EXTENTS, NULL, 0, (LPVOID)diskExtents, (DWORD)BUFF_SIZE, (LPDWORD)&dwSize, NULL))
+		{
+			for (DWORD index = 0U; index < diskExtents->NumberOfDiskExtents; ++index)
+			{
+				physical_drives.insert(diskExtents->Extents[index].DiskNumber);
+			}
+		}
+		_freea(diskExtents);
+		CloseHandle(hDrive);
+	}
+	return physical_drives;
+}
+
+static bool incurs_seek_penalty(const DWORD device_id)
+{
+	wchar_t driveName[24];
+	_snwprintf_s(driveName, 24, _TRUNCATE, L"\\\\?\\PhysicalDrive%u", device_id);
+	const HANDLE hDevice = CreateFileW(driveName, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+	bool seeking_penalty = true;
+	if (hDevice && (hDevice != INVALID_HANDLE_VALUE))
+	{
+		STORAGE_PROPERTY_QUERY spq;
+		DEVICE_SEEK_PENALTY_DESCRIPTOR dspd;
+		memset(&spq, 0, sizeof(STORAGE_PROPERTY_QUERY));
+		spq.PropertyId = (STORAGE_PROPERTY_ID)StorageDeviceSeekPenaltyProperty;
+		spq.QueryType = PropertyStandardQuery;
+		DWORD dwSize;
+		if (DeviceIoControl(hDevice, IOCTL_STORAGE_QUERY_PROPERTY, (LPVOID)&spq, (DWORD)sizeof(spq), (LPVOID)&dspd, (DWORD)sizeof(dspd), (LPDWORD)&dwSize, NULL))
+		{
+			seeking_penalty = dspd.IncursSeekPenalty;
+		}
+		CloseHandle(hDevice);
+	}
+	return seeking_penalty;
+}
+
+static bool is_fast_seeking_drive(const wchar_t drive_letter)
+{
+	bool fast_seeking = false;
+	const QSet<DWORD> physical_drive_ids = get_physical_drive_ids(drive_letter);
+	if (!physical_drive_ids.empty())
+	{
+		fast_seeking = true;
+		for (QSet<DWORD>::const_iterator iter = physical_drive_ids.constBegin(); iter != physical_drive_ids.constEnd(); ++iter)
+		{
+			fast_seeking = fast_seeking && (!incurs_seek_penalty(*iter));
+		}
+	}
+	return fast_seeking;
+}
+
+MUtils::OS::drive_type_t MUtils::OS::get_drive_type(const QString &path, bool *fast_seeking)
+{
+	drive_type_t driveType = DRIVE_TYPE_ERR;
+	const wchar_t driveLetter = get_drive_letter(path);
+	if (driveLetter)
+	{
+		wchar_t driveName[8];
+		_snwprintf_s(driveName, 8, _TRUNCATE, L"\\\\.\\%c:\\", driveLetter);
+		switch (GetDriveTypeW(driveName))
+		{
+			case DRIVE_REMOVABLE: driveType = DRIVE_TYPE_FDD; break;
+			case DRIVE_FIXED:     driveType = DRIVE_TYPE_HDD; break;
+			case DRIVE_REMOTE:    driveType = DRIVE_TYPE_NET; break;
+			case DRIVE_CDROM:     driveType = DRIVE_TYPE_OPT; break;
+			case DRIVE_RAMDISK:   driveType = DRIVE_TYPE_RAM; break;
+		}
+	}
+	if (fast_seeking)
+	{
+		if (driveType == DRIVE_TYPE_HDD)
+		{
+			*fast_seeking = is_fast_seeking_drive(driveLetter);
+		}
+		else
+		{
+			*fast_seeking = (driveType == DRIVE_TYPE_RAM);
+		}
+	}
+	return driveType;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
