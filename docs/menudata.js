@@ -8,6 +8,7 @@ var menudata={children:[
 {text:'c',url:'namespacemembers.html#index_c'},
 {text:'d',url:'namespacemembers.html#index_d'},
 {text:'f',url:'namespacemembers.html#index_f'},
+{text:'g',url:'namespacemembers.html#index_g'},
 {text:'i',url:'namespacemembers.html#index_i'},
 {text:'k',url:'namespacemembers.html#index_k'},
 {text:'m',url:'namespacemembers.html#index_m'},

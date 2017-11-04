@@ -353,6 +353,10 @@ namespace MUtils
 */
 #define MUTILS_UTF8(STR) ((STR).toUtf8().constData())
 
+/** \brief Converts a given QString object to a `char*` pointer. The string is converted to Latin-1 encoding. The pointer is valid *only* while the expression is being evaluated, so do **not** free or store this pointer! Mainly useful for function calls that require a `char*` argument.
+*/
+#define MUTILS_L1STR(STR) ((STR).toLatin1().constData())
+
 /** \brief Creates a QString object from a given `wchar_t*` buffer. The buffer is expected to conatin a NULL-terminated string in UTF-16 encoding. The string data is copied into the new QString object, however the original buffer will **not** be freed automatically!
 */
 #define MUTILS_QSTR(STR) (QString::fromUtf16(reinterpret_cast<const unsigned short*>((STR))))

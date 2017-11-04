@@ -136,6 +136,18 @@ Enumerations</h2></td></tr>
  }<tr class="memdesc:a0005b2a3f0289c1078c9cc8ba5ccba45"><td class="mdescLeft">&#160;</td><td class="mdescRight">This enumeration specifies network connection types.  <a href="../../d2/df4/namespace_m_utils_1_1_o_s.html#a0005b2a3f0289c1078c9cc8ba5ccba45">More...</a><br /></td></tr>
 </td></tr>
 <tr class="separator:a0005b2a3f0289c1078c9cc8ba5ccba45"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af8d3f37b0e9c3b73dfcf7d1f237d480c"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/df4/namespace_m_utils_1_1_o_s.html#af8d3f37b0e9c3b73dfcf7d1f237d480c">MUtils::OS::drive_type_t</a> { <br />
+&#160;&#160;<a class="el" href="../../d2/df4/namespace_m_utils_1_1_o_s.html#af8d3f37b0e9c3b73dfcf7d1f237d480ca56b9d51a60c9df7d4ec47e917218b153">MUtils::OS::DRIVE_TYPE_ERR</a> = 0, 
+<a class="el" href="../../d2/df4/namespace_m_utils_1_1_o_s.html#af8d3f37b0e9c3b73dfcf7d1f237d480ca244c1b3fa78d134bf18cc39fb0cc0877">MUtils::OS::DRIVE_TYPE_FDD</a> = 1, 
+<a class="el" href="../../d2/df4/namespace_m_utils_1_1_o_s.html#af8d3f37b0e9c3b73dfcf7d1f237d480ca14a1e51fa7603f7970ce94fdaf658f45">MUtils::OS::DRIVE_TYPE_HDD</a> = 2, 
+<a class="el" href="../../d2/df4/namespace_m_utils_1_1_o_s.html#af8d3f37b0e9c3b73dfcf7d1f237d480caf4b8f61bae5c8602e2f1e68ef88f06a2">MUtils::OS::DRIVE_TYPE_NET</a> = 3, 
+<br />
+&#160;&#160;<a class="el" href="../../d2/df4/namespace_m_utils_1_1_o_s.html#af8d3f37b0e9c3b73dfcf7d1f237d480cab4fa63f34e252cce2176d51b36f0c827">MUtils::OS::DRIVE_TYPE_OPT</a> = 4, 
+<a class="el" href="../../d2/df4/namespace_m_utils_1_1_o_s.html#af8d3f37b0e9c3b73dfcf7d1f237d480ca42b280153a22e6af73fe7edfbbaee69b">MUtils::OS::DRIVE_TYPE_RAM</a> = 5
+<br />
+ }<tr class="memdesc:af8d3f37b0e9c3b73dfcf7d1f237d480c"><td class="mdescLeft">&#160;</td><td class="mdescRight">This enumeration specifies drive types.  <a href="../../d2/df4/namespace_m_utils_1_1_o_s.html#af8d3f37b0e9c3b73dfcf7d1f237d480c">More...</a><br /></td></tr>
+</td></tr>
+<tr class="separator:af8d3f37b0e9c3b73dfcf7d1f237d480c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -208,6 +220,9 @@ MUTILS_API bool&#160;</td><td class="memItemRight" valign="bottom"><b>MUtils::OS
 <tr class="memitem:a9f73ef0fdb95f1c7b59463cdc4e4e3e7"><td class="memItemLeft" align="right" valign="top"><a id="a9f73ef0fdb95f1c7b59463cdc4e4e3e7"></a>
 MUTILS_API bool&#160;</td><td class="memItemRight" valign="bottom"><b>MUtils::OS::free_diskspace</b> (const QString &amp;path, quint64 &amp;freeSpace)</td></tr>
 <tr class="separator:a9f73ef0fdb95f1c7b59463cdc4e4e3e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a47b63d88b79bc692c53a9f2fd82ca11b"><td class="memItemLeft" align="right" valign="top">MUTILS_API drive_type_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/df4/namespace_m_utils_1_1_o_s.html#a47b63d88b79bc692c53a9f2fd82ca11b">MUtils::OS::get_drive_type</a> (const QString &amp;path, bool *fast_seeking=NULL)</td></tr>
+<tr class="memdesc:a47b63d88b79bc692c53a9f2fd82ca11b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Detect drive type.  <a href="../../d2/df4/namespace_m_utils_1_1_o_s.html#a47b63d88b79bc692c53a9f2fd82ca11b">More...</a><br /></td></tr>
+<tr class="separator:a47b63d88b79bc692c53a9f2fd82ca11b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae8768270362c7c933c50f6b2370ff3a2"><td class="memItemLeft" align="right" valign="top"><a id="ae8768270362c7c933c50f6b2370ff3a2"></a>
 MUTILS_API bool&#160;</td><td class="memItemRight" valign="bottom"><b>MUtils::OS::shell_open</b> (const QWidget *parent, const QString &amp;url, const bool explore=false)</td></tr>
 <tr class="separator:ae8768270362c7c933c50f6b2370ff3a2"><td class="memSeparator" colspan="2">&#160;</td></tr>

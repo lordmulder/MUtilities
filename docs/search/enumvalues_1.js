@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['network_5ftype_5ferr',['NETWORK_TYPE_ERR',['../d2/df4/namespace_m_utils_1_1_o_s.html#a0005b2a3f0289c1078c9cc8ba5ccba45af3ce4c3003fa7cc9e3b774669b8ab6e9',1,'MUtils::OS']]],
-  ['network_5ftype_5fnon',['NETWORK_TYPE_NON',['../d2/df4/namespace_m_utils_1_1_o_s.html#a0005b2a3f0289c1078c9cc8ba5ccba45ab81e893484ac0d201a9f54e2af0563dc',1,'MUtils::OS']]],
-  ['network_5ftype_5fyes',['NETWORK_TYPE_YES',['../d2/df4/namespace_m_utils_1_1_o_s.html#a0005b2a3f0289c1078c9cc8ba5ccba45a9ed5ecd6b286fa5ec2e23e652dac8769',1,'MUtils::OS']]]
+  ['folder_5flocalappdata',['FOLDER_LOCALAPPDATA',['../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54a0fb64b1e975f9ff0cc97df6e3b7f8110',1,'MUtils::OS']]],
+  ['folder_5fprogramfiles',['FOLDER_PROGRAMFILES',['../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54abb6f5bd0b6564b2f093f5a2d1c055183',1,'MUtils::OS']]],
+  ['folder_5fsystemfolder',['FOLDER_SYSTEMFOLDER',['../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54a7c25655022efd34417acfaa11f8491b3',1,'MUtils::OS']]],
+  ['folder_5fsystroot_5fdir',['FOLDER_SYSTROOT_DIR',['../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54af32b4c27ec428ad2bf69d8c8802de21c',1,'MUtils::OS']]]
 ];

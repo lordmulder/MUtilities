@@ -51,6 +51,7 @@
     <ClInclude Include="include\MUtils\Hash.h" />
     <ClInclude Include="include\MUtils\IPCChannel.h" />
     <ClInclude Include="include\MUtils\JobObject.h" />
+    <ClInclude Include="include\MUtils\Lazy.h" />
     <ClInclude Include="include\MUtils\OSSupport.h" />
     <ClInclude Include="include\MUtils\Registry.h" />
     <ClInclude Include="include\MUtils\Sound.h" />

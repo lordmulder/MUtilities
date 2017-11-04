@@ -176,6 +176,9 @@
     <ClInclude Include="include\MUtils\Hash.h">
       <Filter>Public Headers</Filter>
     </ClInclude>
+    <ClInclude Include="include\MUtils\Lazy.h">
+      <Filter>Public Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="include\Mutils\UpdateChecker.h">
