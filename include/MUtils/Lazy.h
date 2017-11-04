@@ -52,9 +52,9 @@ namespace MUtils
 			{
 				if (T *const initializer = create())
 				{
-					if (m_data.testAndSetOrdered(NULL, initializer))
+					if (!m_data.testAndSetOrdered(NULL, initializer))
 					{
-						return *initializer;
+						delete initializer;
 					}
 				}
 				else
