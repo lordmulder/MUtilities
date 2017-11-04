@@ -65,10 +65,9 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pro-methods">Protected Member Functions</a> &#124;
 <a href="../../da/d44/class_m_utils_1_1_lazy-members.html">List of all members</a>  </div>
   <div class="headertitle">
-<div class="title">MUtils::Lazy&lt; T &gt; Class Template Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div>  </div>
+<div class="title">MUtils::Lazy&lt; T &gt; Class Template Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 
@@ -79,23 +78,20 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a7dc7baa7d7ac31c644965be2ccc4d8cd"><td class="memItemLeft" align="right" valign="top"><a id="a7dc7baa7d7ac31c644965be2ccc4d8cd"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Lazy</b> (std::function&lt; T *(void)&gt; &amp;&amp;initializer)</td></tr>
+<tr class="separator:a7dc7baa7d7ac31c644965be2ccc4d8cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a86cf7d344a38ea09d37d27acd8993f45"><td class="memItemLeft" align="right" valign="top"><a id="a86cf7d344a38ea09d37d27acd8993f45"></a>
 T &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator*</b> (void)</td></tr>
 <tr class="separator:a86cf7d344a38ea09d37d27acd8993f45"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
-Protected Member Functions</h2></td></tr>
-<tr class="memitem:a03f52adf0e421b20298f2f7578e3375f"><td class="memItemLeft" align="right" valign="top"><a id="a03f52adf0e421b20298f2f7578e3375f"></a>
-virtual T *&#160;</td><td class="memItemRight" valign="bottom"><b>create</b> ()=0</td></tr>
-<tr class="separator:a03f52adf0e421b20298f2f7578e3375f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><h3>template&lt;typename T&gt;<br />
 class MUtils::Lazy&lt; T &gt;</h3>
 
 <p><a class="el" href="../../d0/dce/class_m_utils_1_1_lazy.html" title="Lazy initialization template class. ">Lazy</a> initialization template class. </p>
-<p>In order to create your own "lazy" initializer, inherit from the <code><a class="el" href="../../d0/dce/class_m_utils_1_1_lazy.html" title="Lazy initialization template class. ">Lazy</a>&lt;T&gt;</code> class an implement the <a class="el" href="../../d2/dad/_hash_8h.html#a330b73d6927d6cd95892712f9396f40e" title="Create instance of a hash function. ">create()</a> function. The lazy-initialized value can be obtained from a <code><a class="el" href="../../d0/dce/class_m_utils_1_1_lazy.html" title="Lazy initialization template class. ">Lazy</a>&lt;T&gt;</code> instance by using the <code>operator*()</code>. Initialization of the value happens when the <code>operator*()</code> is called for the very first time, by invoking the concrete <a class="el" href="../../d2/dad/_hash_8h.html#a330b73d6927d6cd95892712f9396f40e" title="Create instance of a hash function. ">create()</a> function. The return value of <a class="el" href="../../d2/dad/_hash_8h.html#a330b73d6927d6cd95892712f9396f40e" title="Create instance of a hash function. ">create()</a> is then stored internally, so that any subsequent call to the <code>operator*()</code> immediately returns the previously created value.</p>
-<p><b>Note on thread-saftey:</b> This class is thread-safe in the sense that all calls to <code>operator*()</code> on the same <code><a class="el" href="../../d0/dce/class_m_utils_1_1_lazy.html" title="Lazy initialization template class. ">Lazy</a>&lt;T&gt;</code> instance, regardless from which thread, are guaranteed to return the exactly same value/object. Still, if the value has <em>not</em> been initialized yet <b>and</b> if multiple threads happen to call <code>operator*()</code> at the same time, then the concrete <a class="el" href="../../d2/dad/_hash_8h.html#a330b73d6927d6cd95892712f9396f40e" title="Create instance of a hash function. ">create()</a> function <em>may</em> be invoked more than once (concurrently and by different threads). In that case, all but one return value of <a class="el" href="../../d2/dad/_hash_8h.html#a330b73d6927d6cd95892712f9396f40e" title="Create instance of a hash function. ">create()</a> are discarded, and all threads eventually receive the same value/object. </p>
+<p>The lazy-initialized value of type T can be obtained from a <code><a class="el" href="../../d0/dce/class_m_utils_1_1_lazy.html" title="Lazy initialization template class. ">Lazy</a>&lt;T&gt;</code> instance by using the <code>operator*()</code>. Initialization of the value happens when the <code>operator*()</code> is called for the very first time, by invoking the <code>initializer</code> lambda-function that was passed to the constructor. The return value of the <code>initializer</code> lambda-function is then stored internally, so that any subsequent call to the <code>operator*()</code> <em>immediately</em> returns the previously created value.</p>
+<p><b>Note on thread-saftey:</b> This class is thread-safe in the sense that all calls to <code>operator*()</code> on the same <code><a class="el" href="../../d0/dce/class_m_utils_1_1_lazy.html" title="Lazy initialization template class. ">Lazy</a>&lt;T&gt;</code> instance, regardless from which thread, are guaranteed to return the exactly same value/object. Still, if the value has <em>not</em> been initialized yet <b>and</b> if multiple threads happen to call <code>operator*()</code> at the same time, then the <code>initializer</code> lambda-function <em>may</em> be invoked more than once (concurrently and by different threads). In that case, all but one return value of the <code>initializer</code> lambda-function are discarded, and all threads eventually obtain the same value/object. </p>
 </div><hr/>The documentation for this class was generated from the following file:<ul>
 <li>include/MUtils/<a class="el" href="../../d8/d4d/_lazy_8h_source.html">Lazy.h</a></li>
 </ul>

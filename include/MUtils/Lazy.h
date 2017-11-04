@@ -31,44 +31,46 @@
 #include <MUtils/Exception.h>
 
 //Qt
-#include <QScopedPointer>
 #include <QAtomicPointer>
+
+//CRT
+#include <functional>
 
 namespace MUtils
 {
 	/**
 	* \brief Lazy initialization template class
 	*
-	* In order to create your own "lazy" initializer, inherit from the `Lazy<T>` class an implement the create() function. The lazy-initialized value can be obtained from a `Lazy<T>` instance by using the `operator*()`. Initialization of the value happens when the `operator*()` is called for the very first time, by invoking the concrete create() function. The return value of create() is then stored internally, so that any subsequent call to the `operator*()` immediately returns the previously created value.
+	* The lazy-initialized value of type T can be obtained from a `Lazy<T>` instance by using the `operator*()`. Initialization of the value happens when the `operator*()` is called for the very first time, by invoking the `initializer` lambda-function that was passed to the constructor. The return value of the `initializer` lambda-function is then stored internally, so that any subsequent call to the `operator*()` *immediately* returns the previously created value.
 	*
-	* **Note on thread-saftey:** This class is thread-safe in the sense that all calls to `operator*()` on the same `Lazy<T>` instance, regardless from which thread, are guaranteed to return the exactly same value/object. Still, if the value has *not* been initialized yet **and** if multiple threads happen to call `operator*()` at the same time, then the concrete create() function *may* be invoked more than once (concurrently and by different threads). In that case, all but one return value of create() are discarded, and all threads eventually receive the same value/object.
+	* **Note on thread-saftey:** This class is thread-safe in the sense that all calls to `operator*()` on the same `Lazy<T>` instance, regardless from which thread, are guaranteed to return the exactly same value/object. Still, if the value has *not* been initialized yet **and** if multiple threads happen to call `operator*()` at the same time, then the `initializer` lambda-function *may* be invoked more than once (concurrently and by different threads). In that case, all but one return value of the `initializer` lambda-function are discarded, and all threads eventually obtain the same value/object.
 	*/
 	template<typename T> class Lazy
 	{
 	public:
+		Lazy(std::function<T*(void)> &&initializer) : m_initializer(initializer) { }
+
 		T& operator*(void)
 		{
-			while (!m_data)
+			while (!m_value)
 			{
-				if (T *const initializer = create())
+				if (T *const value = m_initializer())
 				{
-					if (!m_data.testAndSetOrdered(NULL, initializer))
+					if (!m_value.testAndSetOrdered(NULL, value))
 					{
-						delete initializer;
+						delete value; /*too late*/
 					}
 				}
 				else
 				{
-					MUTILS_THROW("Initializer function returned NULL!");
+					MUTILS_THROW("Initializer returned NULL!");
 				}
 			}
-			return *m_data;
+			return *m_value;
 		}
 
-	protected:
-		virtual T *create() = 0;
-
 	private:
-		QAtomicPointer<T> m_data;
+		QAtomicPointer<T> m_value;
+		const std::function<T*(void)> m_initializer;
 	};
 }
