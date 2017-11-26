@@ -34,7 +34,7 @@
 #include <QElapsedTimer>
 #include <QSet>
 
-using namespace MUtils;
+#include "Mirrors.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // CONSTANTS
@@ -49,185 +49,9 @@ static const char *mirror_url_postfix[] =
 	NULL
 };
 
-static const char *update_mirrors[] =
-{
-	"http://muldersoft.com/",
-	"http://mulder.bplaced.net/",
-	"http://mulder.6te.net/",
-	"http://mulder.000webhostapp.com/",	//"http://mulder.webuda.com/",
-	"http://mulder.pe.hu/",
-	"http://muldersoft.square7.ch/",
-	"http://muldersoft.co.nf/",
-	"http://muldersoft.eu.pn/",
-	"http://muldersoft.lima-city.de/",
-	"http://www.muldersoft.keepfree.de/",
-	"http://lamexp.sourceforge.net/",
-	"http://lordmulder.github.io/LameXP/",
-	"http://muldersoft.bitbucket.io/",	//http://lord_mulder.bitbucket.org/
-	"http://www.tricksoft.de/",
-	"http://repo.or.cz/LameXP.git/blob_plain/gh-pages:/",
-	"http://gitlab.com/lamexp/lamexp/raw/gh-pages/",
-	NULL
-};
-
-static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites !!!
-{
-	"www.163.com",
-	"www.7-zip.org",
-	"www.ac3filter.net",
-	"clbianco.altervista.org",
-	"status.aws.amazon.com",
-	"build.antergos.com",
-	"www.aol.com",
-	"www.apache.org",
-	"www.apple.com",
-	"www.adobe.com",
-	"archive.org",
-	"www.artlebedev.ru",
-	"web.audacityteam.org",
-	"status.automattic.com",
-	"www.avidemux.org",
-	"www.babylon.com",
-	"www.baidu.com",
-	"bandcamp.com",
-	"www.bbc.co.uk",
-	"www.berlios.de",
-	"www.bing.com",
-	"www.bingeandgrab.com",
-	"www.bucketheadpikes.com",
-	"www.buzzfeed.com",
-	"www.cam.ac.uk",
-	"www.ccc.de",
-	"home.cern",
-	"www.citizeninsomniac.com",
-	"www.cnet.com",
-	"cnzz.com",
-	"www.cuhk.edu.hk",
-	"www.codeplex.com",
-	"www.codeproject.com",
-	"www.der-postillon.com",
-	"www.ebay.com",
-	"www.equation.com",
-	"www.ethz.ch",
-	"www.farbrausch.de",
-	"fc2.com",
-	"fedoraproject.org",
-	"blog.fefe.de",
-	"www.ffmpeg.org",
-	"blog.flickr.net",
-	"www.fraunhofer.de",
-	"free-codecs.com",
-	"git-scm.com",
-	"doc.gitlab.com",
-	"www.gmx.net",
-	"news.gnome.org",
-	"www.gnu.org",
-	"go.com",
-	"code.google.com",
-	"haali.su",
-	"www.harvard.edu",
-	"www.heise.de",
-	"www.helmholtz.de",
-	"www.huffingtonpost.co.uk",
-	"www.hu-berlin.de",
-	"www.iana.org",
-	"www.imdb.com",
-	"www.imgburn.com",
-	"imgur.com",
-	"www.iuj.ac.jp",
-	"www.jd.com",
-	"www.jiscdigitalmedia.ac.uk",
-	"kannmanumdieuhrzeitschonnbierchentrinken.de",
-	"mirrors.kernel.org",
-	"komisar.gin.by",
-	"lame.sourceforge.net",
-	"www.libav.org",
-	"blog.linkedin.com",
-	"www.linuxmint.com",
-	"www.livedoor.com",
-	"www.livejournal.com",
-	"longplayer.org",
-	"go.mail.ru",
-	"marknelson.us",
-	"www.mediafire.com",
-	"web.mit.edu",
-	"www.mod-technologies.com",
-	"ftp.mozilla.org",
-	"www.mpg.de",
-	"mplayerhq.hu",
-	"www.msn.com",
-	"wiki.multimedia.cx",
-	"www.nch.com.au",
-	"neocities.org",
-	"mirror.netcologne.de",
-	"oss.netfarm.it",
-	"blog.netflix.com",
-	"netrenderer.de",
-	"www.nytimes.com",
-	"www.opera.com",
-	"www.oxford.gov.uk",
-	"www.ox-fanzine.de",
-	"www.partha.com",
-	"pastebin.com",
-	"pastie.org",
-	"portableapps.com",
-	"www.portablefreeware.com",
-	"support.proboards.com",
-	"www.qq.com",
-	"www.qt.io",
-	"www.quakelive.com",
-	"rationalqm.us",
-	"www.reddit.com",
-	"www.rwth-aachen.de",
-	"www.seamonkey-project.org",
-	"selfhtml.org",
-	"www.sina.com.cn",
-	"www.sohu.com",
-	"help.sogou.com",
-	"sourceforge.net",
-	"www.spiegel.de",
-	"www.sputnikmusic.com",
-	"stackoverflow.com",
-	"www.stanford.edu",
-	"www.t-online.de",
-	"www.tagesschau.de",
-	"tdm-gcc.tdragon.net",
-	"www.tdrsmusic.com",
-	"tu-dresden.de",
-	"www.ubuntu.com",
-	"portal.uned.es",
-	"www.unibuc.ro",
-	"www.uniroma1.it",
-	"www.univ-paris1.fr",
-	"www.univer.kharkov.ua",
-	"www.univie.ac.at",
-	"www.uol.com.br",
-	"www.uva.nl",
-	"www.uw.edu.pl",
-	"www.videohelp.com",
-	"www.videolan.org",
-	"virtualdub.org",
-	"blog.virustotal.com",
-	"www.vkgoeswild.com",
-	"www.warr.org",
-	"www.weibo.com",
-	"status.wikimedia.org",
-	"www.winamp.com",
-	"www.winhoros.de",
-	"wpde.org",
-	"x265.org",
-	"xhmikosr.1f0.de",
-	"xiph.org",
-	"us.mail.yahoo.com",
-	"www.youtube.com",
-	"www.zedo.com",
-	"ffmpeg.zeranoe.com",
-	NULL
-};
-
 static const int MIN_CONNSCORE = 5;
 static const int QUICK_MIRRORS = 3;
-static const int MAX_CONN_TIMEOUT =  8000;
+static const int MAX_CONN_TIMEOUT = 16000;
 static const int DOWNLOAD_TIMEOUT = 30000;
 
 static const int VERSION_INFO_EXPIRES_MONTHS = 6;
@@ -266,7 +90,7 @@ static QStringList buildRandomList(const char *const values[])
 	QStringList list;
 	for (int index = 0; values[index]; index++)
 	{
-		const int pos = next_rand_u32() % (index + 1);
+		const int pos = MUtils::next_rand_u32() % (index + 1);
 		list.insert(pos, QString::fromLatin1(values[index]));
 	}
 	return list;
@@ -276,12 +100,12 @@ static QStringList buildRandomList(const char *const values[])
 // Update Info Class
 ////////////////////////////////////////////////////////////
 
-UpdateCheckerInfo::UpdateCheckerInfo(void)
+MUtils::UpdateCheckerInfo::UpdateCheckerInfo(void)
 {
 	resetInfo();
 }
 	
-void UpdateCheckerInfo::resetInfo(void)
+void MUtils::UpdateCheckerInfo::resetInfo(void)
 {
 	m_buildNo = 0;
 	m_buildDate.setDate(1900, 1, 1);
@@ -292,7 +116,7 @@ void UpdateCheckerInfo::resetInfo(void)
 	m_downloadChecksum.clear();
 }
 
-bool UpdateCheckerInfo::isComplete(void)
+bool MUtils::UpdateCheckerInfo::isComplete(void)
 {
 	if(this->m_buildNo < 1)                return false;
 	if(this->m_buildDate.year() < 2010)    return false;
@@ -309,7 +133,7 @@ bool UpdateCheckerInfo::isComplete(void)
 // Constructor & Destructor
 ////////////////////////////////////////////////////////////
 
-UpdateChecker::UpdateChecker(const QString &binWGet, const QString &binMCat, const QString &binGnuPG, const QString &binKeys, const QString &applicationId, const quint32 &installedBuildNo, const bool betaUpdates, const bool testMode)
+MUtils::UpdateChecker::UpdateChecker(const QString &binWGet, const QString &binMCat, const QString &binGnuPG, const QString &binKeys, const QString &applicationId, const quint32 &installedBuildNo, const bool betaUpdates, const bool testMode)
 :
 	m_updateInfo(new UpdateCheckerInfo()),
 	m_binaryWGet(binWGet),
@@ -331,7 +155,7 @@ UpdateChecker::UpdateChecker(const QString &binWGet, const QString &binMCat, con
 	}
 }
 
-UpdateChecker::~UpdateChecker(void)
+MUtils::UpdateChecker::~UpdateChecker(void)
 {
 }
 
@@ -339,7 +163,7 @@ UpdateChecker::~UpdateChecker(void)
 // Public slots
 ////////////////////////////////////////////////////////////
 
-void UpdateChecker::start(Priority priority)
+void MUtils::UpdateChecker::start(Priority priority)
 {
 	m_success.fetchAndStoreOrdered(0);
 	m_cancelled.fetchAndStoreOrdered(0);
@@ -350,14 +174,14 @@ void UpdateChecker::start(Priority priority)
 // Protected functions
 ////////////////////////////////////////////////////////////
 
-void UpdateChecker::run(void)
+void MUtils::UpdateChecker::run(void)
 {
 	qDebug("Update checker thread started!");
-	MUTILS_EXCEPTION_HANDLER(m_testMode ? testKnownHosts() : checkForUpdates());
+	MUTILS_EXCEPTION_HANDLER(m_testMode ? testMirrorsList() : checkForUpdates());
 	qDebug("Update checker thread completed.");
 }
 
-void UpdateChecker::checkForUpdates(void)
+void MUtils::UpdateChecker::checkForUpdates(void)
 {
 	// ----- Initialization ----- //
 
@@ -385,7 +209,7 @@ void UpdateChecker::checkForUpdates(void)
 	int connectionScore = 0;
 	QStringList mirrorList = buildRandomList(known_hosts);
 
-	for(int connectionTimout = 250; connectionTimout <= MAX_CONN_TIMEOUT; connectionTimout *= 2)
+	for(int connectionTimout = 500; connectionTimout <= MAX_CONN_TIMEOUT; connectionTimout *= 2)
 	{
 		QElapsedTimer elapsedTimer;
 		elapsedTimer.start();
@@ -477,12 +301,48 @@ endLoop:
 	}
 }
 
-void UpdateChecker::testKnownHosts(void)
+void MUtils::UpdateChecker::testMirrorsList(void)
 {
-	QStringList hostList;
-	for(int i = 0; known_hosts[i]; i++)
+	// ----- Test update mirrors ----- //
+
+	QStringList mirrorList;
+	for(int i = 0; update_mirrors[i]; i++)
 	{
-		hostList << QString::fromLatin1(known_hosts[i]);
+		mirrorList << QString::fromLatin1(update_mirrors[i]);
+	}
+
+	qDebug("\n[Known Hosts]");
+	log("Testing all known hosts...", "", "---");
+
+	UpdateCheckerInfo updateInfo;
+	while (!mirrorList.isEmpty())
+	{
+		const QString currentMirror = mirrorList.takeFirst();
+		bool success = false;
+		qDebug("Testing: %s", MUTILS_L1STR(currentMirror));
+		log("", "Testing:", currentMirror, "");
+		for (quint8 attempt = 0; attempt < 3; ++attempt)
+		{
+			updateInfo.resetInfo();
+			if (tryUpdateMirror(&updateInfo, currentMirror, (!attempt)))
+			{
+				success = true;
+				break;
+			}
+		}
+		if (!success)
+		{
+			qWarning("\nUpdate mirror seems to be unavailable:\n%s\n", MUTILS_L1STR(currentMirror));
+		}
+		log("", "---");
+	}
+
+	// ----- Test known hosts ----- //
+
+	QStringList knownHostList;
+	for (int i = 0; known_hosts[i]; i++)
+	{
+		knownHostList << QString::fromLatin1(known_hosts[i]);
 	}
 
 	qDebug("\n[Known Hosts]");
@@ -490,11 +350,11 @@ void UpdateChecker::testKnownHosts(void)
 
 	QSet<quint32> ipAddrSet;
 	quint32 ipAddr;
-	while(!hostList.isEmpty())
+	while(!knownHostList.isEmpty())
 	{
-		const QString currentHost = hostList.takeFirst();
-		qDebug("Testing: %s", currentHost.toLatin1().constData());
-		log("", "Testing:", currentHost, "");
+		const QString currentHost = knownHostList.takeFirst();
+		qDebug("Testing: %s", MUTILS_L1STR(currentHost));
+		log(QLatin1String(""), "Testing:", currentHost, "");
 		if (tryContactHost(currentHost, DOWNLOAD_TIMEOUT, &ipAddr))
 		{
 			if (ipAddrSet.contains(ipAddr))
@@ -508,7 +368,7 @@ void UpdateChecker::testKnownHosts(void)
 		}
 		else
 		{
-			qWarning("\nConnectivity test FAILED on the following host:\n%s\n", currentHost.toLatin1().constData());
+			qWarning("\nConnectivity test FAILED on the following host:\n%s\n", MUTILS_L1STR(currentHost));
 		}
 		log("", "---");
 	}
@@ -518,7 +378,7 @@ void UpdateChecker::testKnownHosts(void)
 // PRIVATE FUNCTIONS
 ////////////////////////////////////////////////////////////
 
-void UpdateChecker::setStatus(const int status)
+void MUtils::UpdateChecker::setStatus(const int status)
 {
 	if(m_status != status)
 	{
@@ -527,7 +387,7 @@ void UpdateChecker::setStatus(const int status)
 	}
 }
 
-void UpdateChecker::setProgress(const int progress)
+void MUtils::UpdateChecker::setProgress(const int progress)
 {
 	if(m_progress != progress)
 	{
@@ -536,7 +396,7 @@ void UpdateChecker::setProgress(const int progress)
 	}
 }
 
-void UpdateChecker::log(const QString &str1, const QString &str2, const QString &str3, const QString &str4)
+void MUtils::UpdateChecker::log(const QString &str1, const QString &str2, const QString &str3, const QString &str4)
 {
 	if(!str1.isNull()) emit messageLogged(str1);
 	if(!str2.isNull()) emit messageLogged(str2);
@@ -544,15 +404,18 @@ void UpdateChecker::log(const QString &str1, const QString &str2, const QString 
 	if(!str4.isNull()) emit messageLogged(str4);
 }
 
-bool UpdateChecker::tryUpdateMirror(UpdateCheckerInfo *updateInfo, const QString &url, const bool &quick)
+bool MUtils::UpdateChecker::tryUpdateMirror(UpdateCheckerInfo *updateInfo, const QString &url, const bool &quick)
 {
 	bool success = false;
 	log("", "Trying mirror:", url, "");
 
-	if (!tryContactHost(QUrl(url).host(), quick ? (MAX_CONN_TIMEOUT / 10) : MAX_CONN_TIMEOUT))
+	if (quick)
 	{
-		log("", quick ? "Mirror is too slow!" :"Mirror is unreachable!");
-		return false;
+		if (!tryContactHost(QUrl(url).host(), (MAX_CONN_TIMEOUT / 10)))
+		{
+			log("", "Mirror is too slow, skipping!");
+			return false;
+		}
 	}
 
 	const QString randPart = next_rand_str();
@@ -583,7 +446,7 @@ bool UpdateChecker::tryUpdateMirror(UpdateCheckerInfo *updateInfo, const QString
 	return success;
 }
 
-bool UpdateChecker::getUpdateInfo(const QString &url, const QString &outFileVers, const QString &outFileSign)
+bool MUtils::UpdateChecker::getUpdateInfo(const QString &url, const QString &outFileVers, const QString &outFileSign)
 {
 	log("Downloading update info:", "");
 	if(getFile(QString("%1%2").arg(url, mirror_url_postfix[m_betaUpdates ? 1 : 0]), outFileVers))
@@ -600,7 +463,7 @@ bool UpdateChecker::getUpdateInfo(const QString &url, const QString &outFileVers
 	return false;
 }
 
-bool UpdateChecker::parseVersionInfo(const QString &file, UpdateCheckerInfo *updateInfo)
+bool MUtils::UpdateChecker::parseVersionInfo(const QString &file, UpdateCheckerInfo *updateInfo)
 {
 	QRegExp value("^(\\w+)=(.+)$");
 	QRegExp section("^\\[(.+)\\]$");
@@ -707,7 +570,7 @@ bool UpdateChecker::parseVersionInfo(const QString &file, UpdateCheckerInfo *upd
 // EXTERNAL TOOLS
 //----------------------------------------------------------
 
-bool UpdateChecker::getFile(const QString &url, const QString &outFile, const unsigned int maxRedir)
+bool MUtils::UpdateChecker::getFile(const QString &url, const QString &outFile, const unsigned int maxRedir)
 {
 	for (int i = 0; i < 2; i++)
 	{
@@ -723,7 +586,7 @@ bool UpdateChecker::getFile(const QString &url, const QString &outFile, const un
 	return false;
 }
 
-bool UpdateChecker::getFile(const QString &url, const bool forceIp4, const QString &outFile, const unsigned int maxRedir)
+bool MUtils::UpdateChecker::getFile(const QString &url, const bool forceIp4, const QString &outFile, const unsigned int maxRedir)
 {
 	QFileInfo output(outFile);
 	output.setCaching(false);
@@ -797,7 +660,7 @@ bool UpdateChecker::getFile(const QString &url, const bool forceIp4, const QStri
 	return (process.exitCode() == 0) && output.exists() && output.isFile();
 }
 
-bool UpdateChecker::tryContactHost(const QString &hostname, const int &timeoutMsec, quint32 *const ipAddrOut)
+bool MUtils::UpdateChecker::tryContactHost(const QString &hostname, const int &timeoutMsec, quint32 *const ipAddrOut)
 {
 	log(QString("Connecting to host: %1").arg(hostname), "");
 
@@ -877,7 +740,7 @@ bool UpdateChecker::tryContactHost(const QString &hostname, const int &timeoutMs
 	return (process.exitCode() == 0);
 }
 
-bool UpdateChecker::checkSignature(const QString &file, const QString &signature)
+bool MUtils::UpdateChecker::checkSignature(const QString &file, const QString &signature)
 {
 	if (QFileInfo(file).absolutePath().compare(QFileInfo(signature).absolutePath(), Qt::CaseInsensitive) != 0)
 	{

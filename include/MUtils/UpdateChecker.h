@@ -98,7 +98,7 @@ namespace MUtils
 	protected:
 		void run(void);
 		void checkForUpdates(void);
-		void testKnownHosts(void);
+		void testMirrorsList(void);
 
 	signals:
 		void statusChanged(const int status);
