@@ -311,8 +311,8 @@ void MUtils::UpdateChecker::testMirrorsList(void)
 		mirrorList << QString::fromLatin1(update_mirrors[i]);
 	}
 
-	qDebug("\n[Known Hosts]");
-	log("Testing all known hosts...", "", "---");
+	qDebug("\n[Mirror Sites]");
+	log("Testing all known mirror sites...", "", "---");
 
 	UpdateCheckerInfo updateInfo;
 	while (!mirrorList.isEmpty())
