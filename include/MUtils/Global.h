@@ -296,6 +296,9 @@ namespace MUtils
 	* \return The function returns `true`, if the regular expression's capture could be parsed successfully; it returns `false`, if the capture contains an invalid string or if there are insufficient captures in given the [QRegExp](http://doc.qt.io/qt-4.8/qregexp.html) object.
 	*/
 	MUTILS_API bool regexp_parse_uint32(const QRegExp &regexp, quint32 &value);
+	MUTILS_API bool regexp_parse_int32(const QRegExp &regexp, qint32 &value);
+	MUTILS_API bool regexp_parse_uint32(const QRegExp &regexp, quint32 &value, const size_t &offset);
+	MUTILS_API bool regexp_parse_int32(const QRegExp &regexp, qint32 &value, const size_t &offset);
 
 	/**
 	* \brief Parse regular expression results
@@ -311,6 +314,9 @@ namespace MUtils
 	* \return The function returns `true`, if all of the regular expression's captures could be parsed successfully; it returns `false`, if any of the captures contain an invalid string or if there are insufficient captures in given the [QRegExp](http://doc.qt.io/qt-4.8/qregexp.html) object.
 	*/
 	MUTILS_API bool regexp_parse_uint32(const QRegExp &regexp, quint32 *values, const size_t &count);
+	MUTILS_API bool regexp_parse_int32(const QRegExp &regexp, qint32 *values, const size_t &count);
+	MUTILS_API bool regexp_parse_uint32(const QRegExp &regexp, quint32 *values, const size_t &offset, const size_t &count);
+	MUTILS_API bool regexp_parse_int32(const QRegExp &regexp, qint32 *values, const size_t &offset, const size_t &count);
 
 	/**
 	* \brief Retrieve a list of all available codepages
@@ -368,6 +374,10 @@ namespace MUtils
 /** \brief Converts a given expression into a boolean expression, by application of double negation operator.
 */
 #define MUTILS_BOOLIFY(X) (!(!(X)))
+
+/** \brief Get length of an array, only works with local array variables!
+*/
+#define MUTILS_ARR2LEN(X) (sizeof((X)) / sizeof((X)[0]))
 
 /** \brief Disables copy constructor and assignment operator in the specified class. This macro should be used in the "private" section of the class' declaration.
 */

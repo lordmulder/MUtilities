@@ -697,23 +697,70 @@ QString MUtils::clean_file_path(const QString &path, const bool &pretty)
 
 bool MUtils::regexp_parse_uint32(const QRegExp &regexp, quint32 &value)
 {
-	return regexp_parse_uint32(regexp, &value, 1);
+	return regexp_parse_uint32(regexp, &value, 1U, 1U);
+}
+
+bool MUtils::regexp_parse_int32(const QRegExp &regexp, qint32 &value)
+{
+	return regexp_parse_int32(regexp, &value, 1U, 1U);
+}
+
+bool MUtils::regexp_parse_uint32(const QRegExp &regexp, quint32 &value, const size_t &offset)
+{
+	return regexp_parse_uint32(regexp, &value, offset, 1U);
+}
+
+bool MUtils::regexp_parse_int32(const QRegExp &regexp, qint32 &value, const size_t &offset)
+{
+	return regexp_parse_int32(regexp, &value, offset, 1U);
 }
 
 bool MUtils::regexp_parse_uint32(const QRegExp &regexp, quint32 *values, const size_t &count)
 {
+	return regexp_parse_uint32(regexp, values, 1U, count);
+}
+
+bool MUtils::regexp_parse_int32(const QRegExp &regexp, qint32 *values, const size_t &count)
+{
+	return regexp_parse_int32(regexp, values, 1U, count);
+}
+
+bool MUtils::regexp_parse_uint32(const QRegExp &regexp, quint32 *values, const size_t &offset, const size_t &count)
+{
 	const QStringList caps = regexp.capturedTexts();
-	
-	if(caps.isEmpty() || (quint32(caps.count()) <= count))
+
+	if (caps.isEmpty() || (quint32(caps.count()) <= count))
 	{
 		return false;
 	}
 
-	for(size_t i = 0; i < count; i++)
+	for (size_t i = 0; i < count; i++)
 	{
 		bool ok = false;
-		values[i] = caps[i+1].toUInt(&ok);
-		if(!ok)
+		values[i] = caps[offset+i].toUInt(&ok);
+		if (!ok)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool MUtils::regexp_parse_int32(const QRegExp &regexp, qint32 *values, const size_t &offset, const size_t &count)
+{
+	const QStringList caps = regexp.capturedTexts();
+
+	if (caps.isEmpty() || (quint32(caps.count()) <= count))
+	{
+		return false;
+	}
+
+	for (size_t i = 0; i < count; i++)
+	{
+		bool ok = false;
+		values[i] = caps[offset+i].toInt(&ok);
+		if (!ok)
 		{
 			return false;
 		}
