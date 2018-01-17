@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // MuldeR's Utilities for Qt
-// Copyright (C) 2004-2017 LoRd_MuldeR <MuldeR2@GMX.de>
+// Copyright (C) 2004-2018 LoRd_MuldeR <MuldeR2@GMX.de>
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -68,7 +68,7 @@ namespace MUtils
 					#endif
 				#elif defined(_MSC_VER)
 					#if (_MSC_VER == 1912)
-						#if((_MSC_FULL_VER >= 191225830) && (_MSC_FULL_VER <= 191225831))
+						#if((_MSC_FULL_VER >= 191225830) && (_MSC_FULL_VER <= 191225834))
 							"MSVC 2017.5";
 						#else
 							#error Compiler version is not supported yet!
