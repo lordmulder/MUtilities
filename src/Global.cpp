@@ -63,13 +63,12 @@
 //Per-thread init flag
 static QThreadStorage<bool> g_srand_flag;
 
+//32-Bit wrapper for qrand()
+#define QRAND() ((static_cast<quint32>(qrand()) & 0xFFFF) | (static_cast<quint32>(qrand()) << 16U))
+
 //Robert Jenkins' 96 bit Mix Function
-static quint32 mix_function(const quint32 x, const quint32 y, const quint32 z)
+static quint32 mix_function(quint32 a, quint32 b, quint32 c)
 {
-	quint32 a = x;
-	quint32 b = y;
-	quint32 c = z;
-	
 	a=a-b;  a=a-c;  a=a^(c >> 13);
 	b=b-c;  b=b-a;  b=b^(a <<  8); 
 	c=c-a;  c=c-b;  c=c^(b >> 13);
@@ -86,24 +85,30 @@ static quint32 mix_function(const quint32 x, const quint32 y, const quint32 z)
 static void seed_rand(void)
 {
 	QDateTime build(MUtils::Version::lib_build_date(), MUtils::Version::lib_build_time());
-	const quint32 seed = mix_function(MUtils::OS::process_id(), MUtils::OS::thread_id(), build.toMSecsSinceEpoch());
-	qsrand(mix_function(clock(), time(NULL), seed));
+	const quint32 seed_0 = mix_function(MUtils::OS::process_id(), MUtils::OS::thread_id(), build.toMSecsSinceEpoch());
+	qsrand(mix_function(clock(), time(NULL), seed_0));
 }
 
 static quint32 rand_fallback(void)
 {
-	Q_ASSERT(RAND_MAX >= 0xFFF);
+	Q_ASSERT(RAND_MAX >= 0x7FFF);
+
 	if (!(g_srand_flag.hasLocalData() && g_srand_flag.localData()))
 	{
 		seed_rand();
 		g_srand_flag.setLocalData(true);
 	}
-	quint32 rnd = 0x32288EA3;
-	for (size_t i = 0; i < 3; i++)
+
+	quint32 rnd_val = mix_function(0x32288EA3, clock(), time(NULL));
+
+	for (size_t i = 0; i < 42; i++)
 	{
-		rnd = (rnd << 12) ^ qrand();
+		rnd_val = mix_function(rnd_val, QRAND(), QRAND());
+		rnd_val = mix_function(QRAND(), rnd_val, QRAND());
+		rnd_val = mix_function(QRAND(), QRAND(), rnd_val);
 	}
-	return rnd;
+
+	return rnd_val;
 }
 
 quint32 MUtils::next_rand_u32(void)
@@ -799,6 +804,17 @@ QStringList MUtils::available_codepages(const bool &noAliases)
 	}
 
 	return codecList;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// FP MATH SUPPORT
+///////////////////////////////////////////////////////////////////////////////
+
+MUtils::fp_parts_t MUtils::break_fp(const double value)
+{
+	fp_parts_t result;
+	result.fractpart = modf(value, &result.intpart);
+	return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

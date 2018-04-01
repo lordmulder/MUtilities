@@ -86,6 +86,15 @@ class QProcess;
 namespace MUtils
 {
 	/**
+	* \brief This struct containes the parts of a floating-point number
+	*/
+	typedef struct
+	{
+		double intpart, fractpart;
+	}
+	fp_parts_t;
+
+	/**
 	* \brief Rerieves the full path of the application's *Temp* folder.
 	*
 	* The application's *Temp* folder is a unique application-specific folder, intended to store any temporary files that the application may need. It will be created when this function is called for the first time (lazy initialization); subsequent calls are guaranteed to return the same path. Usually the application's *Temp* folder will be created as a sub-folder of the system's global *Temp* folder, as indicated by the `TMP` or `TEMP` environment variables. However, it may be created at a different place (e.g. in the users *Profile* directory), if those environment variables don't point to a usable directory. In any case, this function makes sure that the application's *Temp* folder exists for the whole lifetime of the application and that it is writable. When the application terminates normally, the application's *Temp* folder and all files or sub-directories thereof will be *removed* automatically!
@@ -328,6 +337,15 @@ namespace MUtils
 	* \return If the function succeeds, it returns a QStringList holding the names of all codepages available on the system; otherwise it returns a default-constructed QStringList.
 	*/
 	MUTILS_API QStringList available_codepages(const bool &noAliases = true);
+
+	/**
+	* \brief Break floating-point number into fractional and integral parts
+	*
+	* \param value The original floating-point value
+	*
+	* \return Returns a struct containing the fractional and integral parts
+	*/
+	MUTILS_API fp_parts_t break_fp(const double value);
 
 	//Internal
 	namespace Internal
