@@ -64,8 +64,10 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
 <a href="#namespaces">Namespaces</a> &#124;
 <a href="#define-members">Macros</a> &#124;
+<a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">Global.h File Reference</div>  </div>
@@ -78,6 +80,12 @@ $(function() {
 </div>
 <p><a href="../../d5/d3b/_global_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d46/struct_m_utils_1_1__fp__parts__t.html">MUtils::_fp_parts_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">This struct containes the parts (integral and fractional part) of a floating-point number.  <a href="../../da/d46/struct_m_utils_1_1__fp__parts__t.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="namespaces"></a>
 Namespaces</h2></td></tr>
 <tr class="memitem:d3/da6/namespace_m_utils"><td class="memItemLeft" align="right" valign="top"> &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/da6/namespace_m_utils.html">MUtils</a></td></tr>
@@ -129,6 +137,13 @@ Macros</h2></td></tr>
 <tr class="memitem:a8e7b4857b78f9749233e5abc96534ca8"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d3b/_global_8h.html#a8e7b4857b78f9749233e5abc96534ca8">MUTILS_NO_COPY</a>(CLASS)</td></tr>
 <tr class="memdesc:a8e7b4857b78f9749233e5abc96534ca8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disables copy constructor and assignment operator in the specified class. This macro should be used in the "private" section of the class' declaration.  <a href="#a8e7b4857b78f9749233e5abc96534ca8">More...</a><br /></td></tr>
 <tr class="separator:a8e7b4857b78f9749233e5abc96534ca8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:a75209365a097871cb2bb8fc3a21ce14b"><td class="memItemLeft" align="right" valign="top"><a id="a75209365a097871cb2bb8fc3a21ce14b"></a>
+typedef struct <a class="el" href="../../da/d46/struct_m_utils_1_1__fp__parts__t.html">MUtils::_fp_parts_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/da6/namespace_m_utils.html#a75209365a097871cb2bb8fc3a21ce14b">MUtils::fp_parts_t</a></td></tr>
+<tr class="memdesc:a75209365a097871cb2bb8fc3a21ce14b"><td class="mdescLeft">&#160;</td><td class="mdescRight">This struct containes the parts (integral and fractional part) of a floating-point number. <br /></td></tr>
+<tr class="separator:a75209365a097871cb2bb8fc3a21ce14b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -210,6 +225,9 @@ MUTILS_API bool&#160;</td><td class="memItemRight" valign="bottom"><b>MUtils::re
 <tr class="memitem:a2275e64c3c74dea855c39b66be67f705"><td class="memItemLeft" align="right" valign="top">MUTILS_API QStringList&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/da6/namespace_m_utils.html#a2275e64c3c74dea855c39b66be67f705">MUtils::available_codepages</a> (const bool &amp;noAliases=true)</td></tr>
 <tr class="memdesc:a2275e64c3c74dea855c39b66be67f705"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve a list of all available codepages.  <a href="../../d3/da6/namespace_m_utils.html#a2275e64c3c74dea855c39b66be67f705">More...</a><br /></td></tr>
 <tr class="separator:a2275e64c3c74dea855c39b66be67f705"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adba57bb9c5055c3ed1d528cd2151b5a9"><td class="memItemLeft" align="right" valign="top">MUTILS_API fp_parts_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/da6/namespace_m_utils.html#adba57bb9c5055c3ed1d528cd2151b5a9">MUtils::break_fp</a> (const double value)</td></tr>
+<tr class="memdesc:adba57bb9c5055c3ed1d528cd2151b5a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Break floating-point number into fractional and integral parts.  <a href="../../d3/da6/namespace_m_utils.html#adba57bb9c5055c3ed1d528cd2151b5a9">More...</a><br /></td></tr>
+<tr class="separator:adba57bb9c5055c3ed1d528cd2151b5a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This file contains miscellaneous functions that are generally useful for Qt-based applications. </p>

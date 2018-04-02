@@ -812,8 +812,16 @@ QStringList MUtils::available_codepages(const bool &noAliases)
 
 MUtils::fp_parts_t MUtils::break_fp(const double value)
 {
-	fp_parts_t result;
-	result.fractpart = modf(value, &result.intpart);
+	fp_parts_t result = { };
+	if (_finite(value))
+	{
+		result.parts[1] = modf(value, &result.parts[0]);
+	}
+	else
+	{
+		result.parts[0] = std::numeric_limits<double>::quiet_NaN();
+		result.parts[1] = std::numeric_limits<double>::quiet_NaN();
+	}
 	return result;
 }
 

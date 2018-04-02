@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['os_5fversion_5ft',['os_version_t',['../d1/d7d/namespace_m_utils_1_1_o_s_1_1_version.html#a199c9376f9941b2ec9721eab0b544da0',1,'MUtils::OS::Version']]]
+  ['fp_5fparts_5ft',['fp_parts_t',['../d3/da6/namespace_m_utils.html#a75209365a097871cb2bb8fc3a21ce14b',1,'MUtils']]]
 ];

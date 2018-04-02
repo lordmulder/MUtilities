@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['get_5fdrive_5ftype',['get_drive_type',['../d2/df4/namespace_m_utils_1_1_o_s.html#a47b63d88b79bc692c53a9f2fd82ca11b',1,'MUtils::OS']]]
+  ['detect',['detect',['../d3/d02/namespace_m_utils_1_1_c_p_u_fetaures.html#a5f26f530b11eee62845fb45fba6a32fc',1,'MUtils::CPUFetaures']]],
+  ['digest',['digest',['../da/db0/class_m_utils_1_1_hash_1_1_hash.html#a1d70f2b647935868a178920196ec0ac1',1,'MUtils::Hash::Hash']]]
 ];

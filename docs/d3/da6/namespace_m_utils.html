@@ -62,6 +62,7 @@ $(function() {
   <div class="summary">
 <a href="#namespaces">Namespaces</a> &#124;
 <a href="#nested-classes">Classes</a> &#124;
+<a href="#typedef-members">Typedefs</a> &#124;
 <a href="#func-members">Functions</a> &#124;
 <a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
@@ -83,6 +84,9 @@ Namespaces</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
 Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d46/struct_m_utils_1_1__fp__parts__t.html">_fp_parts_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">This struct containes the parts (integral and fractional part) of a floating-point number.  <a href="../../da/d46/struct_m_utils_1_1__fp__parts__t.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/dfe/class_m_utils_1_1_i_p_c_channel.html">IPCChannel</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/dd3/class_m_utils_1_1_job_object.html">JobObject</a></td></tr>
@@ -99,6 +103,13 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d1/d32/class_m_utils_1_1_version.html">Version</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="typedef-members"></a>
+Typedefs</h2></td></tr>
+<tr class="memitem:a75209365a097871cb2bb8fc3a21ce14b"><td class="memItemLeft" align="right" valign="top"><a id="a75209365a097871cb2bb8fc3a21ce14b"></a>
+typedef struct <a class="el" href="../../da/d46/struct_m_utils_1_1__fp__parts__t.html">MUtils::_fp_parts_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/da6/namespace_m_utils.html#a75209365a097871cb2bb8fc3a21ce14b">fp_parts_t</a></td></tr>
+<tr class="memdesc:a75209365a097871cb2bb8fc3a21ce14b"><td class="mdescLeft">&#160;</td><td class="mdescRight">This struct containes the parts (integral and fractional part) of a floating-point number. <br /></td></tr>
+<tr class="separator:a75209365a097871cb2bb8fc3a21ce14b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
@@ -180,6 +191,9 @@ MUTILS_API bool&#160;</td><td class="memItemRight" valign="bottom"><b>regexp_par
 <tr class="memitem:a2275e64c3c74dea855c39b66be67f705"><td class="memItemLeft" align="right" valign="top">MUTILS_API QStringList&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/da6/namespace_m_utils.html#a2275e64c3c74dea855c39b66be67f705">available_codepages</a> (const bool &amp;noAliases=true)</td></tr>
 <tr class="memdesc:a2275e64c3c74dea855c39b66be67f705"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve a list of all available codepages.  <a href="#a2275e64c3c74dea855c39b66be67f705">More...</a><br /></td></tr>
 <tr class="separator:a2275e64c3c74dea855c39b66be67f705"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adba57bb9c5055c3ed1d528cd2151b5a9"><td class="memItemLeft" align="right" valign="top">MUTILS_API <a class="el" href="../../d3/da6/namespace_m_utils.html#a75209365a097871cb2bb8fc3a21ce14b">fp_parts_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/da6/namespace_m_utils.html#adba57bb9c5055c3ed1d528cd2151b5a9">break_fp</a> (const double value)</td></tr>
+<tr class="memdesc:adba57bb9c5055c3ed1d528cd2151b5a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Break floating-point number into fractional and integral parts.  <a href="#adba57bb9c5055c3ed1d528cd2151b5a9">More...</a><br /></td></tr>
+<tr class="separator:adba57bb9c5055c3ed1d528cd2151b5a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
@@ -219,6 +233,34 @@ class MUTILS_API&#160;</td><td class="memItemRight" valign="bottom"><b>Taskbar7_
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>If the function succeeds, it returns a QStringList holding the names of all codepages available on the system; otherwise it returns a default-constructed QStringList. </dd></dl>
+
+</div>
+</div>
+<a id="adba57bb9c5055c3ed1d528cd2151b5a9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adba57bb9c5055c3ed1d528cd2151b5a9">&sect;&nbsp;</a></span>break_fp()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">MUTILS_API <a class="el" href="../../d3/da6/namespace_m_utils.html#a75209365a097871cb2bb8fc3a21ce14b">fp_parts_t</a> MUtils::break_fp </td>
+          <td>(</td>
+          <td class="paramtype">const double&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Break floating-point number into fractional and integral parts. </p>
+<p>The function returns a struct containing the fractional and the integral part of a given floating-point values as two separate values. This is a convenience warapper for the <code>modf()</code> function.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>The original floating-point value</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Returns a struct containing the fractional and integral parts. </dd></dl>
 
 </div>
 </div>

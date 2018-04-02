@@ -86,13 +86,9 @@ class QProcess;
 namespace MUtils
 {
 	/**
-	* \brief This struct containes the parts of a floating-point number
+	* \brief This struct containes the parts (integral and fractional part) of a floating-point number
 	*/
-	typedef struct
-	{
-		double intpart, fractpart;
-	}
-	fp_parts_t;
+	typedef struct _fp_parts_t { double parts[2]; } fp_parts_t;
 
 	/**
 	* \brief Rerieves the full path of the application's *Temp* folder.
@@ -341,9 +337,11 @@ namespace MUtils
 	/**
 	* \brief Break floating-point number into fractional and integral parts
 	*
+	* The function returns a struct containing the fractional and the integral part of a given floating-point values as two separate values. This is a convenience warapper for the `modf()` function.
+	*
 	* \param value The original floating-point value
 	*
-	* \return Returns a struct containing the fractional and integral parts
+	* \return Returns a struct containing the fractional and integral parts.
 	*/
 	MUTILS_API fp_parts_t break_fp(const double value);
 
