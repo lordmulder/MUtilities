@@ -398,58 +398,39 @@ static const QFile::Permissions FILE_PERMISSIONS_NONE = QFile::ReadOther | QFile
 bool MUtils::remove_file(const QString &fileName)
 {
 	QFileInfo fileInfo(fileName);
-	if(!(fileInfo.exists() && fileInfo.isFile()))
-	{
-		return true;
-	}
 
-	for(int i = 0; i < 32; i++)
+	for(size_t round = 0; round < 13; ++round)
 	{
-		QFile file(fileName);
-		file.setPermissions(FILE_PERMISSIONS_NONE);
-		if((!(fileInfo.exists() && fileInfo.isFile())) || file.remove())
+		if (round > 0)
 		{
-			return true;
+			MUtils::OS::sleep_ms(round);
+			fileInfo.refresh();
 		}
-		MUtils::OS::sleep_ms(1);
-		fileInfo.refresh();
+		if (fileInfo.exists())
+		{
+			QFile file(fileName);
+			if (round > 0)
+			{
+				file.setPermissions(FILE_PERMISSIONS_NONE);
+			}
+			file.remove();
+			fileInfo.refresh();
+		}
+		if (!fileInfo.exists())
+		{
+			return true; /*success*/
+		}
 	}
 
 	qWarning("Could not delete \"%s\"", MUTILS_UTF8(fileName));
 	return false;
 }
 
-static bool remove_directory_helper(const QDir &folder)
-{
-	if(!folder.exists())
-	{
-		return true;
-	}
-	const QString dirName = folder.dirName();
-	if(!dirName.isEmpty())
-	{
-		QDir parent(folder);
-		if(parent.cdUp())
-		{
-			QFile::setPermissions(folder.absolutePath(), FILE_PERMISSIONS_NONE);
-			if(parent.rmdir(dirName))
-			{
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
 bool MUtils::remove_directory(const QString &folderPath, const bool &recursive)
 {
-	QDir folder(folderPath);
-	if(!folder.exists())
-	{
-		return true;
-	}
+	const QDir folder(folderPath);
 
-	if(recursive)
+	if(recursive && folder.exists())
 	{
 		const QFileInfoList entryList = folder.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot | QDir::Hidden);
 		for(QFileInfoList::ConstIterator iter = entryList.constBegin(); iter != entryList.constEnd(); iter++)
@@ -458,21 +439,37 @@ bool MUtils::remove_directory(const QString &folderPath, const bool &recursive)
 			{
 				remove_directory(iter->canonicalFilePath(), true);
 			}
-			else if(iter->isFile())
+			else
 			{
 				remove_file(iter->canonicalFilePath());
 			}
 		}
 	}
 
-	for(int i = 0; i < 32; i++)
+	for(size_t round = 0; round < 13; ++round)
 	{
-		if(remove_directory_helper(folder))
+		if(round > 0)
 		{
-			return true;
+			MUtils::OS::sleep_ms(round);
+			folder.refresh();
 		}
-		MUtils::OS::sleep_ms(1);
-		folder.refresh();
+		if (folder.exists())
+		{
+			QDir parent = folder;
+			if (parent.cdUp())
+			{
+				if (round > 0)
+				{
+					QFile::setPermissions(folder.absolutePath(), FILE_PERMISSIONS_NONE);
+				}
+				parent.rmdir(folder.dirName());
+				folder.refresh();
+			}
+		}
+		if (!folder.exists())
+		{
+			return true; /*success*/
+		}
 	}
 	
 	qWarning("Could not rmdir \"%s\"", MUTILS_UTF8(folderPath));
