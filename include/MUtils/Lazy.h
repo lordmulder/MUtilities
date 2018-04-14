@@ -69,6 +69,14 @@ namespace MUtils
 			return *m_value;
 		}
 
+		~Lazy(void)
+		{
+			if(T *const value = m_value.fetchAndStoreOrdered(NULL))
+			{
+				delete value;
+			}
+		}
+
 	private:
 		QAtomicPointer<T> m_value;
 		const std::function<T*(void)> m_initializer;
