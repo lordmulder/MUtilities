@@ -53,26 +53,20 @@ namespace MUtils
 		T& operator*(void)
 		{
 			T *value;
-			do
+			while (!(value = m_value.fetchAndAddOrdered(0)))
 			{
-				if (!(value = m_value.fetchAndAddOrdered(0)))
+				if (!(value = m_initializer()))
 				{
-					if (value = m_initializer())
-					{
-						if (!m_value.testAndSetOrdered(NULL, value))
-						{
-							delete value;
-							value = NULL;
-						}
-					}
-					else
-					{
-						MUTILS_THROW("Initializer returned NULL pointer!");
-					}
+					MUTILS_THROW("Initializer returned NULL pointer!");
 				}
+				if (m_value.testAndSetOrdered(NULL, value))
+				{
+					break; /*success*/
+				}
+				delete value;
+				value = NULL;
 			}
-			while (!value);
-			return *m_value;
+			return *value;
 		}
 
 		~Lazy(void)
