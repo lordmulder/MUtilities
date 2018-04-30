@@ -187,9 +187,20 @@ QString MUtils::trim_left(const QString &str)
 
 QString MUtils::make_temp_file(const QString &basePath, const QString &extension, const bool placeholder)
 {
+	return make_temp_file(QDir(basePath), extension, placeholder);
+}
+
+QString MUtils::make_temp_file(const QDir &basePath, const QString &extension, const bool placeholder)
+{
+	if (extension.isEmpty())
+	{
+		qWarning("Cannot generate temp file name with invalid parameters!");
+		return QString();
+	}
+
 	for(int i = 0; i < 4096; i++)
 	{
-		const QString tempFileName = QString("%1/%2.%3").arg(basePath, next_rand_str(), extension);
+		const QString tempFileName = basePath.absoluteFilePath(QString("%1.%2").arg(next_rand_str(), extension));
 		if(!QFileInfo(tempFileName).exists())
 		{
 			if(placeholder)
@@ -212,21 +223,32 @@ QString MUtils::make_temp_file(const QString &basePath, const QString &extension
 	return QString();
 }
 
-QString MUtils::make_unique_file(const QString &basePath, const QString &baseName, const QString &extension, const bool fancy)
+QString MUtils::make_unique_file(const QString &basePath, const QString &baseName, const QString &extension, const bool fancy, const bool placeholder)
 {
+	return make_unique_file(QDir(basePath), baseName, extension, fancy);
+}
+
+QString MUtils::make_unique_file(const QDir &basePath, const QString &baseName, const QString &extension, const bool fancy, const bool placeholder)
+{
+	if (baseName.isEmpty() || extension.isEmpty())
+	{
+		qWarning("Cannot generate unique file name with invalid parameters!");
+		return QString();
+	}
+
 	quint32 n = fancy ? 2 : 0;
-	QString fileName = fancy ? QString("%1/%2.%3").arg(basePath, baseName, extension) : QString();
+	QString fileName = fancy ? basePath.absoluteFilePath(QString("%1.%2").arg(baseName, extension)) : QString();
 	while (fileName.isEmpty() || QFileInfo(fileName).exists())
 	{
 		if (n <= quint32(USHRT_MAX))
 		{
 			if (fancy)
 			{
-				fileName = QString("%1/%2 (%3).%4").arg(basePath, baseName, QString::number(n++), extension);
+				fileName = basePath.absoluteFilePath(QString("%1 (%2).%3").arg(baseName, QString::number(n++), extension));
 			}
 			else
 			{
-				fileName = QString("%1/%2.%3.%4").arg(basePath, baseName, QString::number(n++, 16).rightJustified(4, QLatin1Char('0')), extension);
+				fileName = basePath.absoluteFilePath(QString("%1.%2.%3").arg(baseName, QString::number(n++, 16).rightJustified(4, QLatin1Char('0')), extension));
 			}
 		}
 		else
@@ -235,6 +257,16 @@ QString MUtils::make_unique_file(const QString &basePath, const QString &baseNam
 			return QString();
 		}
 	}
+
+	if (placeholder && (!fileName.isEmpty()))
+	{
+		QFile placeholder(fileName);
+		if (placeholder.open(QIODevice::WriteOnly))
+		{
+			placeholder.close();
+		}
+	}
+
 	return fileName;
 }
 

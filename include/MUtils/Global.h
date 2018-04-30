@@ -30,6 +30,7 @@
 
 //Forward Declarations
 class QProcess;
+class QDir;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -157,6 +158,7 @@ namespace MUtils
 	* \return If the function succeeds, it returns a QString holding the full path of the temporary file; otherwise it returns a default-constructed QString.
 	*/
 	MUTILS_API QString make_temp_file(const QString &basePath, const QString &extension, const bool placeholder = false);
+	MUTILS_API QString make_temp_file(const QDir    &basePath, const QString &extension, const bool placeholder = false);
 
 	/**
 	* \brief Generates a unique file name.
@@ -173,7 +175,8 @@ namespace MUtils
 	*
 	* \return If the function succeeds, it returns a QString holding the full path of the unique file; otherwise it returns a default-constructed QString.
 	*/
-	MUTILS_API QString make_unique_file(const QString &basePath, const QString &baseName, const QString &extension, const bool fancy = false);
+	MUTILS_API QString make_unique_file(const QString &basePath, const QString &baseName, const QString &extension, const bool fancy = false, const bool placeholder = false);
+	MUTILS_API QString make_unique_file(const QDir    &basePath, const QString &baseName, const QString &extension, const bool fancy = false, const bool placeholder = false);
 
 	/**
 	* \brief Computes the *parity* of the given unsigned 32-Bit value
