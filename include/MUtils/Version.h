@@ -68,7 +68,7 @@ namespace MUtils
 					#endif
 				#elif defined(_MSC_VER)
 					#if (_MSC_VER == 1914)
-						#if((_MSC_FULL_VER >= 191426428) && (_MSC_FULL_VER <= 191426428))
+						#if((_MSC_FULL_VER >= 191426430) && (_MSC_FULL_VER <= 191426430))
 							"MSVC 2017.7";
 						#else
 							#error Compiler version is not supported yet!
