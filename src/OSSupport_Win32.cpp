@@ -306,17 +306,17 @@ namespace MUtils
 			bool os_version_t::operator<= (const os_version_t &rhs) const { return (type == rhs.type) && ((versionMajor < rhs.versionMajor) || ((versionMajor == rhs.versionMajor) && (versionMinor <= rhs.versionMinor))); }
 
 			//Known Windows NT versions
-			const os_version_t WINDOWS_WIN2K = { OS_WINDOWS,  5, 0,  2195 };	// 2000
-			const os_version_t WINDOWS_WINXP = { OS_WINDOWS,  5, 1,  2600 };	// XP
-			const os_version_t WINDOWS_XPX64 = { OS_WINDOWS,  5, 2,  3790 };	// XP_x64
-			const os_version_t WINDOWS_VISTA = { OS_WINDOWS,  6, 0,  6000 };	// Vista
-			const os_version_t WINDOWS_WIN70 = { OS_WINDOWS,  6, 1,  7600 };	// 7
-			const os_version_t WINDOWS_WIN80 = { OS_WINDOWS,  6, 2,  9200 };	// 8
-			const os_version_t WINDOWS_WIN81 = { OS_WINDOWS,  6, 3,  9600 };	// 8.1
-			const os_version_t WINDOWS_WN100 = { OS_WINDOWS, 10, 0, 10240 };	// 10
+			const os_version_t WINDOWS_WIN2K = { OS_WINDOWS,  5, 0,  2195, 0 };	// 2000
+			const os_version_t WINDOWS_WINXP = { OS_WINDOWS,  5, 1,  2600, 0 };	// XP
+			const os_version_t WINDOWS_XPX64 = { OS_WINDOWS,  5, 2,  3790, 0 };	// XP_x64
+			const os_version_t WINDOWS_VISTA = { OS_WINDOWS,  6, 0,  6000, 0 };	// Vista
+			const os_version_t WINDOWS_WIN70 = { OS_WINDOWS,  6, 1,  7600, 0 };	// 7
+			const os_version_t WINDOWS_WIN80 = { OS_WINDOWS,  6, 2,  9200, 0 };	// 8
+			const os_version_t WINDOWS_WIN81 = { OS_WINDOWS,  6, 3,  9600, 0 };	// 8.1
+			const os_version_t WINDOWS_WN100 = { OS_WINDOWS, 10, 0, 10240, 0 };	// 10
 
 			//Unknown OS
-			const os_version_t UNKNOWN_OPSYS = { OS_UNKNOWN, 0,  0,     0 };	// N/A
+			const os_version_t UNKNOWN_OPSYS = { OS_UNKNOWN, 0,  0,     0, 0 };	// N/A
 		}
 	}
 }
@@ -441,12 +441,42 @@ static bool verify_os_build(const DWORD build)
 	return (ret != FALSE);
 }
 
-static bool get_real_os_version(unsigned int *major, unsigned int *minor, unsigned int *build, bool *pbOverride)
+static bool verify_os_spack(const WORD spack)
 {
-	static const DWORD MAX_VERSION = 0xFFFF;
-	static const DWORD MAX_BUILDNO = MAXINT;
+	OSVERSIONINFOEXW osvi;
+	DWORDLONG dwlConditionMask = 0;
+	initialize_os_version(&osvi);
 
-	*major = *minor = *build = 0;
+	//Initialize the OSVERSIONINFOEX structure
+	osvi.wServicePackMajor = spack;
+	osvi.dwPlatformId = VER_PLATFORM_WIN32_NT;
+
+	//Initialize the condition mask
+	VER_SET_CONDITION(dwlConditionMask, VER_SERVICEPACKMAJOR, VER_GREATER_EQUAL);
+	VER_SET_CONDITION(dwlConditionMask, VER_PLATFORMID, VER_EQUAL);
+
+	// Perform the test
+	const BOOL ret = rtl_verify_version(&osvi, VER_SERVICEPACKMAJOR | VER_PLATFORMID, dwlConditionMask);
+
+	//Error checking
+	if (!ret)
+	{
+		if (GetLastError() != ERROR_OLD_WIN_VERSION)
+		{
+			qWarning("VerifyVersionInfo() system call has failed!");
+		}
+	}
+
+	return (ret != FALSE);
+}
+
+static bool get_real_os_version(unsigned int *const major, unsigned int *const minor, unsigned int *const build, unsigned int *const spack, bool *const pbOverride)
+{
+	static const DWORD MAX_VERSION = MAXWORD;
+	static const DWORD MAX_BUILDNO = MAXINT;
+	static const DWORD MAX_SRVCPCK = MAXWORD;
+
+	*major = *minor = *build = *spack = 0U;
 	*pbOverride = false;
 	
 	//Initialize local variables
@@ -467,6 +497,7 @@ static bool get_real_os_version(unsigned int *major, unsigned int *minor, unsign
 		*major = osvi.dwMajorVersion;
 		*minor = osvi.dwMinorVersion;
 		*build = osvi.dwBuildNumber;
+		*spack = osvi.wServicePackMajor;
 	}
 	else
 	{
@@ -529,6 +560,27 @@ static bool get_real_os_version(unsigned int *major, unsigned int *minor, unsign
 		}
 	}
 
+	//Service Pack
+	if (verify_os_spack(SAFE_ADD((*spack), 1, MAX_SRVCPCK)))
+	{
+		DWORD stepSize = initialize_step_size(MAX_SRVCPCK);
+		for (DWORD nextSPackNo = SAFE_ADD((*spack), stepSize, MAX_SRVCPCK); (*spack) < MAX_SRVCPCK; nextSPackNo = SAFE_ADD((*spack), stepSize, MAX_SRVCPCK))
+		{
+			if (verify_os_spack(nextSPackNo))
+			{
+				*build = nextSPackNo;
+				*pbOverride = true;
+				continue;
+			}
+			if (stepSize > 1)
+			{
+				stepSize = stepSize / 2;
+				continue;
+			}
+			break;
+		}
+	}
+
 	return true;
 }
 
@@ -552,18 +604,19 @@ const MUtils::OS::Version::os_version_t &MUtils::OS::os_version(void)
 	}
 
 	//Detect OS version
-	unsigned int major, minor, build; bool overrideFlg;
-	if(get_real_os_version(&major, &minor, &build, &overrideFlg))
+	unsigned int major, minor, build, spack; bool overrideFlg;
+	if(get_real_os_version(&major, &minor, &build, &spack, &overrideFlg))
 	{
 		g_os_version_info.type = Version::OS_WINDOWS;
 		g_os_version_info.versionMajor = major;
 		g_os_version_info.versionMinor = minor;
 		g_os_version_info.versionBuild = build;
+		g_os_version_info.versionSPack = spack;
 		g_os_version_info.overrideFlag = overrideFlg;
 	}
 	else
 	{
-		qWarning("Failed to determin the operating system version!");
+		qWarning("Failed to determine the operating system version!");
 	}
 
 	//Completed

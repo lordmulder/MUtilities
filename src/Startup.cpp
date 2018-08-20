@@ -308,19 +308,26 @@ QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &
 
 	//Check the Windows version
 	const MUtils::OS::Version::os_version_t &osVersion = MUtils::OS::os_version();
-	if((osVersion.type != MUtils::OS::Version::OS_WINDOWS) || (osVersion < MUtils::OS::Version::WINDOWS_WINXP))
+#ifdef QT_NODLL
+	if ((osVersion.type != MUtils::OS::Version::OS_WINDOWS) || (osVersion < MUtils::OS::Version::WINDOWS_WINXP) || ((osVersion == MUtils::OS::Version::WINDOWS_WINXP) && (osVersion.versionSPack < 3)))
 	{
-		qFatal("%s", QApplication::tr("Executable '%1' requires Windows XP or later.").arg(executableName).toLatin1().constData());
+		qFatal("%s", QApplication::tr("Executable '%1' requires Windows XP with SP-3 or later.").arg(executableName).toLatin1().constData());
 	}
+#else
+	if ((osVersion.type != MUtils::OS::Version::OS_WINDOWS) || (osVersion < MUtils::OS::Version::WINDOWS_VISTA) || ((osVersion == MUtils::OS::Version::WINDOWS_VISTA) && (osVersion.versionSPack < 2)))
+	{
+		qFatal("%s", QApplication::tr("Executable '%1' requires Windows Vista with SP-2 or later.").arg(executableName).toLatin1().constData());
+	}
+#endif
 
 	//Check whether we are running on a supported Windows version
 	if(const char *const friendlyName = MUtils::OS::os_friendly_name(osVersion))
 	{
-		qDebug("Running on %s (NT v%u.%u.%u).\n", friendlyName, osVersion.versionMajor, osVersion.versionMinor, osVersion.versionBuild);
+		qDebug("Running on %s (NT v%u.%u.%u, SP-%u).\n", friendlyName, osVersion.versionMajor, osVersion.versionMinor, osVersion.versionBuild, osVersion.versionSPack);
 	}
 	else
 	{
-		const QString message = QString().sprintf("Running on an unknown WindowsNT-based system (v%u.%u.%u).", osVersion.versionMajor, osVersion.versionMinor, osVersion.versionBuild);
+		const QString message = QString().sprintf("Running on an unknown WindowsNT-based system (NT v%u.%u.%u, SP-%u).", osVersion.versionMajor, osVersion.versionMinor, osVersion.versionBuild, osVersion.versionSPack);
 		qWarning("%s\n", MUTILS_UTF8(message));
 		MUtils::OS::system_message_wrn(MUTILS_WCHR(executableName), MUTILS_WCHR(message));
 	}
