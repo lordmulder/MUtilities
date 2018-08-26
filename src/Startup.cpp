@@ -323,11 +323,11 @@ QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &
 	//Check whether we are running on a supported Windows version
 	if(const char *const friendlyName = MUtils::OS::os_friendly_name(osVersion))
 	{
-		qDebug("Running on %s (NT v%u.%u.%u, SP-%u).\n", friendlyName, osVersion.versionMajor, osVersion.versionMinor, osVersion.versionBuild, osVersion.versionSPack);
+		qDebug("Running on %s (NT v%u.%u.%u-sp%u).\n", friendlyName, osVersion.versionMajor, osVersion.versionMinor, osVersion.versionBuild, osVersion.versionSPack);
 	}
 	else
 	{
-		const QString message = QString().sprintf("Running on an unknown WindowsNT-based system (NT v%u.%u.%u, SP-%u).", osVersion.versionMajor, osVersion.versionMinor, osVersion.versionBuild, osVersion.versionSPack);
+		const QString message = QString().sprintf("Running on an unknown WindowsNT-based system (NT v%u.%u.%u-sp%u).", osVersion.versionMajor, osVersion.versionMinor, osVersion.versionBuild, osVersion.versionSPack);
 		qWarning("%s\n", MUTILS_UTF8(message));
 		MUtils::OS::system_message_wrn(MUTILS_WCHR(executableName), MUTILS_WCHR(message));
 	}
