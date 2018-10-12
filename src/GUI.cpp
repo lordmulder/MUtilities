@@ -185,16 +185,16 @@ double MUtils::GUI::dpi_scale(void)
 {
 	if (const QApplication *const app = dynamic_cast<QApplication*>(QCoreApplication::instance()))
 	{
-		const double dpiX = static_cast<double>(app->desktop()->logicalDpiX());
-		const double dpiY = static_cast<double>(app->desktop()->logicalDpiY());
-		return qBound(1.0, ((dpiX + dpiY) / 192.0), 2.0);
+		const double dpi_x = static_cast<double>(app->desktop()->logicalDpiX());
+		const double dpi_y = static_cast<double>(app->desktop()->logicalDpiY());
+		return qBound(1.0, ((dpi_x + dpi_y) / 192.0), 2.0);
 	}
 	return -1.0;
 }
 
 bool MUtils::GUI::scale_widget(QWidget *const widget, const bool recenter)
 {
-	if (widget && (!widget->parentWidget()))
+	if (widget && (widget->windowFlags().testFlag(Qt::WindowType::Window)))
 	{
 		const double dpiScale = dpi_scale();
 		if ((dpiScale > 0.0) && (!qFuzzyCompare(dpiScale, 1.0)))
