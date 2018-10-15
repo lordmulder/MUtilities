@@ -264,6 +264,9 @@ namespace MUtils
 		MUTILS_API QString get_envvar(const QString &name);
 		MUTILS_API bool set_envvar(const QString &name, const QString &value);
 
+		//NULL device
+		MUTILS_API const QLatin1String &null_device(void);
+
 		//Check if debugger is present
 		MUTILS_API void check_debugger(void);
 
