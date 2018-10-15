@@ -27,12 +27,14 @@
 #include <QStringList>
 #include <QFile>
 #include <QFileInfo>
+#include <QDir>
 #include <QProcess>
 #include <QUrl>
 #include <QEventLoop>
 #include <QTimer>
 #include <QElapsedTimer>
 #include <QSet>
+#include <QHash>
 
 #include "Mirrors.h"
 
@@ -55,7 +57,7 @@ static const int MAX_CONN_TIMEOUT = 16000;
 static const int DOWNLOAD_TIMEOUT = 30000;
 
 static const int VERSION_INFO_EXPIRES_MONTHS = 6;
-static char *USER_AGENT_STR = "Mozilla/5.0 (X11; Linux i686; rv:10.0) Gecko/20100101 Firefox/10.0"; /*use something innocuous*/
+static char *USER_AGENT_STR = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0"; /*use something innocuous*/
 
 #define CHECK_CANCELLED() do \
 { \
@@ -96,6 +98,13 @@ static QStringList buildRandomList(const char *const values[])
 	return list;
 }
 
+static const QHash<QString, QString> *initEnvVars(void)
+{
+	QHash<QString, QString> *const environment = new QHash<QString, QString>();
+	environment->insert(QLatin1String("CURL_HOME"), QDir::toNativeSeparators(MUtils::temp_folder()));
+	return environment;
+}
+
 ////////////////////////////////////////////////////////////
 // Update Info Class
 ////////////////////////////////////////////////////////////
@@ -133,23 +142,23 @@ bool MUtils::UpdateCheckerInfo::isComplete(void)
 // Constructor & Destructor
 ////////////////////////////////////////////////////////////
 
-MUtils::UpdateChecker::UpdateChecker(const QString &binWGet, const QString &binMCat, const QString &binGnuPG, const QString &binKeys, const QString &applicationId, const quint32 &installedBuildNo, const bool betaUpdates, const bool testMode)
+MUtils::UpdateChecker::UpdateChecker(const QString &binCurl, const QString &binGnuPG, const QString &binKeys, const QString &applicationId, const quint32 &installedBuildNo, const bool betaUpdates, const bool testMode)
 :
 	m_updateInfo(new UpdateCheckerInfo()),
-	m_binaryWGet(binWGet),
-	m_binaryMCat(binMCat),
+	m_binaryCurl(binCurl),
 	m_binaryGnuPG(binGnuPG),
 	m_binaryKeys(binKeys),
 	m_applicationId(applicationId),
 	m_installedBuildNo(installedBuildNo),
 	m_betaUpdates(betaUpdates),
 	m_testMode(testMode),
-	m_maxProgress(getMaxProgress())
+	m_maxProgress(getMaxProgress()),
+	m_environment(initEnvVars())
 {
 	m_status = UpdateStatus_NotStartedYet;
 	m_progress = 0;
 
-	if(m_binaryWGet.isEmpty() || m_binaryGnuPG.isEmpty() || m_binaryKeys.isEmpty())
+	if(m_binaryCurl.isEmpty() || m_binaryGnuPG.isEmpty() || m_binaryKeys.isEmpty())
 	{
 		MUTILS_THROW("Tools not initialized correctly!");
 	}
@@ -209,7 +218,7 @@ void MUtils::UpdateChecker::checkForUpdates(void)
 	int connectionScore = 0;
 	QStringList mirrorList = buildRandomList(known_hosts);
 
-	for(int connectionTimout = 500; connectionTimout <= MAX_CONN_TIMEOUT; connectionTimout *= 2)
+	for(int connectionTimout = 1000; connectionTimout <= MAX_CONN_TIMEOUT; connectionTimout *= 2)
 	{
 		QElapsedTimer elapsedTimer;
 		elapsedTimer.start();
@@ -348,25 +357,12 @@ void MUtils::UpdateChecker::testMirrorsList(void)
 	qDebug("\n[Known Hosts]");
 	log("Testing all known hosts...", "", "---");
 
-	QSet<quint32> ipAddrSet;
-	quint32 ipAddr;
 	while(!knownHostList.isEmpty())
 	{
 		const QString currentHost = knownHostList.takeFirst();
 		qDebug("Testing: %s", MUTILS_L1STR(currentHost));
 		log(QLatin1String(""), "Testing:", currentHost, "");
-		if (tryContactHost(currentHost, DOWNLOAD_TIMEOUT, &ipAddr))
-		{
-			if (ipAddrSet.contains(ipAddr))
-			{
-				qWarning("Duplicate IP-address 0x%08X was encountered!", ipAddr);
-			}
-			else
-			{
-				ipAddrSet << ipAddr; /*not encountered yet*/
-			}
-		}
-		else
+		if (!tryContactHost(currentHost, DOWNLOAD_TIMEOUT))
 		{
 			qWarning("\nConnectivity test FAILED on the following host:\n%s\n", MUTILS_L1STR(currentHost));
 		}
@@ -572,22 +568,6 @@ bool MUtils::UpdateChecker::parseVersionInfo(const QString &file, UpdateCheckerI
 
 bool MUtils::UpdateChecker::getFile(const QString &url, const QString &outFile, const unsigned int maxRedir)
 {
-	for (int i = 0; i < 2; i++)
-	{
-		if (getFile(url, (i > 0), outFile, maxRedir))
-		{
-			return true;
-		}
-		if (MUTILS_BOOLIFY(m_cancelled))
-		{
-			break; /*cancelled*/
-		}
-	}
-	return false;
-}
-
-bool MUtils::UpdateChecker::getFile(const QString &url, const bool forceIp4, const QString &outFile, const unsigned int maxRedir)
-{
 	QFileInfo output(outFile);
 	output.setCaching(false);
 
@@ -601,18 +581,13 @@ bool MUtils::UpdateChecker::getFile(const QString &url, const bool forceIp4, con
 	}
 
 	QProcess process;
-	init_process(process, output.absolutePath());
+	init_process(process, output.absolutePath(), true, NULL, m_environment.data());
 
-	QStringList args;
-	if (forceIp4)
-	{
-		args << "-4";
-	}
-
-	args << "--no-config" << "--no-cache" << "--no-dns-cache" << "--no-check-certificate" << "--no-hsts";
-	args << QString().sprintf("--max-redirect=%u", maxRedir) << QString().sprintf("--timeout=%u", DOWNLOAD_TIMEOUT / 1000);
-	args << QString("--referer=%1://%2/").arg(QUrl(url).scheme(), QUrl(url).host()) << "-U" << USER_AGENT_STR;
-	args << "-O" << output.fileName() << url;
+	QStringList args(QLatin1String("-vsSqkfL"));
+	args << "-m" << QString::number(DOWNLOAD_TIMEOUT / 1000);
+	args << "--max-redirs" << QString::number(maxRedir);
+	args << "-U" << USER_AGENT_STR;
+	args << "-o" << output.fileName() << url;
 
 	QEventLoop loop;
 	connect(&process, SIGNAL(error(QProcess::ProcessError)), &loop, SLOT(quit()));
@@ -623,16 +598,13 @@ bool MUtils::UpdateChecker::getFile(const QString &url, const bool forceIp4, con
 	timer.setSingleShot(true);
 	connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
 
-	const QRegExp httpResponseOK("200 OK$");
-
-	process.start(m_binaryWGet, args);
-
+	process.start(m_binaryCurl, args);
 	if (!process.waitForStarted())
 	{
 		return false;
 	}
 
-	timer.start(DOWNLOAD_TIMEOUT);
+	timer.start(2 * DOWNLOAD_TIMEOUT);
 
 	while (process.state() != QProcess::NotRunning)
 	{
@@ -641,14 +613,17 @@ bool MUtils::UpdateChecker::getFile(const QString &url, const bool forceIp4, con
 		while (process.canReadLine())
 		{
 			const QString line = QString::fromLatin1(process.readLine()).simplified();
-			log(line);
+			if (!line.isEmpty())
+			{
+				log(line);
+			}
 		}
 		if (bTimeOut || MUTILS_BOOLIFY(m_cancelled))
 		{
-			qWarning("WGet process timed out <-- killing!");
+			qWarning("cURL process timed out <-- killing!");
 			process.kill();
 			process.waitForFinished();
-			log(bTimeOut ? "!!! TIMEOUT !!!": "!!! CANCELLED !!!");
+			log(bTimeOut ? "PROCESS TIMEOUT !!!" : "CANCELLED BY USER !!!", "");
 			return false;
 		}
 	}
@@ -660,16 +635,18 @@ bool MUtils::UpdateChecker::getFile(const QString &url, const bool forceIp4, con
 	return (process.exitCode() == 0) && output.exists() && output.isFile();
 }
 
-bool MUtils::UpdateChecker::tryContactHost(const QString &hostname, const int &timeoutMsec, quint32 *const ipAddrOut)
+bool MUtils::UpdateChecker::tryContactHost(const QString &hostname, const int &timeoutMsec)
 {
 	log(QString("Connecting to host: %1").arg(hostname), "");
 
 	QProcess process;
-	init_process(process, temp_folder());
+	init_process(process, temp_folder(), true, NULL, m_environment.data());
 
-	QStringList args;
-	args << "--retry" << QString::number(3) << hostname << QString::number(80);
-
+	QStringList args(QLatin1String("-vsSqkI"));
+	args << "-m" << QString::number(qMax(timeoutMsec, 1000) / 1000);
+	args << "-U" << USER_AGENT_STR;
+	args << "-o" << OS::null_device() << QString("http://%1/").arg(hostname);
+	
 	QEventLoop loop;
 	connect(&process, SIGNAL(error(QProcess::ProcessError)), &loop, SLOT(quit()));
 	connect(&process, SIGNAL(finished(int, QProcess::ExitStatus)), &loop, SLOT(quit()));
@@ -678,22 +655,14 @@ bool MUtils::UpdateChecker::tryContactHost(const QString &hostname, const int &t
 	QTimer timer;
 	timer.setSingleShot(true);
 	connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
-
-	QScopedPointer<QRegExp> ipAddr;
-	if (ipAddrOut)
-	{
-		*ipAddrOut = 0;
-		ipAddr.reset(new QRegExp("Connecting\\s+to\\s+(\\d+)\\.(\\d+)\\.(\\d+)\\.(\\d+):(\\d+)", Qt::CaseInsensitive));
-	}
 	
-	process.start(m_binaryMCat, args);
-
+	process.start(m_binaryCurl, args);
 	if (!process.waitForStarted())
 	{
 		return false;
 	}
 
-	timer.start(timeoutMsec);
+	timer.start(2 * qMax(timeoutMsec, 1000));
 
 	while (process.state() != QProcess::NotRunning)
 	{
@@ -702,28 +671,17 @@ bool MUtils::UpdateChecker::tryContactHost(const QString &hostname, const int &t
 		while (process.canReadLine())
 		{
 			const QString line = QString::fromLatin1(process.readLine()).simplified();
-			if (!ipAddr.isNull())
+			if (!line.isEmpty())
 			{
-				if (ipAddr->indexIn(line) >= 0)
-				{
-					quint32 values[4];
-					if (MUtils::regexp_parse_uint32((*ipAddr), values, 4))
-					{
-						*ipAddrOut |= ((values[0] & 0xFF) << 0x18);
-						*ipAddrOut |= ((values[1] & 0xFF) << 0x10);
-						*ipAddrOut |= ((values[2] & 0xFF) << 0x08);
-						*ipAddrOut |= ((values[3] & 0xFF) << 0x00);
-					}
-				}
+				log(line);
 			}
-			log(line);
 		}
 		if (bTimeOut || MUTILS_BOOLIFY(m_cancelled))
 		{
-			qWarning("MCat process timed out <-- killing!");
+			qWarning("cURL process timed out <-- killing!");
 			process.kill();
 			process.waitForFinished();
-			log(bTimeOut ? "!!! TIMEOUT !!!" : "!!! CANCELLED !!!");
+			log(bTimeOut ? "PROCESS TIMEOUT !!!" : "CANCELLED BY USER !!!", "");
 			return false;
 		}
 	}
@@ -785,7 +743,11 @@ bool MUtils::UpdateChecker::checkSignature(const QString &file, const QString &s
 		loop.exec();
 		while (process.canReadLine())
 		{
-			log(QString::fromLatin1(process.readLine()).simplified());
+			const QString line = QString::fromLatin1(process.readLine()).simplified();
+			if (!line.isEmpty())
+			{
+				log(line);
+			}
 		}
 	}
 

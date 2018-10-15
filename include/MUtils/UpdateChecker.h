@@ -81,7 +81,7 @@ namespace MUtils
 		}
 		update_status_t;
 
-		UpdateChecker(const QString &binWGet, const QString &binMCat, const QString &binGnuPG, const QString &binKeys, const QString &applicationId, const quint32 &installedBuildNo, const bool betaUpdates, const bool testMode = false);
+		UpdateChecker(const QString &binCurl, const QString &binGnuPG, const QString &binKeys, const QString &applicationId, const quint32 &installedBuildNo, const bool betaUpdates, const bool testMode = false);
 		~UpdateChecker(void);
 
 		const int  getUpdateStatus(void)             const { return m_status; }
@@ -115,10 +115,11 @@ namespace MUtils
 		const QString m_applicationId;
 		const quint32 m_installedBuildNo;
 
-		const QString m_binaryWGet;
-		const QString m_binaryMCat;
+		const QString m_binaryCurl;
 		const QString m_binaryGnuPG;
 		const QString m_binaryKeys;
+
+		const QScopedPointer<const QHash<QString, QString>> m_environment;
 
 		QAtomicInt m_success;
 		QAtomicInt m_cancelled;
@@ -131,11 +132,10 @@ namespace MUtils
 		inline void log(const QString &str1, const QString &str2 = QString(), const QString &str3 = QString(), const QString &str4 = QString());
 
 		bool getUpdateInfo(const QString &url, const QString &outFileVers, const QString &outFileSign);
-		bool tryContactHost(const QString &hostname, const int &timeoutMsec, quint32 *const ipAddrOut = NULL);
+		bool tryContactHost(const QString &hostname, const int &timeoutMsec);
 		bool parseVersionInfo(const QString &file, UpdateCheckerInfo *updateInfo);
 
-		bool getFile(const QString &url, const QString &outFile, const unsigned int maxRedir = 5U);
-		bool getFile(const QString &url, const bool forceIp4, const QString &outFile, const unsigned int maxRedir = 5U);
+		bool getFile(const QString &url, const QString &outFile, const unsigned int maxRedir = 8U);
 		bool checkSignature(const QString &file, const QString &signature);
 		bool tryUpdateMirror(UpdateCheckerInfo *updateInfo, const QString &url, const bool &quick);
 	};
