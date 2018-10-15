@@ -31,6 +31,7 @@
 //Forward Declarations
 class QProcess;
 class QDir;
+template<typename K, typename V> class QHash;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -113,7 +114,7 @@ namespace MUtils
 	*
 	* \param extraPaths A read-only pointer to a QStringList object containing additional paths that will be added (prepended) to the sub-process' `PATH` environment variable. This parameter can be `NULL`, in which case *no* additional paths are added.
 	*/
-	MUTILS_API void init_process(QProcess &process, const QString &wokringDir, const bool bReplaceTempDir = true, const QStringList *const extraPaths = NULL);
+	MUTILS_API void init_process(QProcess &process, const QString &wokringDir, const bool bReplaceTempDir = true, const QStringList *const extraPaths = NULL, const QHash<QString, QString> *const extraEnv = NULL);
 
 	/**
 	* \brief Generates a *random* unsigned 32-Bit value.

@@ -38,6 +38,7 @@
 #include <QProcess>
 #include <QTextCodec>
 #include <QPair>
+#include <QHash>
 #include <QListIterator>
 #include <QMutex>
 #include <QThreadStorage>
@@ -514,12 +515,12 @@ bool MUtils::remove_directory(const QString &folderPath, const bool &recursive)
 
 static void prependToPath(QProcessEnvironment &env, const QString &value)
 {
-	const QLatin1String PATH = QLatin1String("PATH");
+	static const QLatin1String PATH("PATH");
 	const QString path = env.value(PATH, QString()).trimmed();
 	env.insert(PATH, path.isEmpty() ? value : QString("%1;%2").arg(value, path));
 }
 
-void MUtils::init_process(QProcess &process, const QString &wokringDir, const bool bReplaceTempDir, const QStringList *const extraPaths)
+void MUtils::init_process(QProcess &process, const QString &wokringDir, const bool bReplaceTempDir, const QStringList *const extraPaths, const QHash<QString, QString> *const extraEnv)
 {
 	//Environment variable names
 	static const char *const s_envvar_names_temp[] =
@@ -565,6 +566,15 @@ void MUtils::init_process(QProcess &process, const QString &wokringDir, const bo
 		}
 	}
 	
+	//Setup environment
+	if (extraEnv && (!extraEnv->isEmpty()))
+	{
+		for (QHash<QString, QString>::ConstIterator iter = extraEnv->constBegin(); iter != extraEnv->constEnd(); iter++)
+		{
+			env.insert(iter.key(), iter.value());
+		}
+	}
+
 	//Setup QPorcess object
 	process.setWorkingDirectory(wokringDir);
 	process.setProcessChannelMode(QProcess::MergedChannels);
