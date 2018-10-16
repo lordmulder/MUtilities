@@ -199,7 +199,7 @@ void MUtils::UpdateChecker::checkForUpdates(void)
 
 	// ----- Test Internet Connection ----- //
 
-	log("Checking internet connection...", "");
+	log("Checking your Internet connection...", "");
 	setStatus(UpdateStatus_CheckingConnection);
 
 	const int networkStatus = OS::network_status();
@@ -211,6 +211,7 @@ void MUtils::UpdateChecker::checkForUpdates(void)
 		return;
 	}
 	
+	msleep(500);
 	setProgress(1);
 
 	// ----- Test Known Hosts Connectivity ----- //
@@ -256,7 +257,7 @@ endLoop:
 
 	// ----- Fetch Update Info From Server ----- //
 
-	log("----", "", "Checking for updates online...");
+	log("----", "", "Internet connection is operational, checking for updates online...");
 	setStatus(UpdateStatus_FetchingUpdates);
 
 	int mirrorCount = 0;
@@ -407,7 +408,7 @@ bool MUtils::UpdateChecker::tryUpdateMirror(UpdateCheckerInfo *updateInfo, const
 
 	if (quick)
 	{
-		if (!tryContactHost(QUrl(url).host(), (MAX_CONN_TIMEOUT / 10)))
+		if (!tryContactHost(QUrl(url).host(), (MAX_CONN_TIMEOUT / 8)))
 		{
 			log("", "Mirror is too slow, skipping!");
 			return false;
@@ -420,15 +421,15 @@ bool MUtils::UpdateChecker::tryUpdateMirror(UpdateCheckerInfo *updateInfo, const
 
 	if (getUpdateInfo(url, outFileVers, outFileSign))
 	{
-		log("", "Download okay, checking signature:");
+		log("Download completed, verifying signature:", "");
 		if (checkSignature(outFileVers, outFileSign))
 		{
-			log("", "Signature okay, parsing info:", "");
+			log("", "Signature is valid, parsing info:", "");
 			success = parseVersionInfo(outFileVers, updateInfo);
 		}
 		else
 		{
-			log("", "Bad signature, take care!");
+			log("", "Bad signature, take care !!!");
 		}
 	}
 	else
@@ -445,12 +446,12 @@ bool MUtils::UpdateChecker::tryUpdateMirror(UpdateCheckerInfo *updateInfo, const
 bool MUtils::UpdateChecker::getUpdateInfo(const QString &url, const QString &outFileVers, const QString &outFileSign)
 {
 	log("Downloading update info:", "");
-	if(getFile(QString("%1%2").arg(url, mirror_url_postfix[m_betaUpdates ? 1 : 0]), outFileVers))
+	if(getFile(QUrl(QString("%1%2").arg(url, mirror_url_postfix[m_betaUpdates ? 1 : 0])), outFileVers))
 	{
 		if (!m_cancelled)
 		{
-			log("", "Downloading signature:", "");
-			if (getFile(QString("%1%2.sig2").arg(url, mirror_url_postfix[m_betaUpdates ? 1 : 0]), outFileSign))
+			log( "Downloading signature file:", "");
+			if (getFile(QUrl(QString("%1%2.sig2").arg(url, mirror_url_postfix[m_betaUpdates ? 1 : 0])), outFileSign))
 			{
 				return true;
 			}
@@ -566,7 +567,7 @@ bool MUtils::UpdateChecker::parseVersionInfo(const QString &file, UpdateCheckerI
 // EXTERNAL TOOLS
 //----------------------------------------------------------
 
-bool MUtils::UpdateChecker::getFile(const QString &url, const QString &outFile, const unsigned int maxRedir)
+bool MUtils::UpdateChecker::getFile(const QUrl &url, const QString &outFile, const unsigned int maxRedir)
 {
 	QFileInfo output(outFile);
 	output.setCaching(false);
@@ -576,77 +577,38 @@ bool MUtils::UpdateChecker::getFile(const QString &url, const QString &outFile, 
 		QFile::remove(output.canonicalFilePath());
 		if (output.exists())
 		{
+			qWarning("Existing output file could not be found!");
 			return false;
 		}
 	}
-
-	QProcess process;
-	init_process(process, output.absolutePath(), true, NULL, m_environment.data());
-
-	QStringList args(QLatin1String("-vsSqkfL"));
+	
+	QStringList args(QLatin1String("-vsSNqkfL"));
 	args << "-m" << QString::number(DOWNLOAD_TIMEOUT / 1000);
 	args << "--max-redirs" << QString::number(maxRedir);
-	args << "-U" << USER_AGENT_STR;
-	args << "-o" << output.fileName() << url;
+	args << "-A" << USER_AGENT_STR;
+	args << "-e" << QString("%1://%2/;auto").arg(url.scheme(), url.host());
+	args << "-o" << output.fileName() << url.toString();
 
-	QEventLoop loop;
-	connect(&process, SIGNAL(error(QProcess::ProcessError)), &loop, SLOT(quit()));
-	connect(&process, SIGNAL(finished(int, QProcess::ExitStatus)), &loop, SLOT(quit()));
-	connect(&process, SIGNAL(readyRead()), &loop, SLOT(quit()));
-
-	QTimer timer;
-	timer.setSingleShot(true);
-	connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
-
-	process.start(m_binaryCurl, args);
-	if (!process.waitForStarted())
-	{
-		return false;
-	}
-
-	timer.start(2 * DOWNLOAD_TIMEOUT);
-
-	while (process.state() != QProcess::NotRunning)
-	{
-		loop.exec();
-		const bool bTimeOut = (!timer.isActive());
-		while (process.canReadLine())
-		{
-			const QString line = QString::fromLatin1(process.readLine()).simplified();
-			if (!line.isEmpty())
-			{
-				log(line);
-			}
-		}
-		if (bTimeOut || MUTILS_BOOLIFY(m_cancelled))
-		{
-			qWarning("cURL process timed out <-- killing!");
-			process.kill();
-			process.waitForFinished();
-			log(bTimeOut ? "PROCESS TIMEOUT !!!" : "CANCELLED BY USER !!!", "");
-			return false;
-		}
-	}
-
-	timer.stop();
-	timer.disconnect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
-
-	log(QString().sprintf("Exited with code %d", process.exitCode()));
-	return (process.exitCode() == 0) && output.exists() && output.isFile();
+	return invokeCurl(args, output.absolutePath(), DOWNLOAD_TIMEOUT);
 }
 
 bool MUtils::UpdateChecker::tryContactHost(const QString &hostname, const int &timeoutMsec)
 {
 	log(QString("Connecting to host: %1").arg(hostname), "");
 
-	QProcess process;
-	init_process(process, temp_folder(), true, NULL, m_environment.data());
-
-	QStringList args(QLatin1String("-vsSqkI"));
-	args << "-m" << QString::number(qMax(timeoutMsec, 1000) / 1000);
-	args << "-U" << USER_AGENT_STR;
+	QStringList args(QLatin1String("-vsSNqkI"));
+	args << "-m" << QString::number(qMax(1, timeoutMsec / 1000));
+	args << "-A" << USER_AGENT_STR;
 	args << "-o" << OS::null_device() << QString("http://%1/").arg(hostname);
 	
+	return invokeCurl(args, temp_folder(), timeoutMsec);
+}
+
+bool MUtils::UpdateChecker::invokeCurl(const QStringList &args, const QString &workingDir, const int timeout)
+{
+	QProcess process;
+	init_process(process, workingDir, true, NULL, m_environment.data());
+
 	QEventLoop loop;
 	connect(&process, SIGNAL(error(QProcess::ProcessError)), &loop, SLOT(quit()));
 	connect(&process, SIGNAL(finished(int, QProcess::ExitStatus)), &loop, SLOT(quit()));
@@ -655,47 +617,58 @@ bool MUtils::UpdateChecker::tryContactHost(const QString &hostname, const int &t
 	QTimer timer;
 	timer.setSingleShot(true);
 	connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
-	
+
 	process.start(m_binaryCurl, args);
 	if (!process.waitForStarted())
 	{
 		return false;
 	}
 
-	timer.start(2 * qMax(timeoutMsec, 1000));
+	bool bAborted = false;
+	timer.start(qMax(2 * timeout, 2500));
 
 	while (process.state() != QProcess::NotRunning)
 	{
 		loop.exec();
-		const bool bTimeOut = (!timer.isActive());
 		while (process.canReadLine())
 		{
 			const QString line = QString::fromLatin1(process.readLine()).simplified();
-			if (!line.isEmpty())
+			if ((!line.isEmpty()) && line.compare(QLatin1String("<")) && line.compare(QLatin1String(">")))
 			{
 				log(line);
 			}
 		}
-		if (bTimeOut || MUTILS_BOOLIFY(m_cancelled))
+		const bool bCancelled = MUTILS_BOOLIFY(m_cancelled);
+		if (bAborted = (bCancelled || ((!timer.isActive()) && (!process.waitForFinished(15)))))
 		{
-			qWarning("cURL process timed out <-- killing!");
-			process.kill();
-			process.waitForFinished();
-			log(bTimeOut ? "PROCESS TIMEOUT !!!" : "CANCELLED BY USER !!!", "");
-			return false;
+			log(bCancelled ? "CANCELLED BY USER !!!" : "PROCESS TIMEOUT !!!", "");
+			qWarning("WARNING: cURL process %s!", bCancelled ? "cancelled" : "timed out");
+			break; /*abort process*/
 		}
 	}
 
 	timer.stop();
 	timer.disconnect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
 
-	if (process.exitCode() != 0)
+	if (bAborted)
 	{
-		log("Connection has failed!");
+		process.kill();
+		process.waitForFinished(-1);
+		return false;
 	}
 
-	log(QString().sprintf("Exited with code %d", process.exitCode()), "");
-	return (process.exitCode() == 0);
+	const int exitCode = process.exitCode();
+	switch (exitCode)
+	{
+		case  0: log(QLatin1String("DONE: Transfer completed successfully."), "");                     break;
+		case  6: log(QLatin1String("ERROR: Remote host could not be resolved!"), "");                  break;
+		case  7: log(QLatin1String("ERROR: Connection to remote host could not be established!"), ""); break;
+		case 22: log(QLatin1String("ERROR: Requested URL was not found or returned an error!"), "");   break;
+		case 28: log(QLatin1String("ERROR: Operation timed out !!!"), "");                             break;
+		default: log(QString().sprintf("ERROR: Terminated with unknown code %d", exitCode), "");       break;
+	}
+	
+	return (exitCode == 0);
 }
 
 bool MUtils::UpdateChecker::checkSignature(const QString &file, const QString &signature)

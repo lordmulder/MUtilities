@@ -28,6 +28,8 @@
 #include <QThread>
 #include <QDate>
 
+class QUrl;
+
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace MUtils
@@ -135,8 +137,10 @@ namespace MUtils
 		bool tryContactHost(const QString &hostname, const int &timeoutMsec);
 		bool parseVersionInfo(const QString &file, UpdateCheckerInfo *updateInfo);
 
-		bool getFile(const QString &url, const QString &outFile, const unsigned int maxRedir = 8U);
+		bool getFile(const QUrl &url, const QString &outFile, const unsigned int maxRedir = 8U);
 		bool checkSignature(const QString &file, const QString &signature);
 		bool tryUpdateMirror(UpdateCheckerInfo *updateInfo, const QString &url, const bool &quick);
+
+		bool invokeCurl(const QStringList &args, const QString &workingDir, const int timeout);
 	};
 }
