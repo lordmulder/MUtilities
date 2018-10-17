@@ -141,6 +141,7 @@ namespace MUtils
 		bool checkSignature(const QString &file, const QString &signature);
 		bool tryUpdateMirror(UpdateCheckerInfo *updateInfo, const QString &url, const bool &quick);
 
-		bool invokeCurl(const QStringList &args, const QString &workingDir, const int timeout);
+		bool execCurl(const QStringList &args, const QString &workingDir, const int timeout);
+		int execProcess(const QString &programFile, const QStringList &args, const QString &workingDir, const int timeout);
 	};
 }

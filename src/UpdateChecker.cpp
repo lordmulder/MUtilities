@@ -205,10 +205,13 @@ void MUtils::UpdateChecker::checkForUpdates(void)
 	const int networkStatus = OS::network_status();
 	if(networkStatus == OS::NETWORK_TYPE_NON)
 	{
-		log("Operating system reports that the computer is currently offline !!!");
-		setProgress(m_maxProgress);
-		setStatus(UpdateStatus_ErrorNoConnection);
-		return;
+		if (!MUtils::OS::arguments().contains("--ignore-network-status"))
+		{
+			log("Operating system reports that the computer is currently offline !!!");
+			setProgress(m_maxProgress);
+			setStatus(UpdateStatus_ErrorNoConnection);
+			return;
+		}
 	}
 	
 	msleep(500);
@@ -589,7 +592,7 @@ bool MUtils::UpdateChecker::getFile(const QUrl &url, const QString &outFile, con
 	args << "-e" << QString("%1://%2/;auto").arg(url.scheme(), url.host());
 	args << "-o" << output.fileName() << url.toString();
 
-	return invokeCurl(args, output.absolutePath(), DOWNLOAD_TIMEOUT);
+	return execCurl(args, output.absolutePath(), DOWNLOAD_TIMEOUT);
 }
 
 bool MUtils::UpdateChecker::tryContactHost(const QString &hostname, const int &timeoutMsec)
@@ -601,87 +604,7 @@ bool MUtils::UpdateChecker::tryContactHost(const QString &hostname, const int &t
 	args << "-A" << USER_AGENT_STR;
 	args << "-o" << OS::null_device() << QString("http://%1/").arg(hostname);
 	
-	return invokeCurl(args, temp_folder(), timeoutMsec);
-}
-
-bool MUtils::UpdateChecker::invokeCurl(const QStringList &args, const QString &workingDir, const int timeout)
-{
-	QProcess process;
-	init_process(process, workingDir, true, NULL, m_environment.data());
-
-	QEventLoop loop;
-	connect(&process, SIGNAL(error(QProcess::ProcessError)), &loop, SLOT(quit()));
-	connect(&process, SIGNAL(finished(int, QProcess::ExitStatus)), &loop, SLOT(quit()));
-	connect(&process, SIGNAL(readyRead()), &loop, SLOT(quit()));
-
-	QTimer timer;
-	timer.setSingleShot(true);
-	connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
-
-	process.start(m_binaryCurl, args);
-	if (!process.waitForStarted())
-	{
-		return false;
-	}
-
-	bool bAborted = false;
-	timer.start(qMax((timeout + (timeout / 2)), 1500));
-
-	while (process.state() != QProcess::NotRunning)
-	{
-		loop.exec();
-		while (process.canReadLine())
-		{
-			const QString line = QString::fromLatin1(process.readLine()).simplified();
-			if ((!line.isEmpty()) && line.compare(QLatin1String("<")) && line.compare(QLatin1String(">")))
-			{
-				log(line);
-			}
-		}
-		const bool bCancelled = MUTILS_BOOLIFY(m_cancelled);
-		if (bAborted = (bCancelled || ((!timer.isActive()) && (!process.waitForFinished(125)))))
-		{
-			log(bCancelled ? "CANCELLED BY USER !!!" : "PROCESS TIMEOUT !!!", "");
-			qWarning("WARNING: cURL process %s!", bCancelled ? "cancelled" : "timed out");
-			break; /*abort process*/
-		}
-	}
-
-	timer.stop();
-	timer.disconnect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
-
-	if (bAborted)
-	{
-		process.kill();
-		process.waitForFinished(-1);
-	}
-
-	while (process.canReadLine())
-	{
-		const QString line = QString::fromLatin1(process.readLine()).simplified();
-		if ((!line.isEmpty()) && line.compare(QLatin1String("<")) && line.compare(QLatin1String(">")))
-		{
-			log(line);
-		}
-	}
-
-	if (!bAborted)
-	{
-		const int exitCode = process.exitCode();
-		switch (exitCode)
-		{
-			case -1:
-			case  0: log(QLatin1String("DONE: Transfer completed successfully."), "");                     break;
-			case  6: log(QLatin1String("ERROR: Remote host could not be resolved!"), "");                  break;
-			case  7: log(QLatin1String("ERROR: Connection to remote host could not be established!"), ""); break;
-			case 22: log(QLatin1String("ERROR: Requested URL was not found or returned an error!"), "");   break;
-			case 28: log(QLatin1String("ERROR: Operation timed out !!!"), "");                             break;
-			default: log(QString().sprintf("ERROR: Terminated with unknown code %d", exitCode), "");       break;
-		}
-		return (exitCode == 0);
-	}
-	
-	return false; /*aborted*/
+	return execCurl(args, temp_folder(), timeoutMsec);
 }
 
 bool MUtils::UpdateChecker::checkSignature(const QString &file, const QString &signature)
@@ -705,36 +628,16 @@ bool MUtils::UpdateChecker::checkSignature(const QString &file, const QString &s
 		}
 	}
 
-	QProcess process;
-	init_process(process, QFileInfo(file).absolutePath());
+	QStringList args;
+	args << QStringList() << "--homedir" << ".";
+	args << "--keyring" << QFileInfo(keyRingPath).fileName();
+	args << QFileInfo(signature).fileName();
+	args << QFileInfo(file).fileName();
 
-	QEventLoop loop;
-	connect(&process, SIGNAL(error(QProcess::ProcessError)), &loop, SLOT(quit()));
-	connect(&process, SIGNAL(finished(int, QProcess::ExitStatus)), &loop, SLOT(quit()));
-	connect(&process, SIGNAL(readyRead()), &loop, SLOT(quit()));
-
-	process.start(m_binaryGnuPG, QStringList() << "--homedir" << "." << "--keyring" << QFileInfo(keyRingPath).fileName() << QFileInfo(signature).fileName() << QFileInfo(file).fileName());
-
-	if (!process.waitForStarted())
+	const int exitCode = execProcess(m_binaryGnuPG, args, QFileInfo(file).absolutePath(), DOWNLOAD_TIMEOUT);
+	if (exitCode != INT_MAX)
 	{
-		if (removeKeyring)
-		{
-			remove_file(keyRingPath);
-		}
-		return false;
-	}
-
-	while (process.state() != QProcess::NotRunning)
-	{
-		loop.exec();
-		while (process.canReadLine())
-		{
-			const QString line = QString::fromLatin1(process.readLine()).simplified();
-			if (!line.isEmpty())
-			{
-				log(line);
-			}
-		}
+		log(QString().sprintf("Exited with code %d", exitCode));
 	}
 
 	if (removeKeyring)
@@ -742,8 +645,93 @@ bool MUtils::UpdateChecker::checkSignature(const QString &file, const QString &s
 		remove_file(keyRingPath);
 	}
 
-	log(QString().sprintf("Exited with code %d", process.exitCode()));
-	return (process.exitCode() == 0);
+	return (exitCode == 0); /*completed*/
+}
+
+bool MUtils::UpdateChecker::execCurl(const QStringList &args, const QString &workingDir, const int timeout)
+{
+	const int exitCode = execProcess(m_binaryCurl, args, workingDir, timeout + (timeout / 2));
+	if (exitCode != INT_MAX)
+	{
+		switch (exitCode)
+		{
+			case -1:
+			case  0: log(QLatin1String("DONE: Transfer completed successfully."), "");                     break;
+			case  6: log(QLatin1String("ERROR: Remote host could not be resolved!"), "");                  break;
+			case  7: log(QLatin1String("ERROR: Connection to remote host could not be established!"), ""); break;
+			case 22: log(QLatin1String("ERROR: Requested URL was not found or returned an error!"), "");   break;
+			case 28: log(QLatin1String("ERROR: Operation timed out !!!"), "");                             break;
+			default: log(QString().sprintf("ERROR: Terminated with unknown code %d", exitCode), "");       break;
+		}
+	}
+
+	return (exitCode == 0); /*completed*/
+}
+
+int MUtils::UpdateChecker::execProcess(const QString &programFile, const QStringList &args, const QString &workingDir, const int timeout)
+{
+	QProcess process;
+	init_process(process, workingDir, true, NULL, m_environment.data());
+
+	QEventLoop loop;
+	connect(&process, SIGNAL(error(QProcess::ProcessError)), &loop, SLOT(quit()));
+	connect(&process, SIGNAL(finished(int, QProcess::ExitStatus)), &loop, SLOT(quit()));
+	connect(&process, SIGNAL(readyRead()), &loop, SLOT(quit()));
+
+	QTimer timer;
+	timer.setSingleShot(true);
+	connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
+
+	process.start(programFile, args);
+	if (!process.waitForStarted())
+	{
+		log("PROCESS FAILED TO START !!!", "");
+		qWarning("WARNING: %s process could not be created!", MUTILS_UTF8(QFileInfo(programFile).fileName()));
+		return INT_MAX; /*failed to start*/
+	}
+
+	bool bAborted = false;
+	timer.start(qMax(timeout, 1500));
+
+	while (process.state() != QProcess::NotRunning)
+	{
+		loop.exec();
+		while (process.canReadLine())
+		{
+			const QString line = QString::fromLatin1(process.readLine()).simplified();
+			if ((!line.isEmpty()) && line.compare(QLatin1String("<")) && line.compare(QLatin1String(">")))
+			{
+				log(line);
+			}
+		}
+		const bool bCancelled = MUTILS_BOOLIFY(m_cancelled);
+		if (bAborted = (bCancelled || ((!timer.isActive()) && (!process.waitForFinished(125)))))
+		{
+			log(bCancelled ? "CANCELLED BY USER !!!" : "PROCESS TIMEOUT !!!", "");
+			qWarning("WARNING: %s process %s!", MUTILS_UTF8(QFileInfo(programFile).fileName()), bCancelled ? "cancelled" : "timed out");
+			break; /*abort process*/
+		}
+	}
+
+	timer.stop();
+	timer.disconnect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
+
+	if (bAborted)
+	{
+		process.kill();
+		process.waitForFinished(-1);
+	}
+
+	while (process.canReadLine())
+	{
+		const QString line = QString::fromLatin1(process.readLine()).simplified();
+		if ((!line.isEmpty()) && line.compare(QLatin1String("<")) && line.compare(QLatin1String(">")))
+		{
+			log(line);
+		}
+	}
+
+	return bAborted ? INT_MAX : process.exitCode();
 }
 
 ////////////////////////////////////////////////////////////
