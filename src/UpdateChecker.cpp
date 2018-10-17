@@ -625,7 +625,7 @@ bool MUtils::UpdateChecker::invokeCurl(const QStringList &args, const QString &w
 	}
 
 	bool bAborted = false;
-	timer.start(qMax(2 * timeout, 2500));
+	timer.start(qMax((timeout + (timeout / 2)), 1500));
 
 	while (process.state() != QProcess::NotRunning)
 	{
@@ -639,7 +639,7 @@ bool MUtils::UpdateChecker::invokeCurl(const QStringList &args, const QString &w
 			}
 		}
 		const bool bCancelled = MUTILS_BOOLIFY(m_cancelled);
-		if (bAborted = (bCancelled || ((!timer.isActive()) && (!process.waitForFinished(15)))))
+		if (bAborted = (bCancelled || ((!timer.isActive()) && (!process.waitForFinished(125)))))
 		{
 			log(bCancelled ? "CANCELLED BY USER !!!" : "PROCESS TIMEOUT !!!", "");
 			qWarning("WARNING: cURL process %s!", bCancelled ? "cancelled" : "timed out");
@@ -654,21 +654,34 @@ bool MUtils::UpdateChecker::invokeCurl(const QStringList &args, const QString &w
 	{
 		process.kill();
 		process.waitForFinished(-1);
-		return false;
 	}
 
-	const int exitCode = process.exitCode();
-	switch (exitCode)
+	while (process.canReadLine())
 	{
-		case  0: log(QLatin1String("DONE: Transfer completed successfully."), "");                     break;
-		case  6: log(QLatin1String("ERROR: Remote host could not be resolved!"), "");                  break;
-		case  7: log(QLatin1String("ERROR: Connection to remote host could not be established!"), ""); break;
-		case 22: log(QLatin1String("ERROR: Requested URL was not found or returned an error!"), "");   break;
-		case 28: log(QLatin1String("ERROR: Operation timed out !!!"), "");                             break;
-		default: log(QString().sprintf("ERROR: Terminated with unknown code %d", exitCode), "");       break;
+		const QString line = QString::fromLatin1(process.readLine()).simplified();
+		if ((!line.isEmpty()) && line.compare(QLatin1String("<")) && line.compare(QLatin1String(">")))
+		{
+			log(line);
+		}
+	}
+
+	if (!bAborted)
+	{
+		const int exitCode = process.exitCode();
+		switch (exitCode)
+		{
+			case -1:
+			case  0: log(QLatin1String("DONE: Transfer completed successfully."), "");                     break;
+			case  6: log(QLatin1String("ERROR: Remote host could not be resolved!"), "");                  break;
+			case  7: log(QLatin1String("ERROR: Connection to remote host could not be established!"), ""); break;
+			case 22: log(QLatin1String("ERROR: Requested URL was not found or returned an error!"), "");   break;
+			case 28: log(QLatin1String("ERROR: Operation timed out !!!"), "");                             break;
+			default: log(QString().sprintf("ERROR: Terminated with unknown code %d", exitCode), "");       break;
+		}
+		return (exitCode == 0);
 	}
 	
-	return (exitCode == 0);
+	return false; /*aborted*/
 }
 
 bool MUtils::UpdateChecker::checkSignature(const QString &file, const QString &signature)
@@ -711,7 +724,7 @@ bool MUtils::UpdateChecker::checkSignature(const QString &file, const QString &s
 		return false;
 	}
 
-	while (process.state() == QProcess::Running)
+	while (process.state() != QProcess::NotRunning)
 	{
 		loop.exec();
 		while (process.canReadLine())
