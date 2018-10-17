@@ -205,7 +205,7 @@ void MUtils::UpdateChecker::checkForUpdates(void)
 	const int networkStatus = OS::network_status();
 	if(networkStatus == OS::NETWORK_TYPE_NON)
 	{
-		if (!MUtils::OS::arguments().contains("--ignore-network-status"))
+		if (!MUtils::OS::arguments().contains("ignore-network-status"))
 		{
 			log("Operating system reports that the computer is currently offline !!!");
 			setProgress(m_maxProgress);
