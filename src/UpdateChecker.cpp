@@ -59,6 +59,10 @@ static const int DOWNLOAD_TIMEOUT = 30000;
 static const int VERSION_INFO_EXPIRES_MONTHS = 6;
 static char *USER_AGENT_STR = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0"; /*use something innocuous*/
 
+////////////////////////////////////////////////////////////
+// Utility Macros
+////////////////////////////////////////////////////////////
+
 #define CHECK_CANCELLED() do \
 { \
 	if(MUTILS_BOOLIFY(m_cancelled)) \
@@ -461,6 +465,43 @@ bool MUtils::UpdateChecker::getUpdateInfo(const QString &url, const QString &out
 // PARSE UPDATE INFO
 //----------------------------------------------------------
 
+#define _CHECK_HEADER(ID,NAME) \
+	if (STRICMP(name, (NAME))) \
+	{ \
+		sectionId = (ID); \
+		continue; \
+	}
+
+#define _PARSE_TEXT(OUT,KEY) \
+	if (STRICMP(key, (KEY))) \
+	{ \
+		(OUT) = val; \
+		break; \
+	}
+
+#define _PARSE_UINT(OUT,KEY) \
+	if (STRICMP(key, (KEY))) \
+	{ \
+		bool _ok = false; \
+		const unsigned int _tmp = val.toUInt(&_ok); \
+		if (_ok) \
+		{ \
+			(OUT) = _tmp; \
+			break; \
+		} \
+	}
+
+#define _PARSE_DATE(OUT,KEY) \
+	if (STRICMP(key, (KEY))) \
+	{ \
+		const QDate _tmp = QDate::fromString(val, Qt::ISODate); \
+		if (_tmp.isValid()) \
+		{ \
+			(OUT) = _tmp; \
+			break; \
+		} \
+	}
+
 bool MUtils::UpdateChecker::parseVersionInfo(const QString &file, UpdateCheckerInfo *const updateInfo)
 {
 	updateInfo->resetInfo();
@@ -471,7 +512,7 @@ bool MUtils::UpdateChecker::parseVersionInfo(const QString &file, UpdateCheckerI
 		qWarning("Cannot open update info file for reading!");
 		return false;
 	}
-	
+
 	QDate updateInfoDate;
 	int sectionId = 0;
 	QRegExp regex_sec("^\\[(.+)\\]$"), regex_val("^([^=]+)=(.+)$");
@@ -481,23 +522,40 @@ bool MUtils::UpdateChecker::parseVersionInfo(const QString &file, UpdateCheckerI
 		QString line = QString::fromLatin1(data.readLine()).trimmed();
 		if (regex_sec.indexIn(line) >= 0)
 		{
-			sectionId = parseSectionHeaderStr(regex_sec.cap(1).trimmed());
+			const QString name = regex_sec.cap(1).trimmed();
+			log(QString("Sec: [%1]").arg(name));
+			_CHECK_HEADER(1, HEADER_ID)
+			_CHECK_HEADER(2, m_applicationId)
+			sectionId = 0;
 			continue;
 		}
 		if (regex_val.indexIn(line) >= 0)
 		{
 			const QString key = regex_val.cap(1).trimmed();
 			const QString val = regex_val.cap(2).trimmed();
+			log(QString("Val: \"%1\" = \"%2\"").arg(key, val));
 			switch (sectionId)
 			{
 			case 1:
-				parseHeaderValue(key, val, updateInfoDate);
+				_PARSE_DATE(updateInfoDate, "TimestampCreated")
 				break;
 			case 2:
-				parseUpdateInfoValue(key, val, updateInfo);
+				_PARSE_UINT(updateInfo->m_buildNo,          "BuildNo")
+				_PARSE_DATE(updateInfo->m_buildDate,        "BuildDate")
+				_PARSE_TEXT(updateInfo->m_downloadSite,     "DownloadSite")
+				_PARSE_TEXT(updateInfo->m_downloadAddress,  "DownloadAddress")
+				_PARSE_TEXT(updateInfo->m_downloadFilename, "DownloadFilename")
+				_PARSE_TEXT(updateInfo->m_downloadFilecode, "DownloadFilecode")
+				_PARSE_TEXT(updateInfo->m_downloadChecksum, "DownloadChecksum")
 				break;
 			}
 		}
+	}
+
+	if (!updateInfo->isComplete())
+	{
+		log("", "WARNING: Update information is incomplete!");
+		goto failure;
 	}
 
 	if(updateInfoDate.isValid())
@@ -505,116 +563,22 @@ bool MUtils::UpdateChecker::parseVersionInfo(const QString &file, UpdateCheckerI
 		const QDate expiredDate = updateInfoDate.addMonths(VERSION_INFO_EXPIRES_MONTHS);
 		if (expiredDate < OS::current_date())
 		{
-			log(QString("WARNING: Update information has expired at %1!").arg(expiredDate.toString(Qt::ISODate)));
-			goto cleanUp;
+			log("", QString("WARNING: Update information has expired at %1!").arg(expiredDate.toString(Qt::ISODate)));
+			goto failure;
 		}
 	}
 	else
 	{
-		log("WARNING: Timestamp is missing from update information header!");
-		goto cleanUp;
-	}
-	
-	if(!updateInfo->isComplete())
-	{
-		log("WARNING: Update information is incomplete!");
-		goto cleanUp;
+		log("", "WARNING: Timestamp is missing from update information header!");
+		goto failure;
 	}
 
 	log("", "Success: Update information is complete.");
 	return true; /*success*/
 
-cleanUp:
+failure:
 	updateInfo->resetInfo();
 	return false;
-}
-
-int MUtils::UpdateChecker::parseSectionHeaderStr(const QString &name)
-{
-	log(QString("Sec: [%1]").arg(name));
-
-	if (STRICMP(name, HEADER_ID))
-	{
-		return 1;
-	}
-	if (STRICMP(name, m_applicationId))
-	{
-		return 2;
-	}
-
-	//Unknonw section encountered!
-	return 0;
-}
-
-void MUtils::UpdateChecker::parseHeaderValue(const QString &key, const QString &val, QDate &updateInfoDate)
-{
-	log(QString("Hdr: \"%1\"=\"%2\"").arg(key, val));
-
-	if (STRICMP(key, "TimestampCreated"))
-	{
-		const QDate temp = QDate::fromString(val, Qt::ISODate);
-		if (temp.isValid())
-		{
-			updateInfoDate = temp;
-		}
-		return;
-	}
-
-	//Unknown entry encountered!
-	qWarning("Unknown header value: %s", MUTILS_L1STR(key));
-}
-
-void MUtils::UpdateChecker::parseUpdateInfoValue(const QString &key, const QString &val, UpdateCheckerInfo *const updateInfo)
-{
-	log(QString("Val: \"%1\"=\"%2\"").arg(key, val));
-
-	if (STRICMP(key, "BuildNo"))
-	{
-		bool ok = false;
-		const unsigned int temp = val.toUInt(&ok);
-		if (ok)
-		{
-			updateInfo->m_buildNo = temp;
-		}
-		return;
-	}
-	if (STRICMP(key, "BuildDate"))
-	{
-		const QDate temp = QDate::fromString(val, Qt::ISODate);
-		if (temp.isValid())
-		{
-			updateInfo->m_buildDate = temp;
-		}
-		return;
-	}
-	if (STRICMP(key, "DownloadSite"))
-	{
-		updateInfo->m_downloadSite = val;
-		return;
-	}
-	if (STRICMP(key, "DownloadAddress"))
-	{
-		updateInfo->m_downloadAddress = val;
-		return;
-	}
-	if (STRICMP(key, "DownloadFilename"))
-	{
-		updateInfo->m_downloadFilename = val;
-		return;
-	}
-	if (STRICMP(key, "DownloadFilecode"))
-	{
-		updateInfo->m_downloadFilecode = val;
-		return;
-	}
-	if (STRICMP(key, "DownloadChecksum"))
-	{
-		updateInfo->m_downloadChecksum = val;
-		return;
-	}
-
-	//Unknown entry encountered!
-	qWarning("Unknown update value: %s", MUTILS_L1STR(key));
 }
 
 //----------------------------------------------------------
