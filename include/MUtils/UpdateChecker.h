@@ -135,7 +135,11 @@ namespace MUtils
 
 		bool getUpdateInfo(const QString &url, const QString &outFileVers, const QString &outFileSign);
 		bool tryContactHost(const QString &hostname, const int &timeoutMsec);
-		bool parseVersionInfo(const QString &file, UpdateCheckerInfo *updateInfo);
+
+		bool parseVersionInfo(const QString &file, UpdateCheckerInfo *const updateInfo);
+		int parseSectionHeaderStr(const QString &name);
+		void parseHeaderValue(const QString &key, const QString &val, QDate &updateInfoDate);
+		void parseUpdateInfoValue(const QString &key, const QString &val, UpdateCheckerInfo *const updateInfo);
 
 		bool getFile(const QUrl &url, const QString &outFile, const unsigned int maxRedir = 8U);
 		bool checkSignature(const QString &file, const QString &signature);

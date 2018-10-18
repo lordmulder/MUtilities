@@ -42,9 +42,9 @@
 // CONSTANTS
 ///////////////////////////////////////////////////////////////////////////////
 
-static const char *header_id = "!Update";
+static const char *HEADER_ID = "!Update";
 
-static const char *mirror_url_postfix[] = 
+static const char *MIRROR_URL_POSTFIX[] = 
 {
 	"update.ver",
 	"update_beta.ver",
@@ -72,20 +72,20 @@ static char *USER_AGENT_STR = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Geck
 } \
 while(0)
 
+#define LOG_MESSAGE_HELPER(X) do \
+{ \
+	if (!(X).isNull()) \
+	{ \
+		emit messageLogged((X)); \
+	} \
+} \
+while(0)
+
+#define STRICMP(X,Y) ((X).compare((Y), Qt::CaseInsensitive) == 0)
+
 ////////////////////////////////////////////////////////////
 // Helper Functions
 ////////////////////////////////////////////////////////////
-
-static int getMaxProgress(void)
-{
-	int counter = 0;
-	while (update_mirrors[counter])
-	{
-		counter++;
-	}
-	counter += MIN_CONNSCORE + QUICK_MIRRORS + 2;
-	return counter; ;
-}
 
 static QStringList buildRandomList(const char *const values[])
 {
@@ -127,15 +127,13 @@ void MUtils::UpdateCheckerInfo::resetInfo(void)
 
 bool MUtils::UpdateCheckerInfo::isComplete(void)
 {
-	if(this->m_buildNo < 1)                return false;
-	if(this->m_buildDate.year() < 2010)    return false;
-	if(this->m_downloadSite.isEmpty())     return false;
-	if(this->m_downloadAddress.isEmpty())  return false;
-	if(this->m_downloadFilename.isEmpty()) return false;
-	if(this->m_downloadFilecode.isEmpty()) return false;
-	if(this->m_downloadChecksum.isEmpty()) return false;
-
-	return true;
+	return (this->m_buildNo > 0) &&
+		(this->m_buildDate.year() >= 2010) &&
+		(!this->m_downloadSite.isEmpty()) &&
+		(!this->m_downloadAddress.isEmpty()) &&
+		(!this->m_downloadFilename.isEmpty()) &&
+		(!this->m_downloadFilecode.isEmpty()) &&
+		(!this->m_downloadChecksum.isEmpty());
 }
 
 ////////////////////////////////////////////////////////////
@@ -152,7 +150,7 @@ MUtils::UpdateChecker::UpdateChecker(const QString &binCurl, const QString &binG
 	m_installedBuildNo(installedBuildNo),
 	m_betaUpdates(betaUpdates),
 	m_testMode(testMode),
-	m_maxProgress(getMaxProgress()),
+	m_maxProgress(MIN_CONNSCORE + 5),
 	m_environment(initEnvVars())
 {
 	m_status = UpdateStatus_NotStartedYet;
@@ -214,7 +212,7 @@ void MUtils::UpdateChecker::checkForUpdates(void)
 		}
 	}
 	
-	msleep(500);
+	msleep(333);
 	setProgress(1);
 
 	// ----- Test Known Hosts Connectivity ----- //
@@ -232,8 +230,7 @@ void MUtils::UpdateChecker::checkForUpdates(void)
 			const QString hostName = mirrorList.takeFirst();
 			if (tryContactHost(hostName, connectionTimout))
 			{
-				connectionScore += 1;
-				setProgress(qBound(1, connectionScore + 1, MIN_CONNSCORE + 1));
+				setProgress(1 + (connectionScore += 1));
 				elapsedTimer.restart();
 				if (connectionScore >= MIN_CONNSCORE)
 				{
@@ -268,7 +265,6 @@ endLoop:
 
 	while(!mirrorList.isEmpty())
 	{
-		setProgress(m_progress + 1);
 		const QString currentMirror = mirrorList.takeFirst();
 		const bool isQuick = (mirrorCount++ < QUICK_MIRRORS);
 		if(tryUpdateMirror(m_updateInfo.data(), currentMirror, isQuick))
@@ -283,13 +279,9 @@ endLoop:
 		CHECK_CANCELLED();
 		msleep(1);
 	}
-	
-	while (m_progress < m_maxProgress)
-	{
-		msleep(16);
-		setProgress(m_progress + 1);
-		CHECK_CANCELLED();
-	}
+
+	msleep(333);
+	setProgress(MIN_CONNSCORE + 5);
 
 	// ----- Generate final result ----- //
 
@@ -316,13 +308,13 @@ endLoop:
 
 void MUtils::UpdateChecker::testMirrorsList(void)
 {
-	// ----- Test update mirrors ----- //
-
 	QStringList mirrorList;
 	for(int i = 0; update_mirrors[i]; i++)
 	{
 		mirrorList << QString::fromLatin1(update_mirrors[i]);
 	}
+
+	// ----- Test update mirrors ----- //
 
 	qDebug("\n[Mirror Sites]");
 	log("Testing all known mirror sites...", "", "---");
@@ -370,7 +362,7 @@ void MUtils::UpdateChecker::testMirrorsList(void)
 		{
 			qWarning("\nConnectivity test FAILED on the following host:\n%s\n", MUTILS_L1STR(currentHost));
 		}
-		log("", "---");
+		log("---");
 	}
 }
 
@@ -389,28 +381,29 @@ void MUtils::UpdateChecker::setStatus(const int status)
 
 void MUtils::UpdateChecker::setProgress(const int progress)
 {
-	if(m_progress != progress)
+	const int value = qBound(0, progress, m_maxProgress);
+	if(m_progress != value)
 	{
-		m_progress = progress;
-		emit progressChanged(progress);
+		emit progressChanged(m_progress = value);
 	}
 }
 
 void MUtils::UpdateChecker::log(const QString &str1, const QString &str2, const QString &str3, const QString &str4)
 {
-	if(!str1.isNull()) emit messageLogged(str1);
-	if(!str2.isNull()) emit messageLogged(str2);
-	if(!str3.isNull()) emit messageLogged(str3);
-	if(!str4.isNull()) emit messageLogged(str4);
+	LOG_MESSAGE_HELPER(str1);
+	LOG_MESSAGE_HELPER(str2);
+	LOG_MESSAGE_HELPER(str3);
+	LOG_MESSAGE_HELPER(str4);
 }
 
 bool MUtils::UpdateChecker::tryUpdateMirror(UpdateCheckerInfo *updateInfo, const QString &url, const bool &quick)
 {
 	bool success = false;
-	log("", "Trying mirror:", url, "");
+	log("", "Trying update mirror:", url, "");
 
 	if (quick)
 	{
+		setProgress(MIN_CONNSCORE + 1);
 		if (!tryContactHost(QUrl(url).host(), (MAX_CONN_TIMEOUT / 8)))
 		{
 			log("", "Mirror is too slow, skipping!");
@@ -422,53 +415,54 @@ bool MUtils::UpdateChecker::tryUpdateMirror(UpdateCheckerInfo *updateInfo, const
 	const QString outFileVers = QString("%1/%2.ver").arg(temp_folder(), randPart);
 	const QString outFileSign = QString("%1/%2.sig").arg(temp_folder(), randPart);
 
-	if (getUpdateInfo(url, outFileVers, outFileSign))
+	if (!getUpdateInfo(url, outFileVers, outFileSign))
 	{
-		log("Download completed, verifying signature:", "");
-		if (checkSignature(outFileVers, outFileSign))
-		{
-			log("", "Signature is valid, parsing info:", "");
-			success = parseVersionInfo(outFileVers, updateInfo);
-		}
-		else
-		{
-			log("", "Bad signature, take care !!!");
-		}
-	}
-	else
-	{
-		log("", "Download has failed!");
+		log("", "Oops: Download of update information has failed!");
+		goto cleanUp;
 	}
 
+	log("Download completed, verifying signature:", "");
+	setProgress(MIN_CONNSCORE + 4);
+	if (!checkSignature(outFileVers, outFileSign))
+	{
+		log("", "Bad signature detected, take care !!!");
+		goto cleanUp;
+	}
+
+	log("", "Signature is valid, parsing update information:", "");
+	success = parseVersionInfo(outFileVers, updateInfo);
+
+cleanUp:
 	QFile::remove(outFileVers);
 	QFile::remove(outFileSign);
-	
 	return success;
 }
 
 bool MUtils::UpdateChecker::getUpdateInfo(const QString &url, const QString &outFileVers, const QString &outFileSign)
 {
-	log("Downloading update info:", "");
-	if(getFile(QUrl(QString("%1%2").arg(url, mirror_url_postfix[m_betaUpdates ? 1 : 0])), outFileVers))
+	log("Downloading update information:", "");
+	setProgress(MIN_CONNSCORE + 2);
+	if(getFile(QUrl(QString("%1%2").arg(url, MIRROR_URL_POSTFIX[m_betaUpdates ? 1 : 0])), outFileVers))
 	{
 		if (!m_cancelled)
 		{
 			log( "Downloading signature file:", "");
-			if (getFile(QUrl(QString("%1%2.sig2").arg(url, mirror_url_postfix[m_betaUpdates ? 1 : 0])), outFileSign))
+			setProgress(MIN_CONNSCORE + 3);
+			if (getFile(QUrl(QString("%1%2.sig2").arg(url, MIRROR_URL_POSTFIX[m_betaUpdates ? 1 : 0])), outFileSign))
 			{
-				return true;
+				return true; /*completed*/
 			}
 		}
 	}
 	return false;
 }
 
-bool MUtils::UpdateChecker::parseVersionInfo(const QString &file, UpdateCheckerInfo *updateInfo)
-{
-	QRegExp value("^(\\w+)=(.+)$");
-	QRegExp section("^\\[(.+)\\]$");
+//----------------------------------------------------------
+// PARSE UPDATE INFO
+//----------------------------------------------------------
 
-	QDate updateInfoDate;
+bool MUtils::UpdateChecker::parseVersionInfo(const QString &file, UpdateCheckerInfo *const updateInfo)
+{
 	updateInfo->resetInfo();
 
 	QFile data(file);
@@ -478,92 +472,149 @@ bool MUtils::UpdateChecker::parseVersionInfo(const QString &file, UpdateCheckerI
 		return false;
 	}
 	
-	bool inHdr = false;
-	bool inSec = false;
-	
+	QDate updateInfoDate;
+	int sectionId = 0;
+	QRegExp regex_sec("^\\[(.+)\\]$"), regex_val("^([^=]+)=(.+)$");
+
 	while(!data.atEnd())
 	{
 		QString line = QString::fromLatin1(data.readLine()).trimmed();
-		if(section.indexIn(line) >= 0)
+		if (regex_sec.indexIn(line) >= 0)
 		{
-			log(QString("Sec: [%1]").arg(section.cap(1)));
-			inSec = (section.cap(1).compare(m_applicationId, Qt::CaseInsensitive) == 0);
-			inHdr = (section.cap(1).compare(QString::fromLatin1(header_id), Qt::CaseInsensitive) == 0);
+			sectionId = parseSectionHeaderStr(regex_sec.cap(1).trimmed());
 			continue;
 		}
-		if(inSec && (value.indexIn(line) >= 0))
+		if (regex_val.indexIn(line) >= 0)
 		{
-			log(QString("Val: '%1' ==> '%2").arg(value.cap(1), value.cap(2)));
-			if(value.cap(1).compare("BuildNo", Qt::CaseInsensitive) == 0)
+			const QString key = regex_val.cap(1).trimmed();
+			const QString val = regex_val.cap(2).trimmed();
+			switch (sectionId)
 			{
-				bool ok = false;
-				const unsigned int temp = value.cap(2).toUInt(&ok);
-				if(ok) updateInfo->m_buildNo = temp;
-			}
-			else if(value.cap(1).compare("BuildDate", Qt::CaseInsensitive) == 0)
-			{
-				const QDate temp = QDate::fromString(value.cap(2).trimmed(), Qt::ISODate);
-				if(temp.isValid()) updateInfo->m_buildDate = temp;
-			}
-			else if(value.cap(1).compare("DownloadSite", Qt::CaseInsensitive) == 0)
-			{
-				updateInfo->m_downloadSite = value.cap(2).trimmed();
-			}
-			else if(value.cap(1).compare("DownloadAddress", Qt::CaseInsensitive) == 0)
-			{
-				updateInfo->m_downloadAddress = value.cap(2).trimmed();
-			}
-			else if(value.cap(1).compare("DownloadFilename", Qt::CaseInsensitive) == 0)
-			{
-				updateInfo->m_downloadFilename = value.cap(2).trimmed();
-			}
-			else if(value.cap(1).compare("DownloadFilecode", Qt::CaseInsensitive) == 0)
-			{
-				updateInfo->m_downloadFilecode = value.cap(2).trimmed();
-			}
-			else if(value.cap(1).compare("DownloadChecksum", Qt::CaseInsensitive) == 0)
-			{
-				updateInfo->m_downloadChecksum = value.cap(2).trimmed();
-			}
-		}
-		if(inHdr && (value.indexIn(line) >= 0))
-		{
-			log(QString("Val: '%1' ==> '%2").arg(value.cap(1), value.cap(2)));
-			if(value.cap(1).compare("TimestampCreated", Qt::CaseInsensitive) == 0)
-			{
-				QDate temp = QDate::fromString(value.cap(2).trimmed(), Qt::ISODate);
-				if(temp.isValid()) updateInfoDate = temp;
+			case 1:
+				parseHeaderValue(key, val, updateInfoDate);
+				break;
+			case 2:
+				parseUpdateInfoValue(key, val, updateInfo);
+				break;
 			}
 		}
 	}
 
-	if(!updateInfoDate.isValid())
+	if(updateInfoDate.isValid())
 	{
-		updateInfo->resetInfo();
-		log("WARNING: Version info timestamp is missing!");
-		return false;
+		const QDate expiredDate = updateInfoDate.addMonths(VERSION_INFO_EXPIRES_MONTHS);
+		if (expiredDate < OS::current_date())
+		{
+			log(QString("WARNING: Update information has expired at %1!").arg(expiredDate.toString(Qt::ISODate)));
+			goto cleanUp;
+		}
 	}
-	
-	const QDate currentDate = OS::current_date();
-	if(updateInfoDate.addMonths(VERSION_INFO_EXPIRES_MONTHS) < currentDate)
+	else
 	{
-		updateInfo->resetInfo();
-		log(QString::fromLatin1("WARNING: This version info has expired at %1!").arg(updateInfoDate.addMonths(VERSION_INFO_EXPIRES_MONTHS).toString(Qt::ISODate)));
-		return false;
-	}
-	else if(currentDate < updateInfoDate)
-	{
-		log("Version info is from the future, take care!");
-		qWarning("Version info is from the future, take care!");
+		log("WARNING: Timestamp is missing from update information header!");
+		goto cleanUp;
 	}
 	
 	if(!updateInfo->isComplete())
 	{
-		log("WARNING: Version info is incomplete!");
-		return false;
+		log("WARNING: Update information is incomplete!");
+		goto cleanUp;
 	}
 
-	return true;
+	log("", "Success: Update information is complete.");
+	return true; /*success*/
+
+cleanUp:
+	updateInfo->resetInfo();
+	return false;
+}
+
+int MUtils::UpdateChecker::parseSectionHeaderStr(const QString &name)
+{
+	log(QString("Sec: [%1]").arg(name));
+
+	if (STRICMP(name, HEADER_ID))
+	{
+		return 1;
+	}
+	if (STRICMP(name, m_applicationId))
+	{
+		return 2;
+	}
+
+	//Unknonw section encountered!
+	return 0;
+}
+
+void MUtils::UpdateChecker::parseHeaderValue(const QString &key, const QString &val, QDate &updateInfoDate)
+{
+	log(QString("Hdr: \"%1\"=\"%2\"").arg(key, val));
+
+	if (STRICMP(key, "TimestampCreated"))
+	{
+		const QDate temp = QDate::fromString(val, Qt::ISODate);
+		if (temp.isValid())
+		{
+			updateInfoDate = temp;
+		}
+		return;
+	}
+
+	//Unknown entry encountered!
+	qWarning("Unknown header value: %s", MUTILS_L1STR(key));
+}
+
+void MUtils::UpdateChecker::parseUpdateInfoValue(const QString &key, const QString &val, UpdateCheckerInfo *const updateInfo)
+{
+	log(QString("Val: \"%1\"=\"%2\"").arg(key, val));
+
+	if (STRICMP(key, "BuildNo"))
+	{
+		bool ok = false;
+		const unsigned int temp = val.toUInt(&ok);
+		if (ok)
+		{
+			updateInfo->m_buildNo = temp;
+		}
+		return;
+	}
+	if (STRICMP(key, "BuildDate"))
+	{
+		const QDate temp = QDate::fromString(val, Qt::ISODate);
+		if (temp.isValid())
+		{
+			updateInfo->m_buildDate = temp;
+		}
+		return;
+	}
+	if (STRICMP(key, "DownloadSite"))
+	{
+		updateInfo->m_downloadSite = val;
+		return;
+	}
+	if (STRICMP(key, "DownloadAddress"))
+	{
+		updateInfo->m_downloadAddress = val;
+		return;
+	}
+	if (STRICMP(key, "DownloadFilename"))
+	{
+		updateInfo->m_downloadFilename = val;
+		return;
+	}
+	if (STRICMP(key, "DownloadFilecode"))
+	{
+		updateInfo->m_downloadFilecode = val;
+		return;
+	}
+	if (STRICMP(key, "DownloadChecksum"))
+	{
+		updateInfo->m_downloadChecksum = val;
+		return;
+	}
+
+	//Unknown entry encountered!
+	qWarning("Unknown update value: %s", MUTILS_L1STR(key));
 }
 
 //----------------------------------------------------------
@@ -699,7 +750,7 @@ int MUtils::UpdateChecker::execProcess(const QString &programFile, const QString
 		while (process.canReadLine())
 		{
 			const QString line = QString::fromLatin1(process.readLine()).simplified();
-			if ((!line.isEmpty()) && line.compare(QLatin1String("<")) && line.compare(QLatin1String(">")))
+			if (line.length() > 1)
 			{
 				log(line);
 			}
@@ -725,7 +776,7 @@ int MUtils::UpdateChecker::execProcess(const QString &programFile, const QString
 	while (process.canReadLine())
 	{
 		const QString line = QString::fromLatin1(process.readLine()).simplified();
-		if ((!line.isEmpty()) && line.compare(QLatin1String("<")) && line.compare(QLatin1String(">")))
+		if (line.length() > 1)
 		{
 			log(line);
 		}
