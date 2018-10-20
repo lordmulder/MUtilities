@@ -124,7 +124,8 @@ namespace MUtils
 	* \return The function returns a *random* unsigned 32-Bit value.
 	*/
 	MUTILS_API quint32 next_rand_u32(void);
-	
+	MUTILS_API quint32 next_rand_u32(const quint32 max);
+
 	/**
 	* \brief Generates a *random* unsigned 64-Bit value.
 	*
