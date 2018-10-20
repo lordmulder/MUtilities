@@ -670,7 +670,6 @@ bool MUtils::UpdateChecker::execCurl(const QStringList &args, const QString &wor
 	{
 		switch (exitCode)
 		{
-			case -1:
 			case  0: log(QLatin1String("DONE: Transfer completed successfully."), "");                     break;
 			case  6: log(QLatin1String("ERROR: Remote host could not be resolved!"), "");                  break;
 			case  7: log(QLatin1String("ERROR: Connection to remote host could not be established!"), ""); break;
