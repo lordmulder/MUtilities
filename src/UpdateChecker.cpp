@@ -42,7 +42,7 @@
 // CONSTANTS
 ///////////////////////////////////////////////////////////////////////////////
 
-static const char *HEADER_ID = "!Update";
+static const char *GLOBALHEADER_ID = "!Update";
 
 static const char *MIRROR_URL_POSTFIX[] = 
 {
@@ -522,11 +522,11 @@ bool MUtils::UpdateChecker::parseVersionInfo(const QString &file, UpdateCheckerI
 		QString line = QString::fromLatin1(data.readLine()).trimmed();
 		if (regex_sec.indexIn(line) >= 0)
 		{
+			sectionId = 0; /*unknown section*/
 			const QString name = regex_sec.cap(1).trimmed();
 			log(QString("Sec: [%1]").arg(name));
-			_CHECK_HEADER(1, HEADER_ID)
+			_CHECK_HEADER(1, GLOBALHEADER_ID)
 			_CHECK_HEADER(2, m_applicationId)
-			sectionId = 0;
 			continue;
 		}
 		if (regex_val.indexIn(line) >= 0)
