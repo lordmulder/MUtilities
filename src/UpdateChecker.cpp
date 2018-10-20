@@ -224,11 +224,11 @@ void MUtils::UpdateChecker::checkForUpdates(void)
 	int connectionScore = 0;
 	QQueue<QString> mirrorList = buildRandomList(known_hosts);
 
-	for(int connectionTimout = 1000; connectionTimout <= MAX_CONN_TIMEOUT; connectionTimout *= 2)
+	for(int connectionTimeout = 1000; connectionTimeout <= MAX_CONN_TIMEOUT; connectionTimeout *= 2)
 	{
 		QElapsedTimer elapsedTimer;
 		elapsedTimer.start();
-		const qint64 globalTimeout = 2 * MIN_CONNSCORE * connectionTimout;
+		const qint64 globalTimeout = 2 * MIN_CONNSCORE * connectionTimeout;
 		forever
 		{
 			if (mirrorList.isEmpty())
@@ -236,7 +236,7 @@ void MUtils::UpdateChecker::checkForUpdates(void)
 				goto endLoop; /*depleted!*/
 			}
 			const QString hostName = mirrorList.dequeue();
-			if (tryContactHost(hostName, connectionTimout))
+			if (tryContactHost(hostName, connectionTimeout))
 			{
 				setProgress(1 + (++connectionScore));
 				if (connectionScore >= MIN_CONNSCORE)
