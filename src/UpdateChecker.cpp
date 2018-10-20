@@ -35,6 +35,7 @@
 #include <QElapsedTimer>
 #include <QSet>
 #include <QHash>
+#include <QQueue>
 
 #include "Mirrors.h"
 
@@ -91,13 +92,12 @@ while(0)
 // Helper Functions
 ////////////////////////////////////////////////////////////
 
-static QStringList buildRandomList(const char *const values[])
+static QQueue<QString> buildRandomList(const char *const *values)
 {
-	QStringList list;
-	for (int index = 0; values[index]; index++)
+	QQueue<QString> list;
+	while(*values)
 	{
-		const int pos = MUtils::next_rand_u32() % (index + 1);
-		list.insert(pos, QString::fromLatin1(values[index]));
+		list.insert(MUtils::next_rand_u32(list.size() + 1), QString::fromLatin1(*(values++)));
 	}
 	return list;
 }
@@ -222,32 +222,35 @@ void MUtils::UpdateChecker::checkForUpdates(void)
 	// ----- Test Known Hosts Connectivity ----- //
 
 	int connectionScore = 0;
-	QStringList mirrorList = buildRandomList(known_hosts);
+	QQueue<QString> mirrorList = buildRandomList(known_hosts);
 
 	for(int connectionTimout = 1000; connectionTimout <= MAX_CONN_TIMEOUT; connectionTimout *= 2)
 	{
 		QElapsedTimer elapsedTimer;
-		elapsedTimer.start();
 		const int globalTimout = 2 * MIN_CONNSCORE * connectionTimout;
-		while (!elapsedTimer.hasExpired(globalTimout))
+		elapsedTimer.start();
+		do
 		{
-			const QString hostName = mirrorList.takeFirst();
-			if (tryContactHost(hostName, connectionTimout))
+			if (!mirrorList.isEmpty())
 			{
-				setProgress(1 + (connectionScore += 1));
-				elapsedTimer.restart();
-				if (connectionScore >= MIN_CONNSCORE)
+				const QString hostName = mirrorList.dequeue();
+				if (tryContactHost(hostName, connectionTimout))
 				{
-					goto endLoop; /*success*/
+					setProgress(1 + (connectionScore += 1));
+					elapsedTimer.restart();
+					if (connectionScore >= MIN_CONNSCORE)
+					{
+						goto endLoop; /*success*/
+					}
+				}
+				else
+				{
+					mirrorList.enqueue(hostName); /*re-schedule*/
 				}
 			}
-			else
-			{
-				mirrorList.append(hostName); /*re-schedule*/
-			}
 			CHECK_CANCELLED();
-			msleep(1);
 		}
+		while(!elapsedTimer.hasExpired(globalTimout));
 	}
 
 endLoop:
