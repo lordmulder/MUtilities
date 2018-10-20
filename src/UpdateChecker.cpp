@@ -227,9 +227,9 @@ void MUtils::UpdateChecker::checkForUpdates(void)
 	for(int connectionTimout = 1000; connectionTimout <= MAX_CONN_TIMEOUT; connectionTimout *= 2)
 	{
 		QElapsedTimer elapsedTimer;
-		const int globalTimout = 2 * MIN_CONNSCORE * connectionTimout;
 		elapsedTimer.start();
-		do
+		const qint64 globalTimeout = 2 * MIN_CONNSCORE * connectionTimout;
+		forever
 		{
 			if (mirrorList.isEmpty())
 			{
@@ -238,7 +238,7 @@ void MUtils::UpdateChecker::checkForUpdates(void)
 			const QString hostName = mirrorList.dequeue();
 			if (tryContactHost(hostName, connectionTimout))
 			{
-				setProgress(1 + (connectionScore += 1));
+				setProgress(1 + (++connectionScore));
 				if (connectionScore >= MIN_CONNSCORE)
 				{
 					goto endLoop; /*success*/
@@ -246,11 +246,14 @@ void MUtils::UpdateChecker::checkForUpdates(void)
 			}
 			else
 			{
-				mirrorList.enqueue(hostName); /*re-schedule*/
+				mirrorList.enqueue(hostName);
+				if(elapsedTimer.hasExpired(globalTimeout))
+				{
+					break; /*timer expired*/
+				}
 			}
 			CHECK_CANCELLED();
 		}
-		while(!elapsedTimer.hasExpired(globalTimout));
 	}
 
 endLoop:
