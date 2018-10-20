@@ -231,22 +231,22 @@ void MUtils::UpdateChecker::checkForUpdates(void)
 		elapsedTimer.start();
 		do
 		{
-			if (!mirrorList.isEmpty())
+			if (mirrorList.isEmpty())
 			{
-				const QString hostName = mirrorList.dequeue();
-				if (tryContactHost(hostName, connectionTimout))
+				goto endLoop; /*depleted!*/
+			}
+			const QString hostName = mirrorList.dequeue();
+			if (tryContactHost(hostName, connectionTimout))
+			{
+				setProgress(1 + (connectionScore += 1));
+				if (connectionScore >= MIN_CONNSCORE)
 				{
-					setProgress(1 + (connectionScore += 1));
-					elapsedTimer.restart();
-					if (connectionScore >= MIN_CONNSCORE)
-					{
-						goto endLoop; /*success*/
-					}
+					goto endLoop; /*success*/
 				}
-				else
-				{
-					mirrorList.enqueue(hostName); /*re-schedule*/
-				}
+			}
+			else
+			{
+				mirrorList.enqueue(hostName); /*re-schedule*/
 			}
 			CHECK_CANCELLED();
 		}
