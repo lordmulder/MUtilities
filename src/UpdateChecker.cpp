@@ -522,7 +522,7 @@ bool MUtils::UpdateChecker::parseVersionInfo(const QString &file, UpdateCheckerI
 
 	while(!data.atEnd())
 	{
-		QString line = QString::fromLatin1(data.readLine()).trimmed();
+		QString line = QString::fromLatin1(data.readLine()).simplified();
 		if (regex_sec.indexIn(line) >= 0)
 		{
 			sectionId = 0; /*unknown section*/
