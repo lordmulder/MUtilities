@@ -228,13 +228,10 @@ void MUtils::UpdateChecker::checkForUpdates(void)
 	{
 		QElapsedTimer elapsedTimer;
 		elapsedTimer.start();
-		const qint64 globalTimeout = 2 * MIN_CONNSCORE * connectionTimeout;
-		forever
+		const int globalTimeout = 2 * MIN_CONNSCORE * connectionTimeout, count = mirrorList.count();
+		for(int i = 0; i < count; ++i)
 		{
-			if (mirrorList.isEmpty())
-			{
-				goto endLoop; /*depleted!*/
-			}
+			Q_ASSERT(!mirrorList.isEmpty());
 			const QString hostName = mirrorList.dequeue();
 			if (tryContactHost(hostName, connectionTimeout))
 			{
@@ -318,10 +315,10 @@ endLoop:
 
 void MUtils::UpdateChecker::testMirrorsList(void)
 {
-	QStringList mirrorList;
+	QQueue<QString> mirrorList;
 	for(int i = 0; update_mirrors[i]; i++)
 	{
-		mirrorList << QString::fromLatin1(update_mirrors[i]);
+		mirrorList.enqueue(QString::fromLatin1(update_mirrors[i]));
 	}
 
 	// ----- Test update mirrors ----- //
@@ -332,10 +329,10 @@ void MUtils::UpdateChecker::testMirrorsList(void)
 	UpdateCheckerInfo updateInfo;
 	while (!mirrorList.isEmpty())
 	{
-		const QString currentMirror = mirrorList.takeFirst();
+		const QString currentMirror = mirrorList.dequeue();
 		bool success = false;
 		qDebug("Testing: %s", MUTILS_L1STR(currentMirror));
-		log("", "Testing:", currentMirror, "");
+		log("", "Testing mirror:", currentMirror, "");
 		for (quint8 attempt = 0; attempt < 3; ++attempt)
 		{
 			updateInfo.resetInfo();
@@ -354,20 +351,20 @@ void MUtils::UpdateChecker::testMirrorsList(void)
 
 	// ----- Test known hosts ----- //
 
-	QStringList knownHostList;
+	mirrorList.clear();
 	for (int i = 0; known_hosts[i]; i++)
 	{
-		knownHostList << QString::fromLatin1(known_hosts[i]);
+		mirrorList.enqueue(QString::fromLatin1(known_hosts[i]));
 	}
 
 	qDebug("\n[Known Hosts]");
 	log("Testing all known hosts...", "", "---");
 
-	while(!knownHostList.isEmpty())
+	while(!mirrorList.isEmpty())
 	{
-		const QString currentHost = knownHostList.takeFirst();
+		const QString currentHost = mirrorList.dequeue();
 		qDebug("Testing: %s", MUTILS_L1STR(currentHost));
-		log(QLatin1String(""), "Testing:", currentHost, "");
+		log(QLatin1String(""), "Testing host:", currentHost, "");
 		if (!tryContactHost(currentHost, DOWNLOAD_TIMEOUT))
 		{
 			qWarning("\nConnectivity test FAILED on the following host:\n%s\n", MUTILS_L1STR(currentHost));
