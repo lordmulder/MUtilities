@@ -104,8 +104,10 @@ static QQueue<QString> buildRandomList(const char *const *values)
 
 static const QHash<QString, QString> *initEnvVars(void)
 {
+	const QString tempfolder = QDir::toNativeSeparators(MUtils::temp_folder());
 	QHash<QString, QString> *const environment = new QHash<QString, QString>();
-	environment->insert(QLatin1String("CURL_HOME"), QDir::toNativeSeparators(MUtils::temp_folder()));
+	environment->insert(QLatin1String("CURL_HOME"), tempfolder);
+	environment->insert(QLatin1String("GNUPGHOME"), tempfolder);
 	return environment;
 }
 

@@ -540,34 +540,50 @@ static void prependToPath(QProcessEnvironment &env, const QString &value)
 void MUtils::init_process(QProcess &process, const QString &wokringDir, const bool bReplaceTempDir, const QStringList *const extraPaths, const QHash<QString, QString> *const extraEnv)
 {
 	//Environment variable names
-	static const char *const s_envvar_names_temp[] =
+	static const char *const ENVVAR_NAMES_TMP[] =
 	{
 		"TEMP", "TMP", "TMPDIR", "HOME", "USERPROFILE", "HOMEPATH", NULL
 	};
-	static const char *const s_envvar_names_remove[] =
+	static const char *const ENVVAR_NAMES_SYS[] =
 	{
-		"WGETRC", "SYSTEM_WGETRC", "HTTP_PROXY", "FTP_PROXY", "NO_PROXY", "GNUPGHOME", "LC_ALL", "LC_COLLATE", "LC_CTYPE", "LC_MESSAGES", "LC_MONETARY", "LC_NUMERIC", "LC_TIME", "LANG", NULL
+		"WINDIR", "SYSTEMROOT", NULL
+	};
+	static const char *const ENVVAR_NAMES_DEL[] =
+	{
+		"HTTP_PROXY", "FTP_PROXY", "NO_PROXY", "HOME", "LC_ALL", "LC_COLLATE", "LC_CTYPE",
+		"LC_MESSAGES", "LC_MONETARY", "LC_NUMERIC", "LC_TIME", "LANG", NULL
 	};
 
 	//Initialize environment
 	QProcessEnvironment env = process.processEnvironment();
-	if(env.isEmpty()) env = QProcessEnvironment::systemEnvironment();
-
-	//Clean a number of enviroment variables that might affect our tools
-	for(size_t i = 0; s_envvar_names_remove[i]; i++)
+	if (env.isEmpty())
 	{
-		env.remove(QString::fromLatin1(s_envvar_names_remove[i]));
-		env.remove(QString::fromLatin1(s_envvar_names_remove[i]).toLower());
+		env = QProcessEnvironment::systemEnvironment();
 	}
 
-	const QString tempDir = QDir::toNativeSeparators(temp_folder());
+	//Clean enviroment variables that might affect our tools
+	for(const char *const *ptr = ENVVAR_NAMES_DEL; *ptr; ++ptr)
+	{
+		env.remove(QString::fromLatin1(*ptr));
+	}
+
+	//Set up system root directory
+	const QString sysRoot = QDir::toNativeSeparators(OS::known_folder(OS::FOLDER_SYSTROOT_DIR));
+	if (!sysRoot.isEmpty())
+	{
+		for (const char *const *ptr = ENVVAR_NAMES_SYS; *ptr; ++ptr)
+		{
+			env.insert(QString::fromLatin1(*ptr), sysRoot);
+		}
+	}
 
 	//Replace TEMP directory in environment
+	const QString tempDir = QDir::toNativeSeparators(temp_folder());
 	if(bReplaceTempDir)
 	{
-		for(size_t i = 0; s_envvar_names_temp[i]; i++)
+		for (const char *const *ptr = ENVVAR_NAMES_TMP; *ptr; ++ptr)
 		{
-			env.insert(s_envvar_names_temp[i], tempDir);
+			env.insert(QString::fromLatin1(*ptr), tempDir);
 		}
 	}
 
