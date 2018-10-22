@@ -790,7 +790,6 @@ const QString &MUtils::OS::known_folder(known_folder_t folder_id)
 	//Update cache
 	if (!folderPath.isEmpty())
 	{
-		qWarning("g_known_folders_map->insert");
 		g_known_folders_map->insert(folderId, folderPath);
 	}
 
