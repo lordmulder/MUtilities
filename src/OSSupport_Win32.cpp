@@ -728,7 +728,7 @@ const QString &MUtils::OS::known_folder(known_folder_t folder_id)
 	{
 		if(g_known_folders_map->contains(folderId))
 		{
-			return g_known_folders_map->operator[](folderId);
+			return (*g_known_folders_map)[folderId];
 		}
 	}
 
@@ -741,7 +741,7 @@ const QString &MUtils::OS::known_folder(known_folder_t folder_id)
 	{
 		if(g_known_folders_map->contains(folderId))
 		{
-			return g_known_folders_map->operator[](folderId);
+			return (*g_known_folders_map)[folderId];
 		}
 	}
 
@@ -753,14 +753,14 @@ const QString &MUtils::OS::known_folder(known_folder_t folder_id)
 
 	QString folderPath;
 
-	//Now try to get the folder path!
+	//Try SHGetKnownFolderPath() first!
 	if(const SHGetKnownFolderPath_t known_folders_fpGetKnownFolderPath = MUtils::Win32Utils::resolve<SHGetKnownFolderPath_t>(QLatin1String("shell32"), QLatin1String("SHGetKnownFolderPath")))
 	{
 		WCHAR *path = NULL;
 		if(known_folders_fpGetKnownFolderPath(s_folders[folderId].guid, KF_FLAG_CREATE, NULL, &path) == S_OK)
 		{
 			//MessageBoxW(0, path, L"SHGetKnownFolderPath", MB_TOPMOST);
-			QDir folderTemp = QDir(QDir::fromNativeSeparators(MUTILS_QSTR(path)));
+			const QDir folderTemp = QDir(QDir::fromNativeSeparators(MUTILS_QSTR(path)));
 			if(folderTemp.exists())
 			{
 				folderPath = folderTemp.canonicalPath();
@@ -768,23 +768,33 @@ const QString &MUtils::OS::known_folder(known_folder_t folder_id)
 			CoTaskMemFree(path);
 		}
 	}
-	else if(const SHGetFolderPath_t known_folders_fpGetFolderPath = MUtils::Win32Utils::resolve<SHGetFolderPath_t>(QLatin1String("shell32"), QLatin1String("SHGetFolderPathW")))
+
+	//Fall back to SHGetFolderPathW()
+	if (folderPath.isEmpty())
 	{
-		QScopedArrayPointer<WCHAR> path(new WCHAR[4096]);
-		if(known_folders_fpGetFolderPath(NULL, s_folders[folderId].csidl | CSIDL_FLAG_CREATE, NULL, NULL, path.data()) == S_OK)
+		if (const SHGetFolderPath_t known_folders_fpGetFolderPath = MUtils::Win32Utils::resolve<SHGetFolderPath_t>(QLatin1String("shell32"), QLatin1String("SHGetFolderPathW")))
 		{
-			//MessageBoxW(0, path, L"SHGetFolderPathW", MB_TOPMOST);
-			QDir folderTemp = QDir(QDir::fromNativeSeparators(MUTILS_QSTR(path.data())));
-			if(folderTemp.exists())
+			QScopedArrayPointer<WCHAR> path(new WCHAR[4096]);
+			if (known_folders_fpGetFolderPath(NULL, s_folders[folderId].csidl | CSIDL_FLAG_CREATE, NULL, NULL, path.data()) == S_OK)
 			{
-				folderPath = folderTemp.canonicalPath();
+				//MessageBoxW(0, path, L"SHGetFolderPathW", MB_TOPMOST);
+				const QDir folderTemp = QDir(QDir::fromNativeSeparators(MUTILS_QSTR(path.data())));
+				if (folderTemp.exists())
+				{
+					folderPath = folderTemp.canonicalPath();
+				}
 			}
 		}
 	}
 
 	//Update cache
-	g_known_folders_map->insert(folderId, folderPath);
-	return g_known_folders_map->operator[](folderId);
+	if (!folderPath.isEmpty())
+	{
+		qWarning("g_known_folders_map->insert");
+		g_known_folders_map->insert(folderId, folderPath);
+	}
+
+	return folderPath;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
