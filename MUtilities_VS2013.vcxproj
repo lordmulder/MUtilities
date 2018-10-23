@@ -64,6 +64,7 @@
     <ClInclude Include="src\3rd_party\keccak\include\keccak_impl.h" />
     <ClInclude Include="src\3rd_party\strnatcmp\include\strnatcmp.h" />
     <ClInclude Include="src\DirLocker.h" />
+    <ClInclude Include="src\Internal.h" />
     <ClInclude Include="src\Mirrors.h" />
     <ClInclude Include="src\Utils_Win32.h" />
     <CustomBuild Include="include\Mutils\UpdateChecker.h">
