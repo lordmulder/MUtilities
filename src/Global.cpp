@@ -27,6 +27,7 @@
 #include <MUtils/Global.h>
 #include <MUtils/OSSupport.h>
 #include <MUtils/Version.h>
+#include "Internal.h"
 
 //Internal
 #include "DirLocker.h"
@@ -52,6 +53,9 @@
 #ifdef _MSC_VER
 #include <vld.h>
 #endif
+
+//Global
+const QString MUtils::Internal::g_empty;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Random Support

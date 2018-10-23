@@ -40,6 +40,7 @@
 #include <MUtils/Global.h>
 #include <MUtils/OSSupport.h>
 #include <MUtils/GUI.h>
+#include "Internal.h"
 #include "CriticalSection_Win32.h"
 #include "Utils_Win32.h"
 
@@ -681,12 +682,11 @@ const bool &MUtils::OS::running_on_wine(void)
 // KNWON FOLDERS
 ///////////////////////////////////////////////////////////////////////////////
 
-typedef QMap<size_t, QString> KFMap;
+static QReadWriteLock                         g_known_folders_lock;
+static QScopedPointer<QHash<size_t, QString>> g_known_folders_data;
+
 typedef HRESULT (WINAPI *SHGetKnownFolderPath_t)(const GUID &rfid, DWORD dwFlags, HANDLE hToken, PWSTR *ppszPath);
 typedef HRESULT (WINAPI *SHGetFolderPath_t)     (HWND hwndOwner, int nFolder, HANDLE hToken, DWORD dwFlags, LPWSTR pszPath);
-
-static QScopedPointer<KFMap>  g_known_folders_map;
-static QReadWriteLock         g_known_folders_lock;
 
 const QString &MUtils::OS::known_folder(known_folder_t folder_id)
 {
@@ -724,11 +724,11 @@ const QString &MUtils::OS::known_folder(known_folder_t folder_id)
 	QReadLocker readLock(&g_known_folders_lock);
 
 	//Already in cache?
-	if(!g_known_folders_map.isNull())
+	if(!g_known_folders_data.isNull())
 	{
-		if(g_known_folders_map->contains(folderId))
+		if(g_known_folders_data->contains(folderId))
 		{
-			return (*g_known_folders_map)[folderId];
+			return (*g_known_folders_data)[folderId];
 		}
 	}
 
@@ -737,18 +737,18 @@ const QString &MUtils::OS::known_folder(known_folder_t folder_id)
 	QWriteLocker writeLock(&g_known_folders_lock);
 
 	//Still not in cache?
-	if(!g_known_folders_map.isNull())
+	if(!g_known_folders_data.isNull())
 	{
-		if(g_known_folders_map->contains(folderId))
+		if(g_known_folders_data->contains(folderId))
 		{
-			return (*g_known_folders_map)[folderId];
+			return (*g_known_folders_data)[folderId];
 		}
 	}
 
 	//Initialize on first call
-	if(g_known_folders_map.isNull())
+	if(g_known_folders_data.isNull())
 	{
-		g_known_folders_map.reset(new QMap<size_t, QString>());
+		g_known_folders_data.reset(new QHash<size_t, QString>());
 	}
 
 	QString folderPath;
@@ -790,10 +790,11 @@ const QString &MUtils::OS::known_folder(known_folder_t folder_id)
 	//Update cache
 	if (!folderPath.isEmpty())
 	{
-		g_known_folders_map->insert(folderId, folderPath);
+		g_known_folders_data->insert(folderId, folderPath);
+		return (*g_known_folders_data)[folderId];
 	}
 
-	return folderPath;
+	return Internal::g_empty;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
