@@ -244,6 +244,13 @@ int MUtils::Startup::startup(int &argc, char **argv, main_function_t *const entr
 static QMutex g_init_lock;
 static const char *const g_imageformats[] = {"bmp", "png", "jpg", "gif", "ico", "xpm", "svg", NULL};
 
+#define REQUIRE_OS(MIN_OS, MIN_SP) \
+	((osVersion.type == MUtils::OS::Version::OS_WINDOWS) && ((osVersion > MUtils::OS::Version::MIN_OS) || \
+	((osVersion == MUtils::OS::Version::MIN_OS) && (osVersion.versionSPack >= (MIN_SP)))))
+
+#define REQUIRE_SP(OS_VER, MIN_SP) \
+	((osVersion != MUtils::OS::Version::OS_VER) || (osVersion.versionSPack >= (MIN_SP)))
+
 static FORCE_INLINE QString getExecutableName(int &argc, char **argv)
 {
 	if(argc >= 1)
@@ -271,7 +278,7 @@ static FORCE_INLINE void qt_registry_cleanup(void)
 	MUtils::Registry::reg_key_delete(MUtils::Registry::root_user, MUTILS_QSTR(QT_JUNK_KEY), true, true);
 }
 
-QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &appName, const QString &appAuthor, const QString &appDomain)
+QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &appName, const QString &appAuthor, const QString &appDomain, const bool xpSupport)
 {
 	QMutexLocker lock(&g_init_lock);
 	const OS::ArgumentMap &arguments = MUtils::OS::arguments();
@@ -308,17 +315,28 @@ QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &
 
 	//Check the Windows version
 	const MUtils::OS::Version::os_version_t &osVersion = MUtils::OS::os_version();
-#ifdef QT_NODLL
-	if ((osVersion.type != MUtils::OS::Version::OS_WINDOWS) || (osVersion < MUtils::OS::Version::WINDOWS_WINXP) || ((osVersion == MUtils::OS::Version::WINDOWS_WINXP) && (osVersion.versionSPack < 3)))
+	if (xpSupport)
 	{
-		qFatal("%s", QApplication::tr("Executable '%1' requires Windows XP with SP-3 or later.").arg(executableName).toLatin1().constData());
+		if (!REQUIRE_OS(WINDOWS_WINXP, 3))
+		{
+			qFatal("%s", MUTILS_L1STR(QApplication::tr("Executable '%1' requires Windows XP with SP-3 or later.").arg(executableName)));
+		}
+		if (!REQUIRE_SP(WINDOWS_XPX64, 2))
+		{
+			qFatal("%s", MUTILS_L1STR(QApplication::tr("Executable '%1' requires Windows XP x64-Edition with SP-2 or later.").arg(executableName)));
+		}
 	}
-#else
-	if ((osVersion.type != MUtils::OS::Version::OS_WINDOWS) || (osVersion < MUtils::OS::Version::WINDOWS_VISTA) || ((osVersion == MUtils::OS::Version::WINDOWS_VISTA) && (osVersion.versionSPack < 2)))
+	else
 	{
-		qFatal("%s", QApplication::tr("Executable '%1' requires Windows Vista with SP-2 or later.").arg(executableName).toLatin1().constData());
+		if (!REQUIRE_OS(WINDOWS_VISTA, 2))
+		{
+			qFatal("%s", MUTILS_L1STR(QApplication::tr("Executable '%1' requires Windows Vista with SP-2 or later.").arg(executableName)));
+		}
 	}
-#endif
+	if (osVersion == MUtils::OS::Version::WINDOWS_WIN80)
+	{
+		qFatal("%s", MUTILS_L1STR(QApplication::tr("Executable '%1' requires Windows 8.1 or later.").arg(executableName)));
+	}
 
 	//Check whether we are running on a supported Windows version
 	if(const char *const friendlyName = MUtils::OS::os_friendly_name(osVersion))
