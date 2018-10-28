@@ -313,8 +313,18 @@ QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &
 	qDebug("Compiled with Qt v%s\n", QT_VERSION_STR);
 #endif
 
-	//Check the Windows version
+	//Detect the operating system version
 	const MUtils::OS::Version::os_version_t &osVersion = MUtils::OS::os_version();
+	if (const char *const friendlyName = MUtils::OS::os_friendly_name(osVersion))
+	{
+		qDebug("Running on %s (NT v%u.%u.%u-sp%u).\n", friendlyName, osVersion.versionMajor, osVersion.versionMinor, osVersion.versionBuild, osVersion.versionSPack);
+	}
+	else
+	{
+		qWarning("Running on an unknown WindowsNT-based system (v%u.%u.%u-sp%u).\n", osVersion.versionMajor, osVersion.versionMinor, osVersion.versionBuild, osVersion.versionSPack);
+	}
+
+	//Check whether we are running on a supported Windows version
 	if (xpSupport)
 	{
 		if (!REQUIRE_OS(WINDOWS_WINXP, 3))
@@ -336,18 +346,6 @@ QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &
 	if (osVersion == MUtils::OS::Version::WINDOWS_WIN80)
 	{
 		qFatal("%s", MUTILS_L1STR(QApplication::tr("Executable '%1' requires Windows 8.1 or later.").arg(executableName)));
-	}
-
-	//Check whether we are running on a supported Windows version
-	if(const char *const friendlyName = MUtils::OS::os_friendly_name(osVersion))
-	{
-		qDebug("Running on %s (NT v%u.%u.%u-sp%u).\n", friendlyName, osVersion.versionMajor, osVersion.versionMinor, osVersion.versionBuild, osVersion.versionSPack);
-	}
-	else
-	{
-		const QString message = QString().sprintf("Running on an unknown WindowsNT-based system (NT v%u.%u.%u-sp%u).", osVersion.versionMajor, osVersion.versionMinor, osVersion.versionBuild, osVersion.versionSPack);
-		qWarning("%s\n", MUTILS_UTF8(message));
-		MUtils::OS::system_message_wrn(MUTILS_WCHR(executableName), MUTILS_WCHR(message));
 	}
 
 	//Check for compat mode
