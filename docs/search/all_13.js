@@ -1,7 +1,9 @@
 var searchData=
 [
-  ['unknown_5fopsys',['UNKNOWN_OPSYS',['../d1/d7d/namespace_m_utils_1_1_o_s_1_1_version.html#a0bf24022df29669da329e21d9b3d07d7',1,'MUtils::OS::Version']]],
-  ['update',['update',['../da/db0/class_m_utils_1_1_hash_1_1_hash.html#a5c36bd2ea671928f9f5bd897dcfbef15',1,'MUtils::Hash::Hash::update(const quint8 *const data, const quint32 len)'],['../da/db0/class_m_utils_1_1_hash_1_1_hash.html#a16bef08766de745913b3fd7c338bf5aa',1,'MUtils::Hash::Hash::update(const QByteArray &amp;data)'],['../da/db0/class_m_utils_1_1_hash_1_1_hash.html#ace90c97585350dd246b6c655a3de571f',1,'MUtils::Hash::Hash::update(QFile &amp;file)']]],
-  ['updatechecker',['UpdateChecker',['../d0/d8a/class_m_utils_1_1_update_checker.html',1,'MUtils']]],
-  ['updatecheckerinfo',['UpdateCheckerInfo',['../d1/d0d/class_m_utils_1_1_update_checker_info.html',1,'MUtils']]]
+  ['taskbar7',['Taskbar7',['../d2/d52/class_m_utils_1_1_taskbar7.html',1,'MUtils']]],
+  ['temp_5ffolder',['temp_folder',['../d3/da6/namespace_m_utils.html#a3f198156e8be91f3e74dd9ed69ffaa34',1,'MUtils']]],
+  ['terminatejob',['terminateJob',['../dc/dd3/class_m_utils_1_1_job_object.html#abe785eacf0468533ca90c6f77d734cda',1,'MUtils::JobObject']]],
+  ['trim_5fleft',['trim_left',['../d3/da6/namespace_m_utils.html#a20b8fc56856ee904caaded756399e705',1,'MUtils::trim_left(QString &amp;str)'],['../d3/da6/namespace_m_utils.html#ae43bc17b6fa4ee2287099c4ae095483b',1,'MUtils::trim_left(const QString &amp;str)']]],
+  ['trim_5fright',['trim_right',['../d3/da6/namespace_m_utils.html#a6118cf23d2b771fae1ad159c7ea6686a',1,'MUtils::trim_right(QString &amp;str)'],['../d3/da6/namespace_m_utils.html#a3bcb0fce5181ded3c54456379147009d',1,'MUtils::trim_right(const QString &amp;str)']]],
+  ['type',['type',['../dc/d55/struct_m_utils_1_1_o_s_1_1_version_1_1__os__version__t.html#a4c4b496ec1964c26ebf8c138bace655a',1,'MUtils::OS::Version::_os_version_t']]]
 ];

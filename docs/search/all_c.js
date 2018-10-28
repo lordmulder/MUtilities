@@ -2,7 +2,7 @@ var searchData=
 [
   ['cpufetaures',['CPUFetaures',['../d3/d02/namespace_m_utils_1_1_c_p_u_fetaures.html',1,'MUtils']]],
   ['make_5ftemp_5ffile',['make_temp_file',['../d3/da6/namespace_m_utils.html#a29461116550863e8730f3f4ec479bbcb',1,'MUtils']]],
-  ['make_5funique_5ffile',['make_unique_file',['../d3/da6/namespace_m_utils.html#af9afe3821ae9bef7bdf56a4183fdea0d',1,'MUtils']]],
+  ['make_5funique_5ffile',['make_unique_file',['../d3/da6/namespace_m_utils.html#a4d288d8fbe9a187cffe8db04e70df3de',1,'MUtils']]],
   ['model',['model',['../dd/de2/struct_m_utils_1_1_c_p_u_fetaures_1_1__cpu__info__t.html#a7d0a012412dc4b04f2b5b37e83f5874a',1,'MUtils::CPUFetaures::_cpu_info_t']]],
   ['mutils',['MUtils',['../d3/da6/namespace_m_utils.html',1,'']]],
   ['mutils_5farr2len',['MUTILS_ARR2LEN',['../d5/d3b/_global_8h.html#ad70be6c96965fb93affdeaf297b2d8e5',1,'Global.h']]],

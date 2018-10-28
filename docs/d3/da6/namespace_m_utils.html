@@ -116,12 +116,15 @@ Functions</h2></td></tr>
 <tr class="memitem:a3f198156e8be91f3e74dd9ed69ffaa34"><td class="memItemLeft" align="right" valign="top">MUTILS_API const QString &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/da6/namespace_m_utils.html#a3f198156e8be91f3e74dd9ed69ffaa34">temp_folder</a> (void)</td></tr>
 <tr class="memdesc:a3f198156e8be91f3e74dd9ed69ffaa34"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rerieves the full path of the application's <em>Temp</em> folder.  <a href="#a3f198156e8be91f3e74dd9ed69ffaa34">More...</a><br /></td></tr>
 <tr class="separator:a3f198156e8be91f3e74dd9ed69ffaa34"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0ecb5d72f33a7b6feadd7deb8ed46cc3"><td class="memItemLeft" align="right" valign="top">MUTILS_API void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/da6/namespace_m_utils.html#a0ecb5d72f33a7b6feadd7deb8ed46cc3">init_process</a> (QProcess &amp;process, const QString &amp;wokringDir, const bool bReplaceTempDir=true, const QStringList *const extraPaths=NULL)</td></tr>
-<tr class="memdesc:a0ecb5d72f33a7b6feadd7deb8ed46cc3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize a given <a href="http://doc.qt.io/qt-4.8/qprocess.html">QProcess</a> object.  <a href="#a0ecb5d72f33a7b6feadd7deb8ed46cc3">More...</a><br /></td></tr>
-<tr class="separator:a0ecb5d72f33a7b6feadd7deb8ed46cc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a80205a5816416cc49e8d9f524894132a"><td class="memItemLeft" align="right" valign="top">MUTILS_API void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/da6/namespace_m_utils.html#a80205a5816416cc49e8d9f524894132a">init_process</a> (QProcess &amp;process, const QString &amp;wokringDir, const bool bReplaceTempDir=true, const QStringList *const extraPaths=NULL, const <a class="el" href="../../d6/d9c/class_q_hash.html">QHash</a>&lt; QString, QString &gt; *const extraEnv=NULL)</td></tr>
+<tr class="memdesc:a80205a5816416cc49e8d9f524894132a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize a given <a href="http://doc.qt.io/qt-4.8/qprocess.html">QProcess</a> object.  <a href="#a80205a5816416cc49e8d9f524894132a">More...</a><br /></td></tr>
+<tr class="separator:a80205a5816416cc49e8d9f524894132a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1c9832c1d645a2c90e9bd52d57d843b3"><td class="memItemLeft" align="right" valign="top">MUTILS_API quint32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/da6/namespace_m_utils.html#a1c9832c1d645a2c90e9bd52d57d843b3">next_rand_u32</a> (void)</td></tr>
 <tr class="memdesc:a1c9832c1d645a2c90e9bd52d57d843b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a <em>random</em> unsigned 32-Bit value.  <a href="#a1c9832c1d645a2c90e9bd52d57d843b3">More...</a><br /></td></tr>
 <tr class="separator:a1c9832c1d645a2c90e9bd52d57d843b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a20348df6f4f780d37f1d7440f7eff8"><td class="memItemLeft" align="right" valign="top"><a id="a6a20348df6f4f780d37f1d7440f7eff8"></a>
+MUTILS_API quint32&#160;</td><td class="memItemRight" valign="bottom"><b>next_rand_u32</b> (const quint32 max)</td></tr>
+<tr class="separator:a6a20348df6f4f780d37f1d7440f7eff8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad7edd4aece64faf3aa16c9509243608c"><td class="memItemLeft" align="right" valign="top">MUTILS_API quint64&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/da6/namespace_m_utils.html#ad7edd4aece64faf3aa16c9509243608c">next_rand_u64</a> (void)</td></tr>
 <tr class="memdesc:ad7edd4aece64faf3aa16c9509243608c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a <em>random</em> unsigned 64-Bit value.  <a href="#ad7edd4aece64faf3aa16c9509243608c">More...</a><br /></td></tr>
 <tr class="separator:ad7edd4aece64faf3aa16c9509243608c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -131,9 +134,15 @@ Functions</h2></td></tr>
 <tr class="memitem:a29461116550863e8730f3f4ec479bbcb"><td class="memItemLeft" align="right" valign="top">MUTILS_API QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/da6/namespace_m_utils.html#a29461116550863e8730f3f4ec479bbcb">make_temp_file</a> (const QString &amp;basePath, const QString &amp;extension, const bool placeholder=false)</td></tr>
 <tr class="memdesc:a29461116550863e8730f3f4ec479bbcb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a temporary file name.  <a href="#a29461116550863e8730f3f4ec479bbcb">More...</a><br /></td></tr>
 <tr class="separator:a29461116550863e8730f3f4ec479bbcb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af9afe3821ae9bef7bdf56a4183fdea0d"><td class="memItemLeft" align="right" valign="top">MUTILS_API QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/da6/namespace_m_utils.html#af9afe3821ae9bef7bdf56a4183fdea0d">make_unique_file</a> (const QString &amp;basePath, const QString &amp;baseName, const QString &amp;extension, const bool fancy=false)</td></tr>
-<tr class="memdesc:af9afe3821ae9bef7bdf56a4183fdea0d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a unique file name.  <a href="#af9afe3821ae9bef7bdf56a4183fdea0d">More...</a><br /></td></tr>
-<tr class="separator:af9afe3821ae9bef7bdf56a4183fdea0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a32eec23b83ebbf837cbb2675d6183587"><td class="memItemLeft" align="right" valign="top"><a id="a32eec23b83ebbf837cbb2675d6183587"></a>
+MUTILS_API QString&#160;</td><td class="memItemRight" valign="bottom"><b>make_temp_file</b> (const QDir &amp;basePath, const QString &amp;extension, const bool placeholder=false)</td></tr>
+<tr class="separator:a32eec23b83ebbf837cbb2675d6183587"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4d288d8fbe9a187cffe8db04e70df3de"><td class="memItemLeft" align="right" valign="top">MUTILS_API QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/da6/namespace_m_utils.html#a4d288d8fbe9a187cffe8db04e70df3de">make_unique_file</a> (const QString &amp;basePath, const QString &amp;baseName, const QString &amp;extension, const bool fancy=false, const bool placeholder=false)</td></tr>
+<tr class="memdesc:a4d288d8fbe9a187cffe8db04e70df3de"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a unique file name.  <a href="#a4d288d8fbe9a187cffe8db04e70df3de">More...</a><br /></td></tr>
+<tr class="separator:a4d288d8fbe9a187cffe8db04e70df3de"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abd5b70b2cf6ae3ba7d161beb823f9ef0"><td class="memItemLeft" align="right" valign="top"><a id="abd5b70b2cf6ae3ba7d161beb823f9ef0"></a>
+MUTILS_API QString&#160;</td><td class="memItemRight" valign="bottom"><b>make_unique_file</b> (const QDir &amp;basePath, const QString &amp;baseName, const QString &amp;extension, const bool fancy=false, const bool placeholder=false)</td></tr>
+<tr class="separator:abd5b70b2cf6ae3ba7d161beb823f9ef0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aea4a212153b09b24b04f30ef5159f29b"><td class="memItemLeft" align="right" valign="top">MUTILS_API bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/da6/namespace_m_utils.html#aea4a212153b09b24b04f30ef5159f29b">parity</a> (quint32 value)</td></tr>
 <tr class="memdesc:aea4a212153b09b24b04f30ef5159f29b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the <em>parity</em> of the given unsigned 32-Bit value.  <a href="#aea4a212153b09b24b04f30ef5159f29b">More...</a><br /></td></tr>
 <tr class="separator:aea4a212153b09b24b04f30ef5159f29b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -342,8 +351,8 @@ class MUTILS_API&#160;</td><td class="memItemRight" valign="bottom"><b>Taskbar7_
 
 </div>
 </div>
-<a id="a0ecb5d72f33a7b6feadd7deb8ed46cc3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0ecb5d72f33a7b6feadd7deb8ed46cc3">&sect;&nbsp;</a></span>init_process()</h2>
+<a id="a80205a5816416cc49e8d9f524894132a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a80205a5816416cc49e8d9f524894132a">&sect;&nbsp;</a></span>init_process()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -370,7 +379,13 @@ class MUTILS_API&#160;</td><td class="memItemRight" valign="bottom"><b>Taskbar7_
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const QStringList *const&#160;</td>
-          <td class="paramname"><em>extraPaths</em> = <code>NULL</code>&#160;</td>
+          <td class="paramname"><em>extraPaths</em> = <code>NULL</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="../../d6/d9c/class_q_hash.html">QHash</a>&lt; QString, QString &gt; *const&#160;</td>
+          <td class="paramname"><em>extraEnv</em> = <code>NULL</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -440,8 +455,8 @@ class MUTILS_API&#160;</td><td class="memItemRight" valign="bottom"><b>Taskbar7_
 
 </div>
 </div>
-<a id="af9afe3821ae9bef7bdf56a4183fdea0d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af9afe3821ae9bef7bdf56a4183fdea0d">&sect;&nbsp;</a></span>make_unique_file()</h2>
+<a id="a4d288d8fbe9a187cffe8db04e70df3de"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4d288d8fbe9a187cffe8db04e70df3de">&sect;&nbsp;</a></span>make_unique_file()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -468,7 +483,13 @@ class MUTILS_API&#160;</td><td class="memItemRight" valign="bottom"><b>Taskbar7_
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const bool&#160;</td>
-          <td class="paramname"><em>fancy</em> = <code>false</code>&#160;</td>
+          <td class="paramname"><em>fancy</em> = <code>false</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const bool&#160;</td>
+          <td class="paramname"><em>placeholder</em> = <code>false</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
