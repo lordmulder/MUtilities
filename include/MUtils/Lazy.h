@@ -53,7 +53,7 @@ namespace MUtils
 		T& operator*(void)
 		{
 			T *value;
-			while (!(value = m_value.fetchAndAddOrdered(0)))
+			while (!(value = m_value))
 			{
 				if (!(value = m_initializer()))
 				{
