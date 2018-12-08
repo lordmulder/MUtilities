@@ -65,6 +65,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pro-methods">Protected Member Functions</a> &#124;
 <a href="../../da/d44/class_m_utils_1_1_lazy-members.html">List of all members</a>  </div>
   <div class="headertitle">
 <div class="title">MUtils::Lazy&lt; T &gt; Class Template Reference</div>  </div>
@@ -84,6 +85,18 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a86cf7d344a38ea09d37d27acd8993f45"><td class="memItemLeft" align="right" valign="top"><a id="a86cf7d344a38ea09d37d27acd8993f45"></a>
 T &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator*</b> (void)</td></tr>
 <tr class="separator:a86cf7d344a38ea09d37d27acd8993f45"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ef8b04a4d52c1f23881ff105d50f0ed"><td class="memItemLeft" align="right" valign="top"><a id="a3ef8b04a4d52c1f23881ff105d50f0ed"></a>
+T *&#160;</td><td class="memItemRight" valign="bottom"><b>operator-&gt;</b> (void)</td></tr>
+<tr class="separator:a3ef8b04a4d52c1f23881ff105d50f0ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a69c9d6b10e84022d445373ebf2b97666"><td class="memItemLeft" align="right" valign="top"><a id="a69c9d6b10e84022d445373ebf2b97666"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>initialized</b> ()</td></tr>
+<tr class="separator:a69c9d6b10e84022d445373ebf2b97666"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
+Protected Member Functions</h2></td></tr>
+<tr class="memitem:ae7ffe6f28fdfe857aee91934e2547d9a"><td class="memItemLeft" align="right" valign="top"><a id="ae7ffe6f28fdfe857aee91934e2547d9a"></a>
+__forceinline T *&#160;</td><td class="memItemRight" valign="bottom"><b>getValue</b> ()</td></tr>
+<tr class="separator:ae7ffe6f28fdfe857aee91934e2547d9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><h3>template&lt;typename T&gt;<br />
@@ -91,7 +104,7 @@ class MUtils::Lazy&lt; T &gt;</h3>
 
 <p><a class="el" href="../../d0/dce/class_m_utils_1_1_lazy.html" title="Lazy initialization template class. ">Lazy</a> initialization template class. </p>
 <p>The lazy-initialized value of type T can be obtained from a <code><a class="el" href="../../d0/dce/class_m_utils_1_1_lazy.html" title="Lazy initialization template class. ">Lazy</a>&lt;T&gt;</code> instance by using the <code>operator*()</code>. Initialization of the value happens when the <code>operator*()</code> is called for the very first time, by invoking the <code>initializer</code> lambda-function that was passed to the constructor. The return value of the <code>initializer</code> lambda-function is then stored internally, so that any subsequent call to the <code>operator*()</code> <em>immediately</em> returns the previously created value.</p>
-<p><b>Note on thread-saftey:</b> This class is thread-safe in the sense that all calls to <code>operator*()</code> on the same <code><a class="el" href="../../d0/dce/class_m_utils_1_1_lazy.html" title="Lazy initialization template class. ">Lazy</a>&lt;T&gt;</code> instance, regardless from which thread, are guaranteed to return the exactly same value/object. Still, if the value has <em>not</em> been initialized yet <b>and</b> if multiple threads happen to call <code>operator*()</code> at the same time, then the <code>initializer</code> lambda-function <em>may</em> be invoked more than once (concurrently and by different threads). In that case, all but one return value of the <code>initializer</code> lambda-function are discarded, and all threads eventually obtain the same value/object. </p>
+<p><b>Note on thread-saftey:</b> This class is thread-safe in the sense that all calls to <code>operator*()</code> on the same <code><a class="el" href="../../d0/dce/class_m_utils_1_1_lazy.html" title="Lazy initialization template class. ">Lazy</a>&lt;T&gt;</code> instance, regardless from which thread, are guaranteed to return the exactly same value/object. The <em>first</em> thread trying to access the value will invoke the <code>initializer</code> lambda-function; concurrent threads may need to busy-wait until the initialization is completed. The <code>initializer</code> lambda-function is invoked at most once. </p>
 </div><hr/>The documentation for this class was generated from the following file:<ul>
 <li>include/MUtils/<a class="el" href="../../d8/d4d/_lazy_8h_source.html">Lazy.h</a></li>
 </ul>
