@@ -62,6 +62,11 @@ namespace MUtils
 			return getValue();
 		}
 
+		bool initialized()
+		{
+			return (m_state > 1);
+		}
+
 		~Lazy(void)
 		{
 			if(T *const value = m_value)
@@ -76,14 +81,15 @@ namespace MUtils
 			T *value;
 			while (!(value = m_value))
 			{
-				if (m_status.testAndSetOrdered(0, 1))
+				if (m_state.testAndSetOrdered(0, 1))
 				{
 					if (value = m_initializer())
 					{
 						m_value.fetchAndStoreOrdered(value);
+						m_state.fetchAndStoreOrdered(2);
 						break; /*success*/
 					}
-					m_status.fetchAndStoreOrdered(0);
+					m_state.fetchAndStoreOrdered(0);
 					MUTILS_THROW("Initializer returned NULL pointer!");
 				}
 				QThread::yieldCurrentThread();
@@ -93,7 +99,7 @@ namespace MUtils
 
 	private:
 		QAtomicPointer<T> m_value;
-		QAtomicInt m_status;
+		QAtomicInt m_state;
 		const std::function<T*(void)> m_initializer;
 	};
 }
