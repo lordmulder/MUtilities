@@ -31,7 +31,9 @@
 #include <MUtils/Exception.h>
 
 //Qt
+#include <QThread>
 #include <QAtomicPointer>
+#include <QAtomicInt>
 
 //CRT
 #include <functional>
@@ -43,7 +45,7 @@ namespace MUtils
 	*
 	* The lazy-initialized value of type T can be obtained from a `Lazy<T>` instance by using the `operator*()`. Initialization of the value happens when the `operator*()` is called for the very first time, by invoking the `initializer` lambda-function that was passed to the constructor. The return value of the `initializer` lambda-function is then stored internally, so that any subsequent call to the `operator*()` *immediately* returns the previously created value.
 	*
-	* **Note on thread-saftey:** This class is thread-safe in the sense that all calls to `operator*()` on the same `Lazy<T>` instance, regardless from which thread, are guaranteed to return the exactly same value/object. Still, if the value has *not* been initialized yet **and** if multiple threads happen to call `operator*()` at the same time, then the `initializer` lambda-function *may* be invoked more than once (concurrently and by different threads). In that case, all but one return value of the `initializer` lambda-function are discarded, and all threads eventually obtain the same value/object.
+	* **Note on thread-saftey:** This class is thread-safe in the sense that all calls to `operator*()` on the same `Lazy<T>` instance, regardless from which thread, are guaranteed to return the exactly same value/object. The *first* thread trying to access the value will invoke the `initializer` lambda-function; concurrent threads may need to busy-wait until the initialization is completed. The `initializer` lambda-function is invoked at most once.
 	*/
 	template<typename T> class Lazy
 	{
@@ -52,33 +54,46 @@ namespace MUtils
 
 		T& operator*(void)
 		{
-			T *value;
-			while (!(value = m_value))
-			{
-				if (!(value = m_initializer()))
-				{
-					MUTILS_THROW("Initializer returned NULL pointer!");
-				}
-				if (m_value.testAndSetOrdered(NULL, value))
-				{
-					break; /*success*/
-				}
-				delete value;
-				value = NULL;
-			}
-			return *value;
+			return (*getValue());
+		}
+
+		T* operator->(void)
+		{
+			return getValue();
 		}
 
 		~Lazy(void)
 		{
-			if(T *const value = m_value.fetchAndStoreOrdered(NULL))
+			if(T *const value = m_value)
 			{
 				delete value;
 			}
 		}
 
+	protected:
+		__forceinline T* getValue()
+		{
+			T *value;
+			while (!(value = m_value))
+			{
+				if (m_status.testAndSetOrdered(0, 1))
+				{
+					if (value = m_initializer())
+					{
+						m_value.fetchAndStoreOrdered(value);
+						break; /*success*/
+					}
+					m_status.fetchAndStoreOrdered(0);
+					MUTILS_THROW("Initializer returned NULL pointer!");
+				}
+				QThread::yieldCurrentThread();
+			}
+			return value;
+		}
+
 	private:
 		QAtomicPointer<T> m_value;
+		QAtomicInt m_status;
 		const std::function<T*(void)> m_initializer;
 	};
 }
