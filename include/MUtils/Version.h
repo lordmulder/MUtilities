@@ -163,12 +163,6 @@ namespace MUtils
 						#else
 							"MSVC 2010";
 						#endif
-					#elif (_MSC_VER == 1500)
-						#if (_MSC_FULL_VER >= 150030729)
-							"MSVC 2008-SP1";
-						#else
-							"MSVC 2008";
-						#endif
 					#else
 						#error Compiler is not supported!
 					#endif

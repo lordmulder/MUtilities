@@ -344,6 +344,9 @@ static inline DWORD initialize_step_size(const DWORD &limit)
 	return result;
 }
 
+#pragma warning(push)
+#pragma warning(disable: 4996)
+
 static bool rtl_get_version(OSVERSIONINFOEXW *const osInfo)
 {
 	typedef LONG(__stdcall *RtlGetVersion)(LPOSVERSIONINFOEXW);
@@ -363,6 +366,8 @@ static bool rtl_get_version(OSVERSIONINFOEXW *const osInfo)
 	initialize_os_version(osInfo);
 	return (GetVersionExW((LPOSVERSIONINFOW)osInfo) != FALSE);
 }
+
+#pragma warning(pop) 
 
 static bool rtl_verify_version(OSVERSIONINFOEXW *const osInfo, const ULONG typeMask, const ULONGLONG condMask)
 {
