@@ -705,9 +705,10 @@ const QString &MUtils::OS::known_folder(known_folder_t folder_id)
 	static s_folders[] =
 	{
 		{ 0x001c, {0xF1B32785,0x6FBA,0x4FCF,{0x9D,0x55,0x7B,0x8E,0x7F,0x15,0x70,0x91}} },  //CSIDL_LOCAL_APPDATA
+		{ 0x0028, {0x5E6C858F,0x0E22,0x4760,{0x9A,0xFE,0xEA,0x33,0x17,0xB6,0x71,0x73}} },  //CSIDL_PROFILE
 		{ 0x0026, {0x905e63b6,0xc1bf,0x494e,{0xb2,0x9c,0x65,0xb7,0x32,0xd3,0xd2,0x1a}} },  //CSIDL_PROGRAM_FILES
-		{ 0x0024, {0xF38BF404,0x1D43,0x42F2,{0x93,0x05,0x67,0xDE,0x0B,0x28,0xFC,0x23}} },  //CSIDL_WINDOWS_FOLDER
 		{ 0x0025, {0x1AC14E77,0x02E7,0x4E5D,{0xB7,0x44,0x2E,0xB1,0xAE,0x51,0x98,0xB7}} },  //CSIDL_SYSTEM_FOLDER
+		{ 0x0024, {0xF38BF404,0x1D43,0x42F2,{0x93,0x05,0x67,0xDE,0x0B,0x28,0xFC,0x23}} },  //CSIDL_WINDOWS_FOLDER
 	};
 
 	size_t folderId = size_t(-1);
@@ -715,15 +716,13 @@ const QString &MUtils::OS::known_folder(known_folder_t folder_id)
 	switch(folder_id)
 	{
 		case FOLDER_LOCALAPPDATA: folderId = 0; break;
-		case FOLDER_PROGRAMFILES: folderId = 1; break;
-		case FOLDER_SYSTROOT_DIR: folderId = 2; break;
+		case FOLDER_USER_PROFILE: folderId = 1; break;
+		case FOLDER_PROGRAMFILES: folderId = 2; break;
 		case FOLDER_SYSTEMFOLDER: folderId = 3; break;
-	}
-
-	if(folderId == size_t(-1))
-	{
-		qWarning("Invalid 'known' folder was requested!");
-		return *reinterpret_cast<QString*>(NULL);
+		case FOLDER_SYSTROOT_DIR: folderId = 4; break;
+		default:
+			qWarning("Invalid 'known' folder was requested!");
+			return Internal::g_empty;
 	}
 
 	QReadLocker readLock(&g_known_folders_lock);

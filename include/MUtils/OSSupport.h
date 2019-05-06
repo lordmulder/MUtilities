@@ -106,6 +106,7 @@ namespace MUtils
 		typedef enum
 		{
 			FOLDER_LOCALAPPDATA = 0,  ///< Local application data (non-roaming)
+			FOLDER_USER_PROFILE = 1,  ///< The user's profile folder
 			FOLDER_PROGRAMFILES = 2,  ///< Program files
 			FOLDER_SYSTEMFOLDER = 3,  ///< System directory
 			FOLDER_SYSTROOT_DIR = 4   ///< System "root" directory
