@@ -105,11 +105,12 @@ namespace MUtils
 		*/
 		typedef enum
 		{
-			FOLDER_LOCALAPPDATA = 0,  ///< Local application data (non-roaming)
-			FOLDER_USER_PROFILE = 1,  ///< The user's profile folder
-			FOLDER_PROGRAMFILES = 2,  ///< Program files
-			FOLDER_SYSTEMFOLDER = 3,  ///< System directory
-			FOLDER_SYSTROOT_DIR = 4   ///< System "root" directory
+			FOLDER_ROAMING_DATA = 0,  ///< Application-specific data
+			FOLDER_LOCALAPPDATA = 1,  ///< Local application data (non-roaming)
+			FOLDER_USER_PROFILE = 2,  ///< The user's profile folder
+			FOLDER_PROGRAMFILES = 3,  ///< Program files
+			FOLDER_SYSTEMFOLDER = 4,  ///< System directory
+			FOLDER_SYSTROOT_DIR = 5   ///< System "root" directory
 		}
 		known_folder_t;
 		

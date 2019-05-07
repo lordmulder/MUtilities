@@ -93,10 +93,15 @@ typedef bool(*&#160;</td><td class="memItemRight" valign="bottom"><b>progress_ca
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
-<tr class="memitem:a62a1b72ba9a7accee438d19212785e54"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54">known_folder_t</a> { <a class="el" href="../../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54a0fb64b1e975f9ff0cc97df6e3b7f8110">FOLDER_LOCALAPPDATA</a> = 0, 
-<a class="el" href="../../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54abb6f5bd0b6564b2f093f5a2d1c055183">FOLDER_PROGRAMFILES</a> = 2, 
-<a class="el" href="../../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54a7c25655022efd34417acfaa11f8491b3">FOLDER_SYSTEMFOLDER</a> = 3, 
-<a class="el" href="../../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54af32b4c27ec428ad2bf69d8c8802de21c">FOLDER_SYSTROOT_DIR</a> = 4
+<tr class="memitem:a62a1b72ba9a7accee438d19212785e54"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54">known_folder_t</a> { <br />
+&#160;&#160;<a class="el" href="../../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54ab1f55647ec7567aa2160383bc26539d5">FOLDER_ROAMING_DATA</a> = 0, 
+<a class="el" href="../../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54a0fb64b1e975f9ff0cc97df6e3b7f8110">FOLDER_LOCALAPPDATA</a> = 1, 
+<a class="el" href="../../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54a77c4c8768676d49c26bcec33dcf23b1e">FOLDER_USER_PROFILE</a> = 2, 
+<a class="el" href="../../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54abb6f5bd0b6564b2f093f5a2d1c055183">FOLDER_PROGRAMFILES</a> = 3, 
+<br />
+&#160;&#160;<a class="el" href="../../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54a7c25655022efd34417acfaa11f8491b3">FOLDER_SYSTEMFOLDER</a> = 4, 
+<a class="el" href="../../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54af32b4c27ec428ad2bf69d8c8802de21c">FOLDER_SYSTROOT_DIR</a> = 5
+<br />
  }<tr class="memdesc:a62a1b72ba9a7accee438d19212785e54"><td class="mdescLeft">&#160;</td><td class="mdescRight">This enumeration specifies "known" folder identifiers.  <a href="../../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54">More...</a><br /></td></tr>
 </td></tr>
 <tr class="separator:a62a1b72ba9a7accee438d19212785e54"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -313,7 +318,11 @@ MUTILS_API void&#160;</td><td class="memItemRight" valign="bottom"><b>fatal_exit
 
 <p>This enumeration specifies "known" folder identifiers. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a62a1b72ba9a7accee438d19212785e54a0fb64b1e975f9ff0cc97df6e3b7f8110"></a>FOLDER_LOCALAPPDATA&#160;</td><td class="fielddoc"><p>Local application data (non-roaming) </p>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a62a1b72ba9a7accee438d19212785e54ab1f55647ec7567aa2160383bc26539d5"></a>FOLDER_ROAMING_DATA&#160;</td><td class="fielddoc"><p>Application-specific data. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a62a1b72ba9a7accee438d19212785e54a0fb64b1e975f9ff0cc97df6e3b7f8110"></a>FOLDER_LOCALAPPDATA&#160;</td><td class="fielddoc"><p>Local application data (non-roaming) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a62a1b72ba9a7accee438d19212785e54a77c4c8768676d49c26bcec33dcf23b1e"></a>FOLDER_USER_PROFILE&#160;</td><td class="fielddoc"><p>The user's profile folder. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="a62a1b72ba9a7accee438d19212785e54abb6f5bd0b6564b2f093f5a2d1c055183"></a>FOLDER_PROGRAMFILES&#160;</td><td class="fielddoc"><p>Program files. </p>
 </td></tr>

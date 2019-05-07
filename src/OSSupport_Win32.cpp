@@ -704,6 +704,7 @@ const QString &MUtils::OS::known_folder(known_folder_t folder_id)
 	}
 	static s_folders[] =
 	{
+		{ 0x001a, {0x3EB685DB,0x65F9,0x4CF6,{0xA0,0x3A,0xE3,0xEF,0x65,0x72,0x9F,0x3D}} },  //CSIDL_APPDATA
 		{ 0x001c, {0xF1B32785,0x6FBA,0x4FCF,{0x9D,0x55,0x7B,0x8E,0x7F,0x15,0x70,0x91}} },  //CSIDL_LOCAL_APPDATA
 		{ 0x0028, {0x5E6C858F,0x0E22,0x4760,{0x9A,0xFE,0xEA,0x33,0x17,0xB6,0x71,0x73}} },  //CSIDL_PROFILE
 		{ 0x0026, {0x905e63b6,0xc1bf,0x494e,{0xb2,0x9c,0x65,0xb7,0x32,0xd3,0xd2,0x1a}} },  //CSIDL_PROGRAM_FILES
@@ -715,11 +716,12 @@ const QString &MUtils::OS::known_folder(known_folder_t folder_id)
 
 	switch(folder_id)
 	{
-		case FOLDER_LOCALAPPDATA: folderId = 0; break;
-		case FOLDER_USER_PROFILE: folderId = 1; break;
-		case FOLDER_PROGRAMFILES: folderId = 2; break;
-		case FOLDER_SYSTEMFOLDER: folderId = 3; break;
-		case FOLDER_SYSTROOT_DIR: folderId = 4; break;
+		case FOLDER_ROAMING_DATA: folderId = 0; break;
+		case FOLDER_LOCALAPPDATA: folderId = 1; break;
+		case FOLDER_USER_PROFILE: folderId = 2; break;
+		case FOLDER_PROGRAMFILES: folderId = 3; break;
+		case FOLDER_SYSTEMFOLDER: folderId = 4; break;
+		case FOLDER_SYSTROOT_DIR: folderId = 5; break;
 		default:
 			qWarning("Invalid 'known' folder was requested!");
 			return Internal::g_empty;
