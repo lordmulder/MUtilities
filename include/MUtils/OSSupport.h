@@ -259,8 +259,8 @@ namespace MUtils
 		MUTILS_API QString get_file_path(const int &fd);
 
 		//WOW64 redirection
-		MUTILS_API bool wow64fsredir_disable(void *oldValue);
-		MUTILS_API bool wow64fsredir_revert (void *oldValue);
+		MUTILS_API bool wow64fsredir_disable(uintptr_t &oldValue);
+		MUTILS_API bool wow64fsredir_revert (const uintptr_t oldValue);
 
 		//Environment variables
 		MUTILS_API QString get_envvar(const QString &name);

@@ -1715,28 +1715,31 @@ void MUtils::OS::shell_change_notification(void)
 // WOW64 REDIRECTION
 ///////////////////////////////////////////////////////////////////////////////
 
-typedef BOOL (_stdcall *Wow64DisableWow64FsRedirectionFun)(void *OldValue);
-typedef BOOL (_stdcall *Wow64RevertWow64FsRedirectionFun )(void *OldValue);
+typedef BOOL (_stdcall *Wow64DisableWow64FsRedirectionFun)(PVOID *OldValue);
+typedef BOOL (_stdcall *Wow64RevertWow64FsRedirectionFun) (PVOID  OldValue);
 
-bool MUtils::OS::wow64fsredir_disable(void *oldValue)
+bool MUtils::OS::wow64fsredir_disable(uintptr_t &oldValue)
 {
+	oldValue = reinterpret_cast<uintptr_t>(nullptr);
 	const Wow64DisableWow64FsRedirectionFun wow64redir_disable = MUtils::Win32Utils::resolve<Wow64DisableWow64FsRedirectionFun>(QLatin1String("kernel32"), QLatin1String("Wow64DisableWow64FsRedirection"));
 	if(wow64redir_disable)
 	{
-		if (wow64redir_disable(oldValue))
+		PVOID temp = NULL;
+		if (wow64redir_disable(&temp))
 		{
+			oldValue = reinterpret_cast<uintptr_t>(temp);
 			return true;
 		}
 	}
 	return false;
 }
 
-bool MUtils::OS::wow64fsredir_revert(void *oldValue)
+bool MUtils::OS::wow64fsredir_revert(const uintptr_t oldValue)
 {
 	const Wow64RevertWow64FsRedirectionFun wow64redir_disable = MUtils::Win32Utils::resolve<Wow64RevertWow64FsRedirectionFun>(QLatin1String("kernel32"), QLatin1String("Wow64RevertWow64FsRedirection"));
 	if (wow64redir_disable)
 	{
-		if (wow64redir_disable(oldValue))
+		if (wow64redir_disable(reinterpret_cast<PVOID>(oldValue)))
 		{
 			return true;
 		}
