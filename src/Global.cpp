@@ -912,7 +912,7 @@ int MUtils::Internal::MUTILS_INITIALIZER(const char *const buildKey, const bool 
 
 	if((debug != INTERNAL_DEBUG_FLAG) || strncmp(buildKey, INTERNAL_BUILD_KEY, 11))
 	{
-		MUtils::OS::system_message_err(L"MUtils", L"FATAL ERROR: MUtils library initialization has failed");
+		MUtils::OS::system_message_err(L"MUtils", L"FATAL: MUtils library initialization has failed!");
 		abort();
 	}
 
