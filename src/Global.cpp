@@ -902,19 +902,20 @@ MUtils::fp_parts_t MUtils::break_fp(const double value)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// SELF-TEST
+// INITIALIZER
 ///////////////////////////////////////////////////////////////////////////////
 
-int MUtils::Internal::selfTest(const char *const buildKey, const bool debug)
+int MUtils::Internal::MUTILS_INITIALIZER(const char *const buildKey, const bool debug)
 {
-	static const bool MY_DEBUG_FLAG = MUTILS_DEBUG;
-	static const char *const MY_BUILD_KEY = __DATE__ "@" __TIME__;
+	static const bool INTERNAL_DEBUG_FLAG = MUTILS_DEBUG;
+	static const char *const INTERNAL_BUILD_KEY = MUTILS_BUILD_KEY;
 
-	if(strncmp(buildKey, MY_BUILD_KEY, 13) || (MY_DEBUG_FLAG != debug))
+	if((debug != INTERNAL_DEBUG_FLAG) || strncmp(buildKey, INTERNAL_BUILD_KEY, 11))
 	{
-		MUtils::OS::system_message_err(L"MUtils", L"FATAL ERROR: MUtils library version mismatch detected!");
-		MUtils::OS::system_message_wrn(L"MUtils", L"Perform a clean(!) re-install of the application to fix the problem!");
+		MUtils::OS::system_message_err(L"MUtils", L"FATAL ERROR: MUtils library initialization has failed");
 		abort();
 	}
-	return 0;
+
+	volatile int _result = MUTILS_INTERFACE;
+	return _result;
 }

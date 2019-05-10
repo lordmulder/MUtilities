@@ -38,6 +38,13 @@ template<typename K, typename V> class QHash;
 /** \cond INTERNAL
  */
 
+ //Interface version
+#define MUTILS_INTERFACE 2
+
+//Build key
+#define MUTILS_BUILD_KEY_HELPER(X,Y) X##" "##Y
+#define MUTILS_BUILD_KEY MUTILS_BUILD_KEY_HELPER(__DATE__, __TIME__)
+
 //MUtils API
 #ifdef _MSC_VER
 #	ifdef MUTILS_DLL_EXPORT
@@ -52,10 +59,6 @@ template<typename K, typename V> class QHash;
 #else
 #	define MUTILS_API
 #endif
-
-#define MUTILS_MAKE_STRING_HELPER(X) #X
-#define MUTILS_MAKE_STRING(X) MUTILS_MAKE_STRING_HELPER(X)
-#define MUTILS_COMPILER_WARNING(TXT) __pragma(message(__FILE__ "(" MUTILS_MAKE_STRING(__LINE__) ") : warning: " TXT))
 
 //Check Debug Flags
 #if defined(_DEBUG) || defined(DEBUG) || (!defined(NDEBUG))
@@ -76,6 +79,14 @@ template<typename K, typename V> class QHash;
 		#error We should not enabled SSE or SSE2 in release builds!
 	#endif
 #endif
+
+#define MUTILS_MAKE_STRING_HELPER(X) #X
+#define MUTILS_MAKE_STRING(X) MUTILS_MAKE_STRING_HELPER(X)
+#define MUTILS_COMPILER_WARNING(TXT) __pragma(message(__FILE__ "(" MUTILS_MAKE_STRING(__LINE__) ") : warning: " TXT))
+
+#define MUTILS_INIT_GLUE_HELPER(X,Y) X##Y
+#define MUTILS_INIT_GLUE(X,Y) MUTILS_INIT_GLUE_HELPER(X,Y)
+#define MUTILS_INITIALIZER MUTILS_INIT_GLUE(initialize_, MUTILS_INTERFACE)
 
 /** \endcond INTERNAL
  */
@@ -353,8 +364,8 @@ namespace MUtils
 	//Internal
 	namespace Internal
 	{
-		MUTILS_API int selfTest(const char *const buildKey, const bool debug);
-		static const int s_selfTest = selfTest(__DATE__ "@" __TIME__, MUTILS_DEBUG);
+		MUTILS_API int MUTILS_INITIALIZER(const char *const buildKey, const bool debug);
+		static const int s_initializedFlag = MUTILS_INITIALIZER(MUTILS_BUILD_KEY, MUTILS_DEBUG);
 	}
 }
 
