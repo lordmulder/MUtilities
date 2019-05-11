@@ -80,13 +80,19 @@ template<typename K, typename V> class QHash;
 	#endif
 #endif
 
+//Library initializer
+#define MUTILS_GLUE_NAME_HELPER(X,Y) X##Y
+#define MUTILS_GLUE_NAME(X,Y) MUTILS_GLUE_NAME_HELPER(X,Y)
+#if MUTILS_DEBUG
+#define MUTILS_INITIALIZER MUTILS_GLUE_NAME(initialize_d, MUTILS_INTERFACE)
+#else
+#define MUTILS_INITIALIZER MUTILS_GLUE_NAME(initialize_r, MUTILS_INTERFACE)
+#endif
+
+//Compiler warnings
 #define MUTILS_MAKE_STRING_HELPER(X) #X
 #define MUTILS_MAKE_STRING(X) MUTILS_MAKE_STRING_HELPER(X)
 #define MUTILS_COMPILER_WARNING(TXT) __pragma(message(__FILE__ "(" MUTILS_MAKE_STRING(__LINE__) ") : warning: " TXT))
-
-#define MUTILS_INIT_GLUE_HELPER(X,Y) X##Y
-#define MUTILS_INIT_GLUE(X,Y) MUTILS_INIT_GLUE_HELPER(X,Y)
-#define MUTILS_INITIALIZER MUTILS_INIT_GLUE(initialize_, MUTILS_INTERFACE)
 
 /** \endcond INTERNAL
  */
@@ -361,11 +367,11 @@ namespace MUtils
 	*/
 	MUTILS_API fp_parts_t break_fp(const double value);
 
-	//Internal
+	//Internal (do *not* call directly!)
 	namespace Internal
 	{
-		MUTILS_API int MUTILS_INITIALIZER(const char *const buildKey, const bool debug);
-		static const int s_initializedFlag = MUTILS_INITIALIZER(MUTILS_BUILD_KEY, MUTILS_DEBUG);
+		MUTILS_API int MUTILS_INITIALIZER(const unsigned int interfaceId, const bool debugFlag, const char *const buildKey);
+		static const int s_initializedFlag = MUTILS_INITIALIZER(MUTILS_INTERFACE, MUTILS_DEBUG, MUTILS_BUILD_KEY);
 	}
 }
 
