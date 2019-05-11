@@ -905,16 +905,14 @@ MUtils::fp_parts_t MUtils::break_fp(const double value)
 // INITIALIZER
 ///////////////////////////////////////////////////////////////////////////////
 
-int MUtils::Internal::MUTILS_INITIALIZER(const unsigned int interfaceId, const bool debugFlag, const char *const buildKey)
+unsigned int MUtils::Internal::MUTILS_INITIALIZER(const unsigned int interfaceId)
 {
-#if (!MUTILS_DEBUG)
-	if((interfaceId != static_cast<unsigned int>(MUTILS_INTERFACE)) || (debugFlag != static_cast<bool>(MUTILS_DEBUG)) || strncmp(buildKey, MUTILS_BUILD_KEY, 14))
+	if(interfaceId != ((unsigned int)MUTILS_INTERFACE))
 	{
 		OS::system_message_err(L"MUtils", L"ERROR: MUtils library initialization has failed!");
 		for(;;) _exit((int)0xC0000142);
 	}
-#endif //MUTILS_DEBUG
 
-	volatile int _result = MUTILS_INTERFACE;
+	volatile unsigned int _result = MUTILS_INTERFACE;
 	return _result;
 }

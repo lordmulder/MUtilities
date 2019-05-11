@@ -41,10 +41,6 @@ template<typename K, typename V> class QHash;
  //Interface version
 #define MUTILS_INTERFACE 2
 
-//Build key
-#define MUTILS_BUILD_KEY_HELPER(X,Y) X##" "##Y
-#define MUTILS_BUILD_KEY MUTILS_BUILD_KEY_HELPER(__DATE__, __TIME__)
-
 //MUtils API
 #ifdef _MSC_VER
 #	ifdef MUTILS_DLL_EXPORT
@@ -370,8 +366,8 @@ namespace MUtils
 	//Internal (do *not* call directly!)
 	namespace Internal
 	{
-		MUTILS_API int MUTILS_INITIALIZER(const unsigned int interfaceId, const bool debugFlag, const char *const buildKey);
-		static const int s_initializedFlag = MUTILS_INITIALIZER(MUTILS_INTERFACE, MUTILS_DEBUG, MUTILS_BUILD_KEY);
+		MUTILS_API unsigned int MUTILS_INITIALIZER(const unsigned int interfaceId);
+		static const unsigned int init_flag = MUTILS_INITIALIZER(MUTILS_INTERFACE);
 	}
 }
 
