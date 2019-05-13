@@ -162,7 +162,7 @@ namespace MUtils
 		MUTILS_API const bool &running_on_wine(void);
 
 		//Get known Folder
-		MUTILS_API const QString &known_folder(known_folder_t folder_id);
+		MUTILS_API const QString &known_folder(const known_folder_t folder_id);
 
 		//Current Date & Time
 		MUTILS_API QDate current_date(void);

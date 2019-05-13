@@ -690,43 +690,131 @@ const bool &MUtils::OS::running_on_wine(void)
 static QReadWriteLock                         g_known_folders_lock;
 static QScopedPointer<QHash<size_t, QString>> g_known_folders_data;
 
-typedef HRESULT (WINAPI *SHGetKnownFolderPath_t)(const GUID &rfid, DWORD dwFlags, HANDLE hToken, PWSTR *ppszPath);
-typedef HRESULT (WINAPI *SHGetFolderPath_t)     (HWND hwndOwner, int nFolder, HANDLE hToken, DWORD dwFlags, LPWSTR pszPath);
+typedef HRESULT (WINAPI *SHGetKnownFolderPathProc)(const GUID &rfid, DWORD dwFlags, HANDLE hToken, PWSTR *ppszPath);
+typedef HRESULT (WINAPI *SHGetFolderPathProc)(HWND hwndOwner, int nFolder, HANDLE hToken, DWORD dwFlags, LPWSTR pszPath);
 
-const QString &MUtils::OS::known_folder(known_folder_t folder_id)
+static const struct
 {
-	typedef enum { KF_FLAG_CREATE = 0x00008000 } kf_flags_t;
-	
-	struct
+	INT32 csidl;
+	GUID  kfuid;
+}
+s_known_folders_lut[] =
+{
+	{ 0x001A, { 0x3EB685DB, 0x65F9, 0x4CF6, { 0xA0, 0x3A, 0xE3, 0xEF, 0x65, 0x72, 0x9F, 0x3D } } },  //CSIDL_APPDATA
+	{ 0x001C, { 0xF1B32785, 0x6FBA, 0x4FCF, { 0x9D, 0x55, 0x7B, 0x8E, 0x7F, 0x15, 0x70, 0x91 } } },  //CSIDL_LOCAL_APPDATA
+	{ 0x0028, { 0x5E6C858F, 0x0E22, 0x4760, { 0x9A, 0xFE, 0xEA, 0x33, 0x17, 0xB6, 0x71, 0x73 } } },  //CSIDL_PROFILE
+	{ 0x0026, { 0x905E63B6, 0xC1BF, 0x494E, { 0xB2, 0x9C, 0x65, 0xB7, 0x32, 0xD3, 0xD2, 0x1A } } },  //CSIDL_PROGRAM_FILES
+	{ 0x0025, { 0x1AC14E77, 0x02E7, 0x4E5D, { 0xB7, 0x44, 0x2E, 0xB1, 0xAE, 0x51, 0x98, 0xB7 } } },  //CSIDL_SYSTEM_FOLDER
+	{ 0x0024, { 0xF38BF404, 0x1D43, 0x42F2, { 0x93, 0x05, 0x67, 0xDE, 0x0B, 0x28, 0xFC, 0x23 } } },  //CSIDL_WINDOWS_FOLDER
+};
+
+static QString known_folder_fallback(const size_t folderId)
+{
+	static const DWORD s_shgfpTypes[3] =
 	{
-		const int csidl;
-		const GUID guid;
-	}
-	static s_folders[] =
-	{
-		{ 0x001a, {0x3EB685DB,0x65F9,0x4CF6,{0xA0,0x3A,0xE3,0xEF,0x65,0x72,0x9F,0x3D}} },  //CSIDL_APPDATA
-		{ 0x001c, {0xF1B32785,0x6FBA,0x4FCF,{0x9D,0x55,0x7B,0x8E,0x7F,0x15,0x70,0x91}} },  //CSIDL_LOCAL_APPDATA
-		{ 0x0028, {0x5E6C858F,0x0E22,0x4760,{0x9A,0xFE,0xEA,0x33,0x17,0xB6,0x71,0x73}} },  //CSIDL_PROFILE
-		{ 0x0026, {0x905e63b6,0xc1bf,0x494e,{0xb2,0x9c,0x65,0xb7,0x32,0xd3,0xd2,0x1a}} },  //CSIDL_PROGRAM_FILES
-		{ 0x0025, {0x1AC14E77,0x02E7,0x4E5D,{0xB7,0x44,0x2E,0xB1,0xAE,0x51,0x98,0xB7}} },  //CSIDL_SYSTEM_FOLDER
-		{ 0x0024, {0xF38BF404,0x1D43,0x42F2,{0x93,0x05,0x67,0xDE,0x0B,0x28,0xFC,0x23}} },  //CSIDL_WINDOWS_FOLDER
+		0, /*SHGFP_TYPE_CURRENT*/
+		1, /*SHGFP_TYPE_DEFAULT*/
+		MAXDWORD
 	};
 
-	size_t folderId = size_t(-1);
-
-	switch(folder_id)
+	static const INT32 s_shgfpFlags[3] = 
 	{
-		case FOLDER_ROAMING_DATA: folderId = 0; break;
-		case FOLDER_LOCALAPPDATA: folderId = 1; break;
-		case FOLDER_USER_PROFILE: folderId = 2; break;
-		case FOLDER_PROGRAMFILES: folderId = 3; break;
-		case FOLDER_SYSTEMFOLDER: folderId = 4; break;
-		case FOLDER_SYSTROOT_DIR: folderId = 5; break;
-		default:
-			qWarning("Invalid 'known' folder was requested!");
-			return Internal::g_empty;
+		0x0000, /*No extra flags*/
+		0x8000, /*SHGFP_FLAG_CREATE*/
+		MAXINT32
+	};
+
+	const SHGetFolderPathProc getFolderPath = MUtils::Win32Utils::resolve<SHGetFolderPathProc>(QLatin1String("shell32"), QLatin1String("SHGetFolderPathW"));
+	if (getFolderPath)
+	{
+		QVector<WCHAR> pathBuffer(MAX_PATH);
+		for (size_t i = 0; s_shgfpTypes[i] != MAXDWORD; ++i)
+		{
+			for (size_t j = 0; s_shgfpFlags[j] != MAXINT32; ++j)
+			{
+				if (getFolderPath(NULL, s_known_folders_lut[folderId].csidl | s_shgfpFlags[j], NULL, s_shgfpTypes[i], pathBuffer.data()) == S_OK)
+				{
+					//MessageBoxW(0, path, L"SHGetFolderPathW", MB_TOPMOST);
+					const QDir folderPathTemp = QDir(QDir::fromNativeSeparators(MUTILS_QSTR(pathBuffer.data())));
+					if (folderPathTemp.exists())
+					{
+						return folderPathTemp.canonicalPath();
+					}
+				}
+			}
+		}
 	}
 
+	return QString(); /*failed!*/
+}
+
+static QString known_folder_detect(const size_t folderId)
+{
+	typedef enum
+	{
+		KF_FLAG_DEFAULT      = 0x00000000,
+		KF_FLAG_DEFAULT_PATH = 0x00000400,
+		KF_FLAG_CREATE       = 0x00008000
+	}
+	kf_flag_t;
+
+	static const DWORD s_kfFlags[5] =
+	{ 
+		KF_FLAG_DEFAULT,
+		KF_FLAG_CREATE,
+		KF_FLAG_DEFAULT_PATH,
+		KF_FLAG_DEFAULT_PATH | KF_FLAG_CREATE,
+		MAXDWORD
+	};
+
+	const SHGetKnownFolderPathProc getKnownFolderPath = MUtils::Win32Utils::resolve<SHGetKnownFolderPathProc>(QLatin1String("shell32"), QLatin1String("SHGetKnownFolderPath"));
+	if (getKnownFolderPath)
+	{
+		for (size_t i = 0; s_kfFlags[i] != MAXDWORD; ++i)
+		{
+			WCHAR* path = NULL;
+			if (getKnownFolderPath(s_known_folders_lut[folderId].kfuid, s_kfFlags[i], NULL, &path) == S_OK)
+			{
+				//MessageBoxW(0, path, L"SHGetKnownFolderPath", MB_TOPMOST);
+				const QDir folderPathTemp = QDir(QDir::fromNativeSeparators(MUTILS_QSTR(path)));
+				CoTaskMemFree(path);
+				if (folderPathTemp.exists())
+				{
+					return folderPathTemp.canonicalPath();
+				}
+			}
+		}
+	}
+
+	return known_folder_fallback(folderId); /*fallback!*/
+}
+
+static size_t known_folder_decode(const MUtils::OS::known_folder_t folder_id)
+{
+	switch (folder_id)
+	{
+		case MUtils::OS::FOLDER_ROAMING_DATA: return 0U;
+		case MUtils::OS::FOLDER_LOCALAPPDATA: return 1U;
+		case MUtils::OS::FOLDER_USER_PROFILE: return 2U;
+		case MUtils::OS::FOLDER_PROGRAMFILES: return 3U;
+		case MUtils::OS::FOLDER_SYSTEMFOLDER: return 4U;
+		case MUtils::OS::FOLDER_SYSTROOT_DIR: return 5U;
+		default:
+			qWarning("Invalid 'known' folder was requested!");
+			return SIZE_MAX;
+	}
+}
+
+const QString &MUtils::OS::known_folder(const known_folder_t folder_id)
+{
+	//Map to numeric id
+	const size_t folderId = known_folder_decode(folder_id);
+	if (folderId == SIZE_MAX)
+	{
+		return Internal::g_empty;
+	}
+	
+	//Obtain read lock 
 	QReadLocker readLock(&g_known_folders_lock);
 
 	//Already in cache?
@@ -757,41 +845,8 @@ const QString &MUtils::OS::known_folder(known_folder_t folder_id)
 		g_known_folders_data.reset(new QHash<size_t, QString>());
 	}
 
-	QString folderPath;
-
-	//Try SHGetKnownFolderPath() first!
-	if(const SHGetKnownFolderPath_t known_folders_fpGetKnownFolderPath = MUtils::Win32Utils::resolve<SHGetKnownFolderPath_t>(QLatin1String("shell32"), QLatin1String("SHGetKnownFolderPath")))
-	{
-		WCHAR *path = NULL;
-		if(known_folders_fpGetKnownFolderPath(s_folders[folderId].guid, KF_FLAG_CREATE, NULL, &path) == S_OK)
-		{
-			//MessageBoxW(0, path, L"SHGetKnownFolderPath", MB_TOPMOST);
-			const QDir folderTemp = QDir(QDir::fromNativeSeparators(MUTILS_QSTR(path)));
-			if(folderTemp.exists())
-			{
-				folderPath = folderTemp.canonicalPath();
-			}
-			CoTaskMemFree(path);
-		}
-	}
-
-	//Fall back to SHGetFolderPathW()
-	if (folderPath.isEmpty())
-	{
-		if (const SHGetFolderPath_t known_folders_fpGetFolderPath = MUtils::Win32Utils::resolve<SHGetFolderPath_t>(QLatin1String("shell32"), QLatin1String("SHGetFolderPathW")))
-		{
-			QScopedArrayPointer<WCHAR> path(new WCHAR[4096]);
-			if (known_folders_fpGetFolderPath(NULL, s_folders[folderId].csidl | CSIDL_FLAG_CREATE, NULL, NULL, path.data()) == S_OK)
-			{
-				//MessageBoxW(0, path, L"SHGetFolderPathW", MB_TOPMOST);
-				const QDir folderTemp = QDir(QDir::fromNativeSeparators(MUTILS_QSTR(path.data())));
-				if (folderTemp.exists())
-				{
-					folderPath = folderTemp.canonicalPath();
-				}
-			}
-		}
-	}
+	//Detect path now!
+	const QString folderPath = known_folder_detect(folderId);
 
 	//Update cache
 	if (!folderPath.isEmpty())
