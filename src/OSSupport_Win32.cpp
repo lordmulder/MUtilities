@@ -708,6 +708,23 @@ s_known_folders_lut[] =
 	{ 0x0024, { 0xF38BF404, 0x1D43, 0x42F2, { 0x93, 0x05, 0x67, 0xDE, 0x0B, 0x28, 0xFC, 0x23 } } },  //CSIDL_WINDOWS_FOLDER
 };
 
+static QString known_folder_verify(const wchar_t *const path)
+{
+	const QDir folderPath = QDir(QDir::fromNativeSeparators(MUTILS_QSTR(path)));
+	if (folderPath.exists())
+	{
+		const QString absolutePath = folderPath.absolutePath();
+		const HANDLE handle = CreateFileW(MUTILS_WCHR(QDir::toNativeSeparators(absolutePath)), 0U, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+		if (handle != INVALID_HANDLE_VALUE)
+		{
+			SetHandleInformation(handle, HANDLE_FLAG_PROTECT_FROM_CLOSE, HANDLE_FLAG_PROTECT_FROM_CLOSE);
+			return absolutePath;
+		}
+	}
+
+	return QString(); /*failed*/
+}
+
 static QString known_folder_fallback(const size_t folderId)
 {
 	static const DWORD s_shgfpTypes[3] =
@@ -735,10 +752,10 @@ static QString known_folder_fallback(const size_t folderId)
 				if (getFolderPath(NULL, s_known_folders_lut[folderId].csidl | s_shgfpFlags[j], NULL, s_shgfpTypes[i], pathBuffer.data()) == S_OK)
 				{
 					//MessageBoxW(0, path, L"SHGetFolderPathW", MB_TOPMOST);
-					const QDir folderPathTemp = QDir(QDir::fromNativeSeparators(MUTILS_QSTR(pathBuffer.data())));
-					if (folderPathTemp.exists())
+					const QString folderPath = known_folder_verify(pathBuffer.data());
+					if (!folderPath.isEmpty())
 					{
-						return folderPathTemp.canonicalPath();
+						return folderPath;
 					}
 				}
 			}
@@ -776,11 +793,11 @@ static QString known_folder_detect(const size_t folderId)
 			if (getKnownFolderPath(s_known_folders_lut[folderId].kfuid, s_kfFlags[i], NULL, &path) == S_OK)
 			{
 				//MessageBoxW(0, path, L"SHGetKnownFolderPath", MB_TOPMOST);
-				const QDir folderPathTemp = QDir(QDir::fromNativeSeparators(MUTILS_QSTR(path)));
+				const QString folderPath = known_folder_verify(path);
 				CoTaskMemFree(path);
-				if (folderPathTemp.exists())
+				if (!folderPath.isEmpty())
 				{
-					return folderPathTemp.canonicalPath();
+					return folderPath;
 				}
 			}
 		}
