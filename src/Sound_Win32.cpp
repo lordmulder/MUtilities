@@ -122,7 +122,7 @@ bool MUtils::Sound::play_sound_file(const QString &library, const unsigned short
 	QFileInfo libraryFile(library);
 	if(!libraryFile.isAbsolute())
 	{
-		const QString &systemDir = MUtils::OS::known_folder(MUtils::OS::FOLDER_SYSTEMFOLDER);
+		const QString &systemDir = MUtils::OS::known_folder(MUtils::OS::FOLDER_SYSTEM_DEF);
 		if(!systemDir.isEmpty())
 		{
 			libraryFile.setFile(QDir(systemDir), libraryFile.fileName());

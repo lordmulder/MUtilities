@@ -695,21 +695,36 @@ typedef HRESULT (WINAPI *SHGetFolderPathProc)(HWND hwndOwner, int nFolder, HANDL
 
 static const struct
 {
+	MUtils::OS::known_folder_t id;
 	INT32 csidl;
-	GUID  kfuid;
+	GUID known_folder_id;
 }
 s_known_folders_lut[] =
 {
-	{ 0x001A, { 0x3EB685DB, 0x65F9, 0x4CF6, { 0xA0, 0x3A, 0xE3, 0xEF, 0x65, 0x72, 0x9F, 0x3D } } },  //CSIDL_APPDATA
-	{ 0x001C, { 0xF1B32785, 0x6FBA, 0x4FCF, { 0x9D, 0x55, 0x7B, 0x8E, 0x7F, 0x15, 0x70, 0x91 } } },  //CSIDL_LOCAL_APPDATA
-	{ 0x0028, { 0x5E6C858F, 0x0E22, 0x4760, { 0x9A, 0xFE, 0xEA, 0x33, 0x17, 0xB6, 0x71, 0x73 } } },  //CSIDL_PROFILE
-	{ 0x0026, { 0x905E63B6, 0xC1BF, 0x494E, { 0xB2, 0x9C, 0x65, 0xB7, 0x32, 0xD3, 0xD2, 0x1A } } },  //CSIDL_PROGRAM_FILES
-	{ 0x0025, { 0x1AC14E77, 0x02E7, 0x4E5D, { 0xB7, 0x44, 0x2E, 0xB1, 0xAE, 0x51, 0x98, 0xB7 } } },  //CSIDL_SYSTEM_FOLDER
-	{ 0x0024, { 0xF38BF404, 0x1D43, 0x42F2, { 0x93, 0x05, 0x67, 0xDE, 0x0B, 0x28, 0xFC, 0x23 } } },  //CSIDL_WINDOWS_FOLDER
+	{ MUtils::OS::FOLDER_PROFILE_USER,  0x0028, { 0x5E6C858F, 0x0E22, 0x4760, { 0x9A, 0xFE, 0xEA, 0x33, 0x17, 0xB6, 0x71, 0x73 } } },  //CSIDL_PROFILE
+	{ MUtils::OS::FOLDER_PROFILE_PUBL,  0x0000, { 0XDFDF76A2, 0XC82A, 0X4D63, { 0X90, 0X6A, 0X56, 0X44, 0XAC, 0X45, 0X73, 0X85 } } },  //FOLDERID_Public
+	{ MUtils::OS::FOLDER_APPDATA_ROAM,  0x001A, { 0x3EB685DB, 0x65F9, 0x4CF6, { 0xA0, 0x3A, 0xE3, 0xEF, 0x65, 0x72, 0x9F, 0x3D } } },  //CSIDL_APPDATA
+	{ MUtils::OS::FOLDER_APPDATA_LOCA,  0x001C, { 0xF1B32785, 0x6FBA, 0x4FCF, { 0x9D, 0x55, 0x7B, 0x8E, 0x7F, 0x15, 0x70, 0x91 } } },  //CSIDL_LOCAL_APPDATA
+	{ MUtils::OS::FOLDER_DOCS_USER,     0x0005, { 0xFDD39AD0, 0x238F, 0x46AF, { 0xAD, 0xB4, 0x6C, 0x85, 0x48, 0x03, 0x69, 0xC7 } } },  //CSIDL_MYDOCUMENTS
+	{ MUtils::OS::FOLDER_DOCS_PUBL,     0x002E, { 0xED4824AF, 0xDCE4, 0x45A8, { 0x81, 0xE2, 0xFC, 0x79, 0x65, 0x08, 0x36, 0x34 } } },  //CSIDL_COMMON_DOCUMENTS
+	{ MUtils::OS::FOLDER_DESKTOP_USER,  0x0010, { 0xB4BFCC3A, 0xDB2C, 0x424C, { 0xB0, 0x29, 0x7F, 0xE9, 0x9A, 0x87, 0xC6, 0x41 } } },  //CSIDL_DESKTOPDIRECTORY
+	{ MUtils::OS::FOLDER_DESKTOP_PUBL,  0x0019, { 0xC4AA340D, 0xF20F, 0x4863, { 0xAF, 0xEF, 0xF8, 0x7E, 0xF2, 0xE6, 0xBA, 0x25 } } },  //CSIDL_COMMON_DESKTOPDIRECTORY
+	{ MUtils::OS::FOLDER_PICTURES_USER, 0x0027, { 0X33E28130, 0X4E1E, 0X4676, { 0X83, 0X5A, 0X98, 0X39, 0X5C, 0X3B, 0XC3, 0XBB } } },  //CSIDL_MYPICTURES
+	{ MUtils::OS::FOLDER_PICTURES_PUBL, 0x0036, { 0XB6EBFB86, 0X6907, 0X413C, { 0X9A, 0XF7, 0X4F, 0XC2, 0XAB, 0XF0, 0X7C, 0XC5 } } },  //CSIDL_COMMON_PICTURES
+	{ MUtils::OS::FOLDER_MUSIC_USER,    0x000D, { 0X4BD8D571, 0X6D19, 0X48D3, { 0XBE, 0X97, 0X42, 0X22, 0X20, 0X08, 0X0E, 0X43 } } },  //CSIDL_MYMUSIC
+	{ MUtils::OS::FOLDER_MUSIC_PUBL,    0x0035, { 0X3214FAB5, 0X9757, 0X4298, { 0XBB, 0X61, 0X92, 0XA9, 0XDE, 0XAA, 0X44, 0XFF } } },  //CSIDL_COMMON_MUSIC
+	{ MUtils::OS::FOLDER_VIDEO_USER,    0X000E, { 0X18989B1D, 0X99B5, 0X455B, { 0X84, 0X1C, 0XAB, 0X7C, 0X74, 0XE4, 0XDD, 0XFC } } },  //CSIDL_MYVIDEO
+	{ MUtils::OS::FOLDER_VIDEO_PUBL,    0x0037, { 0X2400183A, 0X6185, 0X49FB, { 0XA2, 0XD8, 0X4A, 0X39, 0X2A, 0X60, 0X2B, 0XA3 } } },  //CSIDL_COMMON_VIDEO
+	{ MUtils::OS::FOLDER_PROGRAMFILES,  0x0026, { 0x905E63B6, 0xC1BF, 0x494E, { 0xB2, 0x9C, 0x65, 0xB7, 0x32, 0xD3, 0xD2, 0x1A } } },  //CSIDL_PROGRAM_FILES
+	{ MUtils::OS::FOLDER_SYSROOT,       0x0024, { 0xF38BF404, 0x1D43, 0x42F2, { 0x93, 0x05, 0x67, 0xDE, 0x0B, 0x28, 0xFC, 0x23 } } },  //CSIDL_WINDOWS
+	{ MUtils::OS::FOLDER_SYSTEM_DEF,    0x0025, { 0x1AC14E77, 0x02E7, 0x4E5D, { 0xB7, 0x44, 0x2E, 0xB1, 0xAE, 0x51, 0x98, 0xB7 } } },  //CSIDL_SYSTEM
+	{ MUtils::OS::FOLDER_SYSTEM_X86,    0x0029, { 0xD65231B0, 0xB2F1, 0x4857, { 0xA4, 0xCE, 0xA8, 0xE7, 0xC6, 0xEA, 0x7D, 0x27 } } },  //CSIDL_SYSTEMX86
+	{ static_cast<MUtils::OS::known_folder_t>(0) }
 };
 
 static QString known_folder_verify(const wchar_t *const path)
 {
+	CSIDL_PROFILE;
 	const QDir folderPath = QDir(QDir::fromNativeSeparators(MUTILS_QSTR(path)));
 	if (folderPath.exists())
 	{
@@ -741,21 +756,24 @@ static QString known_folder_fallback(const size_t folderId)
 		MAXINT32
 	};
 
-	const SHGetFolderPathProc getFolderPath = MUtils::Win32Utils::resolve<SHGetFolderPathProc>(QLatin1String("shell32"), QLatin1String("SHGetFolderPathW"));
-	if (getFolderPath)
+	if (s_known_folders_lut[folderId].csidl)
 	{
-		QVector<WCHAR> pathBuffer(MAX_PATH);
-		for (size_t i = 0; s_shgfpTypes[i] != MAXDWORD; ++i)
+		const SHGetFolderPathProc getFolderPath = MUtils::Win32Utils::resolve<SHGetFolderPathProc>(QLatin1String("shell32"), QLatin1String("SHGetFolderPathW"));
+		if (getFolderPath)
 		{
-			for (size_t j = 0; s_shgfpFlags[j] != MAXINT32; ++j)
+			QVector<WCHAR> pathBuffer(MAX_PATH);
+			for (size_t i = 0; s_shgfpTypes[i] != MAXDWORD; ++i)
 			{
-				if (getFolderPath(NULL, s_known_folders_lut[folderId].csidl | s_shgfpFlags[j], NULL, s_shgfpTypes[i], pathBuffer.data()) == S_OK)
+				for (size_t j = 0; s_shgfpFlags[j] != MAXINT32; ++j)
 				{
-					//MessageBoxW(0, path, L"SHGetFolderPathW", MB_TOPMOST);
-					const QString folderPath = known_folder_verify(pathBuffer.data());
-					if (!folderPath.isEmpty())
+					if (getFolderPath(NULL, s_known_folders_lut[folderId].csidl | s_shgfpFlags[j], NULL, s_shgfpTypes[i], pathBuffer.data()) == S_OK)
 					{
-						return folderPath;
+						//MessageBoxW(0, path, L"SHGetFolderPathW", MB_TOPMOST);
+						const QString folderPath = known_folder_verify(pathBuffer.data());
+						if (!folderPath.isEmpty())
+						{
+							return folderPath;
+						}
 					}
 				}
 			}
@@ -790,7 +808,7 @@ static QString known_folder_detect(const size_t folderId)
 		for (size_t i = 0; s_kfFlags[i] != MAXDWORD; ++i)
 		{
 			WCHAR* path = NULL;
-			if (getKnownFolderPath(s_known_folders_lut[folderId].kfuid, s_kfFlags[i], NULL, &path) == S_OK)
+			if (getKnownFolderPath(s_known_folders_lut[folderId].known_folder_id, s_kfFlags[i], NULL, &path) == S_OK)
 			{
 				//MessageBoxW(0, path, L"SHGetKnownFolderPath", MB_TOPMOST);
 				const QString folderPath = known_folder_verify(path);
@@ -808,18 +826,15 @@ static QString known_folder_detect(const size_t folderId)
 
 static size_t known_folder_decode(const MUtils::OS::known_folder_t folder_id)
 {
-	switch (folder_id)
+	for (size_t i = 0; s_known_folders_lut[i].id; ++i)
 	{
-		case MUtils::OS::FOLDER_ROAMING_DATA: return 0U;
-		case MUtils::OS::FOLDER_LOCALAPPDATA: return 1U;
-		case MUtils::OS::FOLDER_USER_PROFILE: return 2U;
-		case MUtils::OS::FOLDER_PROGRAMFILES: return 3U;
-		case MUtils::OS::FOLDER_SYSTEMFOLDER: return 4U;
-		case MUtils::OS::FOLDER_SYSTROOT_DIR: return 5U;
-		default:
-			qWarning("Invalid 'known' folder was requested!");
-			return SIZE_MAX;
+		if (s_known_folders_lut[i].id == folder_id)
+		{
+			return i;
+		}
 	}
+	qWarning("Invalid 'known' folder was requested!");
+	return SIZE_MAX;
 }
 
 const QString &MUtils::OS::known_folder(const known_folder_t folder_id)

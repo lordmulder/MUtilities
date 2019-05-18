@@ -420,7 +420,7 @@ const QString &MUtils::temp_folder(void)
 	}
 
 	qWarning("%%TEMP%% directory not found -> trying fallback mode now!");
-	static const OS::known_folder_t FOLDER_ID[2] = { OS::FOLDER_LOCALAPPDATA, OS::FOLDER_SYSTROOT_DIR };
+	static const OS::known_folder_t FOLDER_ID[2] = { OS::FOLDER_APPDATA_LOCA, OS::FOLDER_SYSROOT };
 	for(size_t id = 0; id < 2; id++)
 	{
 		const QString &knownFolder = OS::known_folder(FOLDER_ID[id]);
@@ -572,7 +572,7 @@ void MUtils::init_process(QProcess &process, const QString &wokringDir, const bo
 	}
 
 	//Set up system root directory
-	const QString sysRoot = QDir::toNativeSeparators(OS::known_folder(OS::FOLDER_SYSTROOT_DIR));
+	const QString sysRoot = QDir::toNativeSeparators(OS::known_folder(OS::FOLDER_SYSROOT));
 	if (!sysRoot.isEmpty())
 	{
 		for (const char *const *ptr = ENVVAR_NAMES_SYS; *ptr; ++ptr)

@@ -105,12 +105,24 @@ namespace MUtils
 		*/
 		typedef enum
 		{
-			FOLDER_ROAMING_DATA = 0,  ///< Application-specific data
-			FOLDER_LOCALAPPDATA = 1,  ///< Local application data (non-roaming)
-			FOLDER_USER_PROFILE = 2,  ///< The user's profile folder
-			FOLDER_PROGRAMFILES = 3,  ///< Program files
-			FOLDER_SYSTEMFOLDER = 4,  ///< System directory
-			FOLDER_SYSTROOT_DIR = 5   ///< System "root" directory
+			FOLDER_PROFILE_USER  =  1,  ///< The user's profile folder
+			FOLDER_PROFILE_PUBL  =  2,  ///< The "all users" profile folder
+			FOLDER_APPDATA_ROAM  =  3,  ///< Application-specific data
+			FOLDER_APPDATA_LOCA  =  4,  ///< Local application data (non-roaming)
+			FOLDER_DOCS_USER     =  5,  ///< The user's Documents directory
+			FOLDER_DOCS_PUBL     =  6,  ///< The "all users" Documents directory
+			FOLDER_DESKTOP_USER  =  7,  ///< The user's Desktop directory
+			FOLDER_DESKTOP_PUBL  =  8,  ///< The "all users" Desktop directory
+			FOLDER_PICTURES_USER =  9,  ///< The user's Music directory
+			FOLDER_PICTURES_PUBL = 10,  ///< The user's Music directory
+			FOLDER_MUSIC_USER    = 11,  ///< The user's Music directory
+			FOLDER_MUSIC_PUBL    = 12,  ///< The "all users" Music directory
+			FOLDER_VIDEO_USER    = 13,  ///< The user's Video directory
+			FOLDER_VIDEO_PUBL    = 14,  ///< The "all users" Video directory
+			FOLDER_PROGRAMFILES  = 15,  ///< Program files
+			FOLDER_SYSROOT       = 16,  ///< System "root" directory
+			FOLDER_SYSTEM_DEF    = 17,  ///< System directory
+			FOLDER_SYSTEM_X86    = 18,  ///< System directory for x86 (32-Bit)
 		}
 		known_folder_t;
 		
