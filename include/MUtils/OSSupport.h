@@ -119,10 +119,12 @@ namespace MUtils
 			FOLDER_MUSIC_PUBL    = 12,  ///< The "all users" Music directory
 			FOLDER_VIDEO_USER    = 13,  ///< The user's Video directory
 			FOLDER_VIDEO_PUBL    = 14,  ///< The "all users" Video directory
-			FOLDER_PROGRAMFILES  = 15,  ///< Program files
-			FOLDER_SYSROOT       = 16,  ///< System "root" directory
-			FOLDER_SYSTEM_DEF    = 17,  ///< System directory
-			FOLDER_SYSTEM_X86    = 18,  ///< System directory for x86 (32-Bit)
+			FOLDER_PROGRAMS_DEF  = 15,  ///< Program files
+			FOLDER_PROGRAMS_X86  = 16,  ///< Program files
+			FOLDER_PROGRAMS_X64  = 17,  ///< Program files
+			FOLDER_SYSROOT       = 18,  ///< System "root" directory
+			FOLDER_SYSTEM_DEF    = 19,  ///< System directory
+			FOLDER_SYSTEM_X86    = 20,  ///< System directory for x86 (32-Bit)
 		}
 		known_folder_t;
 		

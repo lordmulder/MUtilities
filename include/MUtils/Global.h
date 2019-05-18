@@ -39,7 +39,7 @@ template<typename K, typename V> class QHash;
  */
 
  //Interface version
-#define MUTILS_INTERFACE 2
+#define MUTILS_INTERFACE 3
 
 //MUtils API
 #ifdef _MSC_VER

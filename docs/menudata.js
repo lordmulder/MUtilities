@@ -26,7 +26,11 @@ var menudata={children:[
 {text:'Variables',url:'namespacemembers_vars.html'},
 {text:'Typedefs',url:'namespacemembers_type.html'},
 {text:'Enumerations',url:'namespacemembers_enum.html'},
-{text:'Enumerator',url:'namespacemembers_eval.html'}]}]},
+{text:'Enumerator',url:'namespacemembers_eval.html',children:[
+{text:'d',url:'namespacemembers_eval.html#index_d'},
+{text:'f',url:'namespacemembers_eval.html#index_f'},
+{text:'n',url:'namespacemembers_eval.html#index_n'},
+{text:'o',url:'namespacemembers_eval.html#index_o'}]}]}]},
 {text:'Classes',url:'annotated.html',children:[
 {text:'Class List',url:'annotated.html'},
 {text:'Class Index',url:'classes.html'},

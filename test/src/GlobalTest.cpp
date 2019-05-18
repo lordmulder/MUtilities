@@ -55,9 +55,17 @@ protected:
 #define TEST_RANDOM(X,Y) do \
 { \
 	QSet<X> test; \
-	for (size_t i = 0; i < TEST_RANDOM_MAX; ++i)  \
-	{  \
-		test.insert(MUtils::next_rand_##Y()); \
+	for (size_t retry = 0; retry < 8; ++retry) \
+	{ \
+		test.clear(); \
+		for (size_t i = 0; i < TEST_RANDOM_MAX; ++i)  \
+		{  \
+			test.insert(MUtils::next_rand_##Y()); \
+		} \
+		if(test.count() == TEST_RANDOM_MAX) \
+		{ \
+			break; \
+		} \
 	} \
 	ASSERT_EQ(test.count(), TEST_RANDOM_MAX); \
 } \
