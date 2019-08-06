@@ -32,3 +32,13 @@
 #define VER_MUTILS_MAJOR					1
 #define VER_MUTILS_MINOR_HI					1
 #define VER_MUTILS_MINOR_LO					2
+#define VER_MUTILS_PATCH					0
+
+///////////////////////////////////////////////////////////////////////////////
+// Helper macros (aka: having fun with the C pre-processor)
+///////////////////////////////////////////////////////////////////////////////
+
+#define VER_MUTILS_STR_HLP1(X)			#X
+#define VER_MUTILS_STR_HLP2(W,X,Y,Z)	VER_MUTILS_STR_HLP1(v##W.X##Y-Z)
+#define VER_MUTILS_STR_HLP3(W,X,Y,Z)	VER_MUTILS_STR_HLP2(W,X,Y,Z)
+#define VER_MUTILS_STR					VER_MUTILS_STR_HLP3(VER_MUTILS_MAJOR,VER_MUTILS_MINOR_HI,VER_MUTILS_MINOR_LO,VER_MUTILS_PATCH)

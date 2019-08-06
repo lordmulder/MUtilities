@@ -95,6 +95,11 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)tmp\$(ProjectName)\QRC_%(Filename).cpp;%(Outputs)</Outputs>
     </CustomBuild>
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="MUtilities.rc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Static|Win32'">true</ExcludedFromBuild>
+    </ResourceCompile>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{55405FE1-149F-434C-9D72-4B64348D2A08}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
