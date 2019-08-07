@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['os_5funknown',['OS_UNKNOWN',['../d1/d7d/namespace_m_utils_1_1_o_s_1_1_version.html#a0571c442a535da3a8541642f8cead00ea6fa12cbf650f5b33e76bbffd4fb5ec84',1,'MUtils::OS::Version']]],
-  ['os_5fwindows',['OS_WINDOWS',['../d1/d7d/namespace_m_utils_1_1_o_s_1_1_version.html#a0571c442a535da3a8541642f8cead00eae668bf9aca53081658d391823e37acf7',1,'MUtils::OS::Version']]]
+  ['network_5ftype_5ferr',['NETWORK_TYPE_ERR',['../d2/df4/namespace_m_utils_1_1_o_s.html#a0005b2a3f0289c1078c9cc8ba5ccba45af3ce4c3003fa7cc9e3b774669b8ab6e9',1,'MUtils::OS']]],
+  ['network_5ftype_5fnon',['NETWORK_TYPE_NON',['../d2/df4/namespace_m_utils_1_1_o_s.html#a0005b2a3f0289c1078c9cc8ba5ccba45ab81e893484ac0d201a9f54e2af0563dc',1,'MUtils::OS']]],
+  ['network_5ftype_5fyes',['NETWORK_TYPE_YES',['../d2/df4/namespace_m_utils_1_1_o_s.html#a0005b2a3f0289c1078c9cc8ba5ccba45a9ed5ecd6b286fa5ec2e23e652dac8769',1,'MUtils::OS']]]
 ];

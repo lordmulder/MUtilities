@@ -1,23 +1,9 @@
 var searchData=
 [
-  ['folder_5fappdata_5floca',['FOLDER_APPDATA_LOCA',['../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54af000386a72d8444c5ad0783ba8077ce1',1,'MUtils::OS']]],
-  ['folder_5fappdata_5froam',['FOLDER_APPDATA_ROAM',['../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54a6f3aef740ec77b6ddea8e3eeea8d2951',1,'MUtils::OS']]],
-  ['folder_5fdesktop_5fpubl',['FOLDER_DESKTOP_PUBL',['../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54a8c639c3e3075fe0859034334ac9b24d8',1,'MUtils::OS']]],
-  ['folder_5fdesktop_5fuser',['FOLDER_DESKTOP_USER',['../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54a15eb1ce4cbc1e819ef61380d8567f8fc',1,'MUtils::OS']]],
-  ['folder_5fdocs_5fpubl',['FOLDER_DOCS_PUBL',['../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54ac60998b86c14fd99fb7606a7f5631039',1,'MUtils::OS']]],
-  ['folder_5fdocs_5fuser',['FOLDER_DOCS_USER',['../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54a24fe95c218f2f96f79ed4331816d1bf2',1,'MUtils::OS']]],
-  ['folder_5fmusic_5fpubl',['FOLDER_MUSIC_PUBL',['../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54a945615852ec433d54bd660e7d06e7eba',1,'MUtils::OS']]],
-  ['folder_5fmusic_5fuser',['FOLDER_MUSIC_USER',['../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54a5eb537ab772312644d490ee5597a57ae',1,'MUtils::OS']]],
-  ['folder_5fpictures_5fpubl',['FOLDER_PICTURES_PUBL',['../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54a9cb1691e4de71331189728945692e6e9',1,'MUtils::OS']]],
-  ['folder_5fpictures_5fuser',['FOLDER_PICTURES_USER',['../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54abf17b1a0f30e2ff38990973a778e6ee9',1,'MUtils::OS']]],
-  ['folder_5fprofile_5fpubl',['FOLDER_PROFILE_PUBL',['../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54ad9e442fb54bdee21838b485b51399ea2',1,'MUtils::OS']]],
-  ['folder_5fprofile_5fuser',['FOLDER_PROFILE_USER',['../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54a31103048fccf15ef2af81b75357ebb70',1,'MUtils::OS']]],
-  ['folder_5fprograms_5fdef',['FOLDER_PROGRAMS_DEF',['../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54a089096fbc0c16f0a08c85c9ad3ecd4d4',1,'MUtils::OS']]],
-  ['folder_5fprograms_5fx64',['FOLDER_PROGRAMS_X64',['../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54af76af3d9c84eff178c323768779d69b7',1,'MUtils::OS']]],
-  ['folder_5fprograms_5fx86',['FOLDER_PROGRAMS_X86',['../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54a9fc4296b5058087caf97d4547fe4063a',1,'MUtils::OS']]],
-  ['folder_5fsysroot',['FOLDER_SYSROOT',['../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54af8584f32060415349b71d2369a16515a',1,'MUtils::OS']]],
-  ['folder_5fsystem_5fdef',['FOLDER_SYSTEM_DEF',['../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54aafb108d0830bacd39c55ea054689857a',1,'MUtils::OS']]],
-  ['folder_5fsystem_5fx86',['FOLDER_SYSTEM_X86',['../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54af50a26cb638902ca94fd88c0a797abb9',1,'MUtils::OS']]],
-  ['folder_5fvideo_5fpubl',['FOLDER_VIDEO_PUBL',['../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54a33e99fdb7c830d5581ed15d92415c848',1,'MUtils::OS']]],
-  ['folder_5fvideo_5fuser',['FOLDER_VIDEO_USER',['../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54a4a71f200b12a3a45f4bb092b262c3cc1',1,'MUtils::OS']]]
+  ['drive_5ftype_5ferr',['DRIVE_TYPE_ERR',['../d2/df4/namespace_m_utils_1_1_o_s.html#af8d3f37b0e9c3b73dfcf7d1f237d480ca56b9d51a60c9df7d4ec47e917218b153',1,'MUtils::OS']]],
+  ['drive_5ftype_5ffdd',['DRIVE_TYPE_FDD',['../d2/df4/namespace_m_utils_1_1_o_s.html#af8d3f37b0e9c3b73dfcf7d1f237d480ca244c1b3fa78d134bf18cc39fb0cc0877',1,'MUtils::OS']]],
+  ['drive_5ftype_5fhdd',['DRIVE_TYPE_HDD',['../d2/df4/namespace_m_utils_1_1_o_s.html#af8d3f37b0e9c3b73dfcf7d1f237d480ca14a1e51fa7603f7970ce94fdaf658f45',1,'MUtils::OS']]],
+  ['drive_5ftype_5fnet',['DRIVE_TYPE_NET',['../d2/df4/namespace_m_utils_1_1_o_s.html#af8d3f37b0e9c3b73dfcf7d1f237d480caf4b8f61bae5c8602e2f1e68ef88f06a2',1,'MUtils::OS']]],
+  ['drive_5ftype_5fopt',['DRIVE_TYPE_OPT',['../d2/df4/namespace_m_utils_1_1_o_s.html#af8d3f37b0e9c3b73dfcf7d1f237d480cab4fa63f34e252cce2176d51b36f0c827',1,'MUtils::OS']]],
+  ['drive_5ftype_5fram',['DRIVE_TYPE_RAM',['../d2/df4/namespace_m_utils_1_1_o_s.html#af8d3f37b0e9c3b73dfcf7d1f237d480ca42b280153a22e6af73fe7edfbbaee69b',1,'MUtils::OS']]]
 ];

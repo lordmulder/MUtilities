@@ -93,6 +93,11 @@ typedef bool(*&#160;</td><td class="memItemRight" valign="bottom"><b>progress_ca
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
 Enumerations</h2></td></tr>
+<tr class="memitem:a4e90436ae2fc8e485aa1fba93446d193"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/df4/namespace_m_utils_1_1_o_s.html#a4e90436ae2fc8e485aa1fba93446d193">os_arch_t</a> { <a class="el" href="../../d2/df4/namespace_m_utils_1_1_o_s.html#a4e90436ae2fc8e485aa1fba93446d193a0eedaef375971e16c55aabfcfdacb3c8">ARCH_X86</a> = 1, 
+<a class="el" href="../../d2/df4/namespace_m_utils_1_1_o_s.html#a4e90436ae2fc8e485aa1fba93446d193a0228384312ca305a82e889a24bcc9fe9">ARCH_X64</a> = 2
+ }<tr class="memdesc:a4e90436ae2fc8e485aa1fba93446d193"><td class="mdescLeft">&#160;</td><td class="mdescRight">This enumeration specifies possible operating system architectures.  <a href="../../d2/df4/namespace_m_utils_1_1_o_s.html#a4e90436ae2fc8e485aa1fba93446d193">More...</a><br /></td></tr>
+</td></tr>
+<tr class="separator:a4e90436ae2fc8e485aa1fba93446d193"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a62a1b72ba9a7accee438d19212785e54"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54">known_folder_t</a> { <br />
 &#160;&#160;<a class="el" href="../../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54a31103048fccf15ef2af81b75357ebb70">FOLDER_PROFILE_USER</a> = 1, 
 <a class="el" href="../../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54ad9e442fb54bdee21838b485b51399ea2">FOLDER_PROFILE_PUBL</a> = 2, 
@@ -173,6 +178,9 @@ MUTILS_API const char *&#160;</td><td class="memItemRight" valign="bottom"><b>os
 <tr class="memitem:aa9b386b6e44ec9584a01ff9a8612f573"><td class="memItemLeft" align="right" valign="top"><a id="aa9b386b6e44ec9584a01ff9a8612f573"></a>
 MUTILS_API const bool &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>running_on_wine</b> (void)</td></tr>
 <tr class="separator:aa9b386b6e44ec9584a01ff9a8612f573"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a370e178d9367d2057974f7b65ffd0972"><td class="memItemLeft" align="right" valign="top"><a id="a370e178d9367d2057974f7b65ffd0972"></a>
+MUTILS_API const <a class="el" href="../../d2/df4/namespace_m_utils_1_1_o_s.html#a4e90436ae2fc8e485aa1fba93446d193">os_arch_t</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>os_architecture</b> (void)</td></tr>
+<tr class="separator:a370e178d9367d2057974f7b65ffd0972"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8316cd86318a055ca7e4d953803f86ba"><td class="memItemLeft" align="right" valign="top"><a id="a8316cd86318a055ca7e4d953803f86ba"></a>
 MUTILS_API const QString &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>known_folder</b> (const <a class="el" href="../../d2/df4/namespace_m_utils_1_1_o_s.html#a62a1b72ba9a7accee438d19212785e54">known_folder_t</a> folder_id)</td></tr>
 <tr class="separator:a8316cd86318a055ca7e4d953803f86ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -398,6 +406,28 @@ MUTILS_API void&#160;</td><td class="memItemRight" valign="bottom"><b>fatal_exit
 <tr><td class="fieldname"><a id="a0005b2a3f0289c1078c9cc8ba5ccba45ab81e893484ac0d201a9f54e2af0563dc"></a>NETWORK_TYPE_NON&#160;</td><td class="fielddoc"><p>Computer is <b>not</b> connected to a network. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="a0005b2a3f0289c1078c9cc8ba5ccba45a9ed5ecd6b286fa5ec2e23e652dac8769"></a>NETWORK_TYPE_YES&#160;</td><td class="fielddoc"><p>Computer <em>is</em> connected to a network. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="a4e90436ae2fc8e485aa1fba93446d193"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4e90436ae2fc8e485aa1fba93446d193">&sect;&nbsp;</a></span>os_arch_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="../../d2/df4/namespace_m_utils_1_1_o_s.html#a4e90436ae2fc8e485aa1fba93446d193">MUtils::OS::os_arch_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>This enumeration specifies possible operating system architectures. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a4e90436ae2fc8e485aa1fba93446d193a0eedaef375971e16c55aabfcfdacb3c8"></a>ARCH_X86&#160;</td><td class="fielddoc"><p>Intel x86 or compatible [32-bit]. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a4e90436ae2fc8e485aa1fba93446d193a0228384312ca305a82e889a24bcc9fe9"></a>ARCH_X64&#160;</td><td class="fielddoc"><p>x86-64, aka AMD64, aka Intel 64 [64-bit] </p>
 </td></tr>
 </table>
 
