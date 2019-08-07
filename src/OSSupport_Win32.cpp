@@ -328,7 +328,6 @@ static inline DWORD SAFE_ADD(const DWORD &a, const DWORD &b, const DWORD &limit 
 	return ((a >= limit) || (b >= limit) || ((limit - a) <= b)) ? limit : (a + b);
 }
 
-
 static void initialize_os_version(OSVERSIONINFOEXW *const osInfo)
 {
 	memset(osInfo, 0, sizeof(OSVERSIONINFOEXW));
@@ -642,6 +641,60 @@ const char *MUtils::OS::os_friendly_name(const MUtils::OS::Version::os_version_t
 	}
 
 	return NULL;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// OS ARCHITECTURE DETECTION
+///////////////////////////////////////////////////////////////////////////////
+
+static bool g_os_arch_initialized = false;
+static MUtils::OS::os_arch_t g_os_arch = MUtils::OS::os_arch_t(0);
+static QReadWriteLock g_os_arch_lock;
+
+static MUtils::OS::os_arch_t detect_os_arch(void)
+{
+#if (!(defined(_M_X64) || defined(_M_IA64)))
+	typedef BOOL(WINAPI * IsWow64ProcessFun)(__in HANDLE hProcess, __out PBOOL Wow64Process);
+	const IsWow64ProcessFun isWow64ProcessPtr = MUtils::Win32Utils::resolve<IsWow64ProcessFun>(QLatin1String("kernel32"), QLatin1String("IsWow64Process"));
+	if (isWow64ProcessPtr)
+	{
+		BOOL x64flag = FALSE;
+		if (isWow64ProcessPtr(GetCurrentProcess(), &x64flag))
+		{
+			if (x64flag)
+			{
+				return MUtils::OS::ARCH_X64;
+			}
+		}
+	}
+	return MUtils::OS::ARCH_X86;
+#else
+	return MUtils::OS::ARCH_X64;
+#endif
+}
+
+const MUtils::OS::os_arch_t &MUtils::OS::os_architecture(void)
+{
+	QReadLocker readLock(&g_os_arch_lock);
+
+	//Already initialized?
+	if (g_os_arch_initialized)
+	{
+		return g_os_arch;
+	}
+
+	readLock.unlock();
+	QWriteLocker writeLock(&g_os_arch_lock);
+
+	//Initialized now?
+	if (g_os_arch_initialized)
+	{
+		return g_os_arch;
+	}
+
+	g_os_arch = detect_os_arch();
+	g_os_arch_initialized = MUTILS_BOOLIFY(g_os_arch);
+	return g_os_arch;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

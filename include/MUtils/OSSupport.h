@@ -101,6 +101,16 @@ namespace MUtils
 		}
 
 		/**
+		* \brief This enumeration specifies possible operating system architectures
+		*/
+		typedef enum
+		{
+			ARCH_X86 = 1, ///< Intel x86 or compatible [32-bit]
+			ARCH_X64 = 2  ///< x86-64, aka AMD64, aka Intel 64 [64-bit]
+		}
+		os_arch_t;
+
+		/**
 		* \brief This enumeration specifies "known" folder identifiers
 		*/
 		typedef enum
@@ -174,6 +184,7 @@ namespace MUtils
 		MUTILS_API const Version::os_version_t &os_version(void);
 		MUTILS_API const char *os_friendly_name(const MUtils::OS::Version::os_version_t &os_version);
 		MUTILS_API const bool &running_on_wine(void);
+		MUTILS_API const os_arch_t &os_architecture(void);
 
 		//Get known Folder
 		MUTILS_API const QString &known_folder(const known_folder_t folder_id);
