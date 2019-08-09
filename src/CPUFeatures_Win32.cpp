@@ -118,24 +118,11 @@ MUtils::CPUFetaures::cpu_info_t MUtils::CPUFetaures::detect(void)
 	}
 
 	//Detect 64-Bit processors
-#if (!(defined(_M_X64) || defined(_M_IA64)))
-	const IsWow64ProcessFun isWow64ProcessPtr = MUtils::Win32Utils::resolve<IsWow64ProcessFun>(QLatin1String("kernel32"), QLatin1String("IsWow64Process"));
-	if(isWow64ProcessPtr)
+	if (OS::os_architecture() == OS::ARCH_X64)
 	{
-		BOOL x64flag = FALSE;
-		if(isWow64ProcessPtr(GetCurrentProcess(), &x64flag))
-		{
-			if (x64flag)
-			{
-				features.x64 = true;
-				features.features |= FLAGS_X64; /*x86_64 implies SSE2*/
-			}
-		}
+		features.x64 = true;
+		features.features |= FLAGS_X64; /*x86_64 implies SSE2*/
 	}
-#else
-	features.x64 = true;
-	features.features |= FLAGS_X64;
-#endif
 
 	//Make sure that (at least) the MMX flag has been set!
 	if (!(features.features & FLAG_MMX))
