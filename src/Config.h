@@ -31,7 +31,7 @@
 
 #define VER_MUTILS_MAJOR					1
 #define VER_MUTILS_MINOR_HI					1
-#define VER_MUTILS_MINOR_LO					3
+#define VER_MUTILS_MINOR_LO					4
 #define VER_MUTILS_PATCH					0
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -185,6 +185,9 @@ MUTILS_API bool&#160;</td><td class="memItemRight" valign="bottom"><b>regexp_par
 <tr class="memitem:a8fa486ed4aee98c4d0029b7e6e7c8d2c"><td class="memItemLeft" align="right" valign="top"><a id="a8fa486ed4aee98c4d0029b7e6e7c8d2c"></a>
 MUTILS_API bool&#160;</td><td class="memItemRight" valign="bottom"><b>regexp_parse_int32</b> (const QRegExp &amp;regexp, qint32 &amp;value, const size_t &amp;offset)</td></tr>
 <tr class="separator:a8fa486ed4aee98c4d0029b7e6e7c8d2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9916e02e90bdb987b95b3cc9d463f949"><td class="memItemLeft" align="right" valign="top">MUTILS_API QString&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/da6/namespace_m_utils.html#a9916e02e90bdb987b95b3cc9d463f949">parent_path</a> (const QString &amp;path)</td></tr>
+<tr class="memdesc:a9916e02e90bdb987b95b3cc9d463f949"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get parent path.  <a href="#a9916e02e90bdb987b95b3cc9d463f949">More...</a><br /></td></tr>
+<tr class="separator:a9916e02e90bdb987b95b3cc9d463f949"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a81704d66d34e37d3e0e159b5f436babf"><td class="memItemLeft" align="right" valign="top">MUTILS_API bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/da6/namespace_m_utils.html#a81704d66d34e37d3e0e159b5f436babf">regexp_parse_uint32</a> (const QRegExp &amp;regexp, quint32 *values, const size_t &amp;count)</td></tr>
 <tr class="memdesc:a81704d66d34e37d3e0e159b5f436babf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parse regular expression results.  <a href="#a81704d66d34e37d3e0e159b5f436babf">More...</a><br /></td></tr>
 <tr class="separator:a81704d66d34e37d3e0e159b5f436babf"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -621,6 +624,34 @@ class MUTILS_API&#160;</td><td class="memItemRight" valign="bottom"><b>Taskbar7_
 <p>Generates a <em>random</em> unsigned 64-Bit value. </p>
 <p>The <em>random</em> value is created using a "strong" PRNG of the underlying system, if possible. Otherwise a fallback PRNG is used. It is <b>not</b> required or useful to call <code>srand()</code> or <code>qsrand()</code> prior to using this function. If necessary, the seeding of the PRNG happen <em>automatically</em> on the first call.</p>
 <dl class="section return"><dt>Returns</dt><dd>The function returns a <em>random</em> unsigned 64-Bit value. </dd></dl>
+
+</div>
+</div>
+<a id="a9916e02e90bdb987b95b3cc9d463f949"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9916e02e90bdb987b95b3cc9d463f949">&sect;&nbsp;</a></span>parent_path()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">MUTILS_API QString MUtils::parent_path </td>
+          <td>(</td>
+          <td class="paramtype">const QString &amp;&#160;</td>
+          <td class="paramname"><em>path</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get parent path. </p>
+<p>This function determines the "parent" path, by removing the <em>last</em> path component (file name or directory) form the given original path.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">path</td><td>A read-only reference to the original path string.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The remaining path string (i.e. "parent" path); an empty string if the original path only consited of a single component. </dd></dl>
 
 </div>
 </div>

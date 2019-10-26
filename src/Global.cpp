@@ -773,6 +773,40 @@ QString MUtils::clean_file_path(const QString &path, const bool &pretty)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// PARENT PATH
+///////////////////////////////////////////////////////////////////////////////
+
+static void remove_trailing_separators(QString &pathStr)
+{
+	while (pathStr.endsWith('/'))
+	{
+		pathStr.chop(1);
+	}
+}
+
+MUTILS_API QString MUtils::parent_path(const QString &path)
+{
+	QString parentPath(QDir::fromNativeSeparators(path));
+	remove_trailing_separators(parentPath);
+	const int pos = parentPath.lastIndexOf(QLatin1Char('/'));
+	if (pos >= 0)
+	{
+		parentPath.truncate(pos);
+		remove_trailing_separators(parentPath);
+		if (parentPath.isEmpty())
+		{
+			return QLatin1String("/");
+		}
+		if ((parentPath.length() == 2) && parentPath.at(0).isLetter() && (parentPath.at(1) == QLatin1Char(':')))
+		{
+			parentPath += QLatin1Char('/');
+		}
+		return parentPath;
+	}
+	return QString();
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // REGULAR EXPESSION HELPER
 ///////////////////////////////////////////////////////////////////////////////
 

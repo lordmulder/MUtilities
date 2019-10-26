@@ -39,7 +39,7 @@ template<typename K, typename V> class QHash;
  */
 
  //Interface version
-#define MUTILS_INTERFACE 3
+#define MUTILS_INTERFACE 4
 
 //MUtils API
 #ifdef _MSC_VER
@@ -322,6 +322,17 @@ namespace MUtils
 	MUTILS_API bool regexp_parse_int32(const QRegExp &regexp, qint32 &value);
 	MUTILS_API bool regexp_parse_uint32(const QRegExp &regexp, quint32 &value, const size_t &offset);
 	MUTILS_API bool regexp_parse_int32(const QRegExp &regexp, qint32 &value, const size_t &offset);
+
+	/**
+	* \brief Get parent path
+	*
+	* This function determines the "parent" path, by removing the *last* path component (file name or directory) form the given original path.
+	*
+	* \param path A read-only reference to the original path string.
+	*
+	* \return The remaining path string (i.e. "parent" path); an empty string if the original path only consited of a single component.
+	*/
+	MUTILS_API QString parent_path(const QString &path);
 
 	/**
 	* \brief Parse regular expression results
