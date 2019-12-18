@@ -29,9 +29,8 @@ static const char *update_mirrors[] =
 	"http://muldersoft.chickenkiller.com/",
 	"http://muldersoft.com/",
 	"http://mulder.bplaced.net/",
-	"http://mulder.000webhostapp.com/",		//"http://mulder.webuda.com/", //"http://mulder.6te.net/", "http://mulder.pe.hu/",
+	"http://mulder.000webhostapp.com/",
 	"http://muldersoft.square7.ch/",
-	"http://muldersoft.co.nf/",				//"http://muldersoft.eu.pn/",
 	"http://muldersoft.lima-city.de/",
 	"http://www.muldersoft.keepfree.de/",
 	"http://lamexp.sourceforge.net/",
@@ -43,6 +42,11 @@ static const char *update_mirrors[] =
 	"http://www.tricksoft.de/",
 	"http://repo.or.cz/LameXP.git/blob_plain/gh-pages:/",
 	"http://gitlab.com/lamexp/lamexp/raw/gh-pages/",
+	//"http://mulder.webuda.com/",
+	//"http://mulder.6te.net/",
+	//"http://mulder.pe.hu/",
+	//"http://muldersoft.co.nf/",
+	//"http://muldersoft.eu.pn/",
 	NULL
 };
 
