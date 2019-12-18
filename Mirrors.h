@@ -55,6 +55,7 @@ static const char *update_mirrors[] =
  */
 static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites !!!
 {
+	"0bin.net",
 	"www.163.com",
 	"www.7-zip.org",
 	"www.ac3filter.net",
@@ -76,7 +77,6 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	"www.bbc.co.uk",
 	"www.berlios.de",
 	"www.bing.com",
-	"www.bingeandgrab.com",
 	"www.bucketheadpikes.com",
 	"www.buzzfeed.com",
 	"www.cam.ac.uk",
@@ -160,10 +160,10 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	"www.ox-fanzine.de",
 	"www.partha.com",
 	"pastebin.com",
-	"pastie.org",
 	"portableapps.com",
 	"www.portablefreeware.com",
 	"posteo.de",
+	"privatebin.net",
 	"support.proboards.com",
 	"www.qq.com",
 	"www.qt.io",
