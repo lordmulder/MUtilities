@@ -67,80 +67,32 @@ namespace MUtils
 						#error Compiler is not supported!
 					#endif
 				#elif defined(_MSC_VER)
-					#if (_MSC_VER == 1924)
-						#if((_MSC_FULL_VER >= 192428314) && (_MSC_FULL_VER <= 192428314))
-							"MSVC 2019.4";
-						#else
-							#error Compiler version is not supported yet!
-						#endif
+					#if (_MSC_VER == 1925)
+						"MSVC 2019.5";
+					#elif (_MSC_VER == 1924)
+						"MSVC 2019.4";
 					#elif (_MSC_VER == 1923)
-						#if((_MSC_FULL_VER >= 192328105) && (_MSC_FULL_VER <= 192328105))
-							"MSVC 2019.3";
-						#else
-							#error Compiler version is not supported yet!
-						#endif
+						"MSVC 2019.3";
 					#elif (_MSC_VER == 1922)
-						#if((_MSC_FULL_VER >= 192227905) && (_MSC_FULL_VER <= 192227905))
-							"MSVC 2019.2";
-						#else
-							#error Compiler version is not supported yet!
-						#endif
+						"MSVC 2019.2";
 					#elif (_MSC_VER == 1921)
-						#if((_MSC_FULL_VER >= 192127702) && (_MSC_FULL_VER <= 192127702))
-							"MSVC 2019.1";
-						#else
-							#error Compiler version is not supported yet!
-						#endif
+						"MSVC 2019.1";
 					#elif (_MSC_VER == 1920)
-						#if((_MSC_FULL_VER >= 192027508) && (_MSC_FULL_VER <= 192027508))
-							"MSVC 2019.0";
-						#else
-							#error Compiler version is not supported yet!
-						#endif
+						"MSVC 2019.0";
 					#elif (_MSC_VER == 1916)
-						#if((_MSC_FULL_VER >= 191627024) && (_MSC_FULL_VER <= 191627038))
-							"MSVC 2017.9";
-						#else
-							#error Compiler version is not supported yet!
-						#endif
+						"MSVC 2017.9";
 					#elif (_MSC_VER == 1915)
-						#if((_MSC_FULL_VER >= 191526726) && (_MSC_FULL_VER <= 191526732))
-							"MSVC 2017.8";
-						#else
-							#error Compiler version is not supported yet!
-						#endif
+						"MSVC 2017.8";
 					#elif (_MSC_VER == 1914)
-						#if((_MSC_FULL_VER >= 191426430) && (_MSC_FULL_VER <= 191426433))
-							"MSVC 2017.7";
-						#else
-							#error Compiler version is not supported yet!
-						#endif
+						"MSVC 2017.7";
 					#elif (_MSC_VER == 1913)
-						#if((_MSC_FULL_VER >= 191326128) && (_MSC_FULL_VER <= 191326132))
-							"MSVC 2017.6";
-						#else
-							#error Compiler version is not supported yet!
-						#endif
+						"MSVC 2017.6";
 					#elif (_MSC_VER == 1912)
-						#if((_MSC_FULL_VER >= 191225830) && (_MSC_FULL_VER <= 191225835))
-							"MSVC 2017.5";
-						#else
-							#error Compiler version is not supported yet!
-						#endif
+						"MSVC 2017.5";
 					#elif (_MSC_VER == 1911)
-						#if((_MSC_FULL_VER >= 191125542) && (_MSC_FULL_VER <= 191125547))
-							"MSVC 2017.4";
-						#elif((_MSC_FULL_VER >= 191125506) && (_MSC_FULL_VER <= 191125508))
-							"MSVC 2017.3";
-						#else
-							#error Compiler version is not supported yet!
-						#endif
+						"MSVC 2017.4";
 					#elif (_MSC_VER == 1910)
-						#if ((_MSC_FULL_VER >= 191025017) && (_MSC_FULL_VER <= 191025019))
-							"MSVC 2017.2";
-						#else
-							#error Compiler version is not supported yet!
-						#endif
+						"MSVC 2017.2";
 					#elif (_MSC_VER == 1900)
 						#if (_MSC_FULL_VER == 190023026)
 							"MSVC 2015";
