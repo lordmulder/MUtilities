@@ -67,7 +67,9 @@ namespace MUtils
 						#error Compiler is not supported!
 					#endif
 				#elif defined(_MSC_VER)
-					#if (_MSC_VER == 1925)
+					#if (_MSC_VER == 1926)
+						"MSVC 2019.6";
+					#elif (_MSC_VER == 1925)
 						"MSVC 2019.5";
 					#elif (_MSC_VER == 1924)
 						"MSVC 2019.4";
