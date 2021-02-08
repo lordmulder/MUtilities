@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // MuldeR's Utilities for Qt
-// Copyright (C) 2004-2019 LoRd_MuldeR <MuldeR2@GMX.de>
+// Copyright (C) 2004-2021 LoRd_MuldeR <MuldeR2@GMX.de>
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
