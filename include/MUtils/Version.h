@@ -68,7 +68,11 @@ namespace MUtils
 					#endif
 				#elif defined(_MSC_VER)
 					#if (_MSC_VER == 1928)
-						"MSVC 2019.8";
+						#if (_MSC_FULL_VER < 192829910)
+							"MSVC 2019.8";
+						#else
+							"MSVC 2019.9";
+						#endif
 					#elif (_MSC_VER == 1927)
 						"MSVC 2019.7";
 					#elif (_MSC_VER == 1926)
