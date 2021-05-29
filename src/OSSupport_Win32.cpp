@@ -2012,10 +2012,10 @@ static volatile bool g_debug_check = check_debugger_helper();
 static MUtils::Internal::CriticalSection g_fatal_exit_lock;
 static QAtomicInt g_fatal_exit_flag;
 
-static DWORD WINAPI fatal_exit_helper(LPVOID lpParameter)
+static BOOL CALLBACK fatal_exit_enum_helper(const HWND hwnd, const LPARAM lParam)
 {
-	MUtils::OS::system_message_err(L"GURU MEDITATION", (LPWSTR) lpParameter);
-	return 0;
+	SetWindowPos(hwnd, HWND_NOTOPMOST, NULL, NULL, NULL, NULL, SWP_ASYNCWINDOWPOS | SWP_NOMOVE | SWP_NOSIZE);
+	return TRUE;
 }
 
 void MUtils::OS::fatal_exit(const wchar_t* const errorMessage)
@@ -2027,6 +2027,8 @@ void MUtils::OS::fatal_exit(const wchar_t* const errorMessage)
 		return; /*prevent recursive invocation*/
 	}
 
+	EnumThreadWindows(g_main_thread_id, fatal_exit_enum_helper, 0L);
+
 	if(g_main_thread_id != GetCurrentThreadId())
 	{
 		if(HANDLE hThreadMain = OpenThread(THREAD_SUSPEND_RESUME, FALSE, g_main_thread_id))
@@ -2035,14 +2037,7 @@ void MUtils::OS::fatal_exit(const wchar_t* const errorMessage)
 		}
 	}
 
-	if(HANDLE hThread = CreateThread(NULL, 0, fatal_exit_helper, (LPVOID)errorMessage, 0, NULL))
-	{
-		WaitForSingleObject(hThread, INFINITE);
-	}
-	else
-	{
-		fatal_exit_helper((LPVOID)errorMessage);
-	}
+	MUtils::OS::system_message_err(L"GURU MEDITATION", errorMessage);
 
 	for(;;)
 	{
