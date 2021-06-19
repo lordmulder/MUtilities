@@ -102,12 +102,14 @@ static QQueue<QString> buildRandomList(const char *const *values)
 	return list;
 }
 
-static const QHash<QString, QString> *initEnvVars(void)
+static const QHash<QString, QString> *initEnvVars(const QString &binCurl)
 {
-	const QString tempfolder = QDir::toNativeSeparators(MUtils::temp_folder());
 	QHash<QString, QString> *const environment = new QHash<QString, QString>();
+	const QString tempfolder = QDir::toNativeSeparators(MUtils::temp_folder());
 	environment->insert(QLatin1String("CURL_HOME"), tempfolder);
 	environment->insert(QLatin1String("GNUPGHOME"), tempfolder);
+	const QFileInfo curlFile(binCurl);
+	environment->insert(QLatin1String("CURL_CA_BUNDLE"), QDir::toNativeSeparators(curlFile.absoluteDir().absoluteFilePath(QString("%1.crt").arg(curlFile.completeBaseName()))));
 	return environment;
 }
 
@@ -152,12 +154,12 @@ MUtils::UpdateChecker::UpdateChecker(const QString &binCurl, const QString &binG
 	m_binaryCurl(binCurl),
 	m_binaryGnuPG(binGnuPG),
 	m_binaryKeys(binKeys),
+	m_environment(initEnvVars(binCurl)),
 	m_applicationId(applicationId),
 	m_installedBuildNo(installedBuildNo),
 	m_betaUpdates(betaUpdates),
 	m_testMode(testMode),
-	m_maxProgress(MIN_CONNSCORE + 5),
-	m_environment(initEnvVars())
+	m_maxProgress(MIN_CONNSCORE + 5)
 {
 	m_status = UpdateStatus_NotStartedYet;
 	m_progress = 0;
@@ -605,7 +607,7 @@ bool MUtils::UpdateChecker::getFile(const QUrl &url, const QString &outFile, con
 		}
 	}
 	
-	QStringList args(QLatin1String("-vsSNqkfL"));
+	QStringList args(QLatin1String("-vsSNqfL"));
 	args << "-m" << QString::number(DOWNLOAD_TIMEOUT / 1000);
 	args << "--max-redirs" << QString::number(maxRedir);
 	args << "-A" << USER_AGENT_STR;
