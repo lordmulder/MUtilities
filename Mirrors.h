@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // MuldeR's Utilities for Qt
-// Copyright (C) 2004-2019 LoRd_MuldeR <MuldeR2@GMX.de>
+// Copyright (C) 2004-2021 LoRd_MuldeR <MuldeR2@GMX.de>
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -56,12 +56,12 @@ static const char *update_mirrors[] =
 static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites !!!
 {
 	"0bin.net",
+	"1f0.de",
 	"www.163.com",
 	"www.7-zip.org",
 	"www.ac3filter.net",
 	"clbianco.altervista.org",
 	"status.aws.amazon.com",
-	"antergos.com",
 	"help.aol.com",
 	"www.apache.org",
 	"www.apple.com",
@@ -71,7 +71,7 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	"web.audacityteam.org",
 	"status.automattic.com",
 	"www.avidemux.org",
-	"www.babylon.com",
+	"online.babylon.com",
 	"www.baidu.com",
 	"bandcamp.com",
 	"www.bbc.co.uk",
@@ -91,6 +91,7 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	"forum.doom9.org",
 	"www.dropbox.com",
 	"www.ebay.com",
+	"endeavouros.com",
 	"www.equation.com",
 	"www.ethz.ch",
 	"www.farbrausch.de",
@@ -110,6 +111,7 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	"news.gnome.org",
 	"www.gnu.org",
 	"go.com",
+	"www.gyan.dev",
 	"code.google.com",
 	"haali.su",
 	"www.harvard.edu",
@@ -209,11 +211,9 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	"www.winamp.com",
 	"forum.wpde.org",
 	"x265.org",
-	"xhmikosr.1f0.de",
 	"xiph.org",
 	"overview.mail.yahoo.com",
 	"www.youtube.com",
 	"www.zedo.com",
-	"ffmpeg.zeranoe.com",
 	NULL
 };
