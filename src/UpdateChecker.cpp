@@ -107,7 +107,6 @@ static const QHash<QString, QString> *initEnvVars(const QString &binCurl)
 	QHash<QString, QString> *const environment = new QHash<QString, QString>();
 	const QString tempfolder = QDir::toNativeSeparators(MUtils::temp_folder());
 	environment->insert(QLatin1String("CURL_HOME"), tempfolder);
-	environment->insert(QLatin1String("GNUPGHOME"), tempfolder);
 	const QFileInfo curlFile(binCurl);
 	environment->insert(QLatin1String("CURL_CA_BUNDLE"), QDir::toNativeSeparators(curlFile.absoluteDir().absoluteFilePath(QString("%1.crt").arg(curlFile.completeBaseName()))));
 	return environment;
@@ -148,12 +147,11 @@ bool MUtils::UpdateCheckerInfo::isComplete(void)
 // Constructor & Destructor
 ////////////////////////////////////////////////////////////
 
-MUtils::UpdateChecker::UpdateChecker(const QString &binCurl, const QString &binGnuPG, const QString &binKeys, const QString &applicationId, const quint32 &installedBuildNo, const bool betaUpdates, const bool testMode)
+MUtils::UpdateChecker::UpdateChecker(const QString &binCurl, const QString &binVerify, const QString &applicationId, const quint32 &installedBuildNo, const bool betaUpdates, const bool testMode)
 :
 	m_updateInfo(new UpdateCheckerInfo()),
 	m_binaryCurl(binCurl),
-	m_binaryGnuPG(binGnuPG),
-	m_binaryKeys(binKeys),
+	m_binaryVerify(binVerify),
 	m_environment(initEnvVars(binCurl)),
 	m_applicationId(applicationId),
 	m_installedBuildNo(installedBuildNo),
@@ -164,9 +162,9 @@ MUtils::UpdateChecker::UpdateChecker(const QString &binCurl, const QString &binG
 	m_status = UpdateStatus_NotStartedYet;
 	m_progress = 0;
 
-	if(m_binaryCurl.isEmpty() || m_binaryGnuPG.isEmpty() || m_binaryKeys.isEmpty())
+	if(m_binaryCurl.isEmpty() || m_binaryVerify.isEmpty())
 	{
-		MUTILS_THROW("Tools not initialized correctly!");
+		MUTILS_THROW("Required tools not initialized correctly!");
 	}
 }
 
@@ -459,7 +457,7 @@ bool MUtils::UpdateChecker::getUpdateInfo(const QString &url, const QString &out
 		{
 			log( "Downloading signature file:", "");
 			setProgress(MIN_CONNSCORE + 3);
-			if (getFile(QUrl(QString("%1%2.sig2").arg(url, MIRROR_URL_POSTFIX[m_betaUpdates ? 1 : 0])), outFileSign))
+			if (getFile(QUrl(QString("%1%2.rsa").arg(url, MIRROR_URL_POSTFIX[m_betaUpdates ? 1 : 0])), outFileSign))
 			{
 				return true; /*completed*/
 			}
@@ -637,34 +635,14 @@ bool MUtils::UpdateChecker::checkSignature(const QString &file, const QString &s
 		return false;
 	}
 
-	QString keyRingPath(m_binaryKeys);
-	bool removeKeyring = false;
-	if (QFileInfo(file).absolutePath().compare(QFileInfo(m_binaryKeys).absolutePath(), Qt::CaseInsensitive) != 0)
-	{
-		keyRingPath = make_temp_file(QFileInfo(file).absolutePath(), "gpg");
-		removeKeyring = true;
-		if (!QFile::copy(m_binaryKeys, keyRingPath))
-		{
-			qWarning("CheckSignature: Failed to copy the key-ring file!");
-			return false;
-		}
-	}
-
 	QStringList args;
-	args << QStringList() << "--homedir" << ".";
-	args << "--keyring" << QFileInfo(keyRingPath).fileName();
-	args << QFileInfo(signature).fileName();
-	args << QFileInfo(file).fileName();
+	args << QDir::toNativeSeparators(file);
+	args << QDir::toNativeSeparators(signature);
 
-	const int exitCode = execProcess(m_binaryGnuPG, args, QFileInfo(file).absolutePath(), DOWNLOAD_TIMEOUT);
+	const int exitCode = execProcess(m_binaryVerify, args, QFileInfo(file).absolutePath(), DOWNLOAD_TIMEOUT);
 	if (exitCode != INT_MAX)
 	{
 		log(QString().sprintf("Exited with code %d", exitCode));
-	}
-
-	if (removeKeyring)
-	{
-		remove_file(keyRingPath);
 	}
 
 	return (exitCode == 0); /*completed*/

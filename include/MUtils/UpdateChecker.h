@@ -83,7 +83,7 @@ namespace MUtils
 		}
 		update_status_t;
 
-		UpdateChecker(const QString &binCurl, const QString &binGnuPG, const QString &binKeys, const QString &applicationId, const quint32 &installedBuildNo, const bool betaUpdates, const bool testMode = false);
+		UpdateChecker(const QString &binCurl, const QString &binVerify, const QString &applicationId, const quint32 &installedBuildNo, const bool betaUpdates, const bool testMode = false);
 		~UpdateChecker(void);
 
 		const int  getUpdateStatus(void)             const { return m_status; }
@@ -118,8 +118,7 @@ namespace MUtils
 		const quint32 m_installedBuildNo;
 
 		const QString m_binaryCurl;
-		const QString m_binaryGnuPG;
-		const QString m_binaryKeys;
+		const QString m_binaryVerify;
 
 		const QScopedPointer<const QHash<QString, QString>> m_environment;
 
