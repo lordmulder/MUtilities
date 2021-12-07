@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31919.166
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MUtilities", "MUtilities_VS2022.vcxproj", "{55405FE1-149F-434C-9D72-4B64348D2A08}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release_Static|x86 = Release_Static|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{55405FE1-149F-434C-9D72-4B64348D2A08}.Debug|x86.ActiveCfg = Debug|Win32
+		{55405FE1-149F-434C-9D72-4B64348D2A08}.Debug|x86.Build.0 = Debug|Win32
+		{55405FE1-149F-434C-9D72-4B64348D2A08}.Release_Static|x86.ActiveCfg = Release_Static|Win32
+		{55405FE1-149F-434C-9D72-4B64348D2A08}.Release_Static|x86.Build.0 = Release_Static|Win32
+		{55405FE1-149F-434C-9D72-4B64348D2A08}.Release|x86.ActiveCfg = Release|Win32
+		{55405FE1-149F-434C-9D72-4B64348D2A08}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {56280AAA-AE51-4B45-BFCF-7CA247FD341A}
+	EndGlobalSection
+EndGlobal
