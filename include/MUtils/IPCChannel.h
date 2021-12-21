@@ -56,7 +56,7 @@ namespace MUtils
 		bool read(quint32 &command, quint32 &flags, QStringList &params);
 
 	private:
-		IPCChannel(const IPCChannel&) : p(NULL), m_appVersionNo(-1) { throw "Constructor is disabled!"; }
+		IPCChannel(const IPCChannel&) : p(NULL), m_appVersionNo((unsigned int)(-1)) { throw "Constructor is disabled!"; }
 		IPCChannel &operator=(const IPCChannel&) { throw "Assignment operator is disabled!"; return *this; }
 
 		const QString m_applicationId;

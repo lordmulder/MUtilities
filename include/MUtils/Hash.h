@@ -106,7 +106,7 @@ namespace MUtils
 			QByteArray digest(const bool bAsHex = true) { return bAsHex ? finalize().toHex() : finalize(); }
 
 		protected:
-			Hash(const char* key = NULL) {/*nothing to do*/};
+			Hash(const char* /*key*/ = NULL) {/*nothing to do*/};
 			virtual bool process(const quint8 *const data, const quint32 len) = 0;
 			virtual QByteArray finalize(void) = 0;
 

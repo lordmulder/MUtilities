@@ -103,7 +103,7 @@ bool MUtils::Sound::play_sound(const QString &name, const bool &bAsync)
 	{
 		if(const unsigned char *data = get_sound_from_cache(name))
 		{
-			return PlaySound(LPCWSTR(data), NULL, (SND_MEMORY | (bAsync ? SND_ASYNC : SND_SYNC))) != FALSE;
+			return PlaySoundW(LPCWSTR(data), NULL, (SND_MEMORY | (bAsync ? SND_ASYNC : SND_SYNC)));
 		}
 	}
 	
@@ -112,7 +112,12 @@ bool MUtils::Sound::play_sound(const QString &name, const bool &bAsync)
 
 bool MUtils::Sound::play_system_sound(const QString &alias, const bool &bAsync)
 {
-	return PlaySound(MUTILS_WCHR(alias), GetModuleHandle(NULL), (SND_ALIAS | (bAsync ? SND_ASYNC : SND_SYNC))) != FALSE;
+	if (!alias.isEmpty())
+	{
+		return PlaySoundW(MUTILS_WCHR(alias), NULL, (SND_ALIAS | (bAsync ? SND_ASYNC : SND_SYNC)));
+	}
+
+	return false;
 }
 
 bool MUtils::Sound::play_sound_file(const QString &library, const unsigned short uiSoundIdx, const bool &bAsync)
@@ -131,14 +136,14 @@ bool MUtils::Sound::play_sound_file(const QString &library, const unsigned short
 
 	if(libraryFile.exists() && libraryFile.isFile())
 	{
-		if(const HMODULE module = GetModuleHandleW(MUTILS_WCHR(QDir::toNativeSeparators(libraryFile.canonicalFilePath()))))
+		if(const HMODULE module = LoadLibraryW(MUTILS_WCHR(QDir::toNativeSeparators(libraryFile.canonicalFilePath()))))
 		{
-			result = (PlaySound(MAKEINTRESOURCE(uiSoundIdx), module, (SND_RESOURCE | (bAsync ? SND_ASYNC : SND_SYNC))) != FALSE);
-		}
-		else if(const HMODULE module = LoadLibraryW(MUTILS_WCHR(QDir::toNativeSeparators(libraryFile.canonicalFilePath()))))
-		{
-			result = (PlaySound(MAKEINTRESOURCE(uiSoundIdx), module, (SND_RESOURCE | (bAsync ? SND_ASYNC : SND_SYNC))) != FALSE);
+			result = PlaySoundW(MAKEINTRESOURCE(uiSoundIdx), module, (SND_RESOURCE | (bAsync ? SND_ASYNC : SND_SYNC)));
 			FreeLibrary(module);
+		}
+		else
+		{
+			qWarning("PlaySound: File \"%s\" failed to load!", MUTILS_UTF8(libraryFile.absoluteFilePath()));
 		}
 	}
 	else

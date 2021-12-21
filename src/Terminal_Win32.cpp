@@ -203,7 +203,7 @@ void MUtils::Terminal::setup(int &argc, char **argv, const char* const appName, 
 				g_terminal_log_file.reset(new QFile(MUTILS_QSTR(logfile)));
 				if(g_terminal_log_file->open(QIODevice::WriteOnly))
 				{
-					static const char MARKER[3] = { char(0xEF), char(0xBB), char(0xBF) };
+					static const char MARKER[3] = { '\xEF', '\xBB', '\xBF' };
 					g_terminal_log_file->write(MARKER, 3);
 				}
 				free(logfile);

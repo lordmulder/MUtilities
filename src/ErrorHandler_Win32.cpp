@@ -35,7 +35,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // Invalid parameters handler
-static void my_invalid_param_handler(const wchar_t* exp, const wchar_t* fun, const wchar_t* fil, unsigned int, uintptr_t)
+static void my_invalid_param_handler(const wchar_t* /*exp*/, const wchar_t* /*fun*/, const wchar_t* /*fil*/, unsigned int, uintptr_t)
 {
 	MUtils::OS::fatal_exit(L"Invalid parameter handler invoked, application will exit!");
 }
@@ -48,7 +48,7 @@ static void my_signal_handler(int signal_num)
 }
 
 // Global exception handler
-static LONG WINAPI my_exception_handler(struct _EXCEPTION_POINTERS *ExceptionInfo)
+static LONG WINAPI my_exception_handler(struct _EXCEPTION_POINTERS* /*ExceptionInfo*/)
 {
 	MUtils::OS::fatal_exit(L"Unhandeled exception handler invoked, application will exit!");
 	return LONG_MAX;

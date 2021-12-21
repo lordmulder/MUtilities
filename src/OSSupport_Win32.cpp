@@ -180,7 +180,7 @@ typedef struct _progress_callback_data_t
 }
 progress_callback_data_t;
 
-static DWORD __stdcall copy_file_progress(LARGE_INTEGER TotalFileSize, LARGE_INTEGER TotalBytesTransferred, LARGE_INTEGER StreamSize, LARGE_INTEGER StreamBytesTransferred, DWORD dwStreamNumber, DWORD dwCallbackReason, HANDLE hSourceFile, HANDLE hDestinationFile, LPVOID lpData)
+static DWORD __stdcall copy_file_progress(LARGE_INTEGER TotalFileSize, LARGE_INTEGER TotalBytesTransferred, LARGE_INTEGER /*StreamSize*/, LARGE_INTEGER /*StreamBytesTransferred*/, DWORD /*dwStreamNumber*/, DWORD /*dwCallbackReason*/, HANDLE /*hSourceFile*/, HANDLE /*hDestinationFile*/, LPVOID lpData)
 {
 	if(const progress_callback_data_t *data = (progress_callback_data_t*) lpData)
 	{
@@ -1439,7 +1439,7 @@ bool MUtils::OS::free_diskspace(const QString &path, quint64 &freeSpace)
 		return true;;
 	}
 
-	freeSpace = -1;
+	freeSpace = static_cast<quint64>(-1);
 	return false;
 }
 
@@ -2012,7 +2012,7 @@ static volatile bool g_debug_check = check_debugger_helper();
 static MUtils::Internal::CriticalSection g_fatal_exit_lock;
 static QAtomicInt g_fatal_exit_flag;
 
-static BOOL CALLBACK fatal_exit_enum_helper(const HWND hwnd, const LPARAM lParam)
+static BOOL CALLBACK fatal_exit_enum_helper(const HWND hwnd, const LPARAM /*lParam*/)
 {
 	SetWindowPos(hwnd, HWND_NOTOPMOST, NULL, NULL, NULL, NULL, SWP_ASYNCWINDOWPOS | SWP_NOMOVE | SWP_NOSIZE);
 	return TRUE;

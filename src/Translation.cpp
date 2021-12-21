@@ -106,7 +106,7 @@ int MUtils::Translation::enumerate(QStringList &list)
 		return -1;
 	}
 
-	list.swap(g_translation_data->keys());
+	list = g_translation_data->keys();
 	return list.count();
 }
 

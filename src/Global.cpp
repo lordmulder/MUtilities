@@ -247,7 +247,7 @@ QString MUtils::make_temp_file(const QDir &basePath, const QString &extension, c
 
 QString MUtils::make_unique_file(const QString &basePath, const QString &baseName, const QString &extension, const bool fancy, const bool placeholder)
 {
-	return make_unique_file(QDir(basePath), baseName, extension, fancy);
+	return make_unique_file(QDir(basePath), baseName, extension, fancy, placeholder);
 }
 
 QString MUtils::make_unique_file(const QDir &basePath, const QString &baseName, const QString &extension, const bool fancy, const bool placeholder)
@@ -282,10 +282,10 @@ QString MUtils::make_unique_file(const QDir &basePath, const QString &baseName, 
 
 	if (placeholder && (!fileName.isEmpty()))
 	{
-		QFile placeholder(fileName);
-		if (placeholder.open(QIODevice::WriteOnly))
+		QFile placeholderFile(fileName);
+		if (placeholderFile.open(QIODevice::WriteOnly))
 		{
-			placeholder.close();
+			placeholderFile.close();
 		}
 	}
 
