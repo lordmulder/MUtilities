@@ -77,8 +77,6 @@ namespace MUtils
 				unsigned int versionSPack;  ///< The *service pack* version of the underlaying operating system
 				bool overrideFlag;
 
-				MUTILS_API bool operator== (const _os_version_t &rhs) const;
-				MUTILS_API bool operator!= (const _os_version_t &rhs) const;
 				MUTILS_API bool operator>  (const _os_version_t &rhs) const;
 				MUTILS_API bool operator>= (const _os_version_t &rhs) const;
 				MUTILS_API bool operator<  (const _os_version_t &rhs) const;
@@ -94,7 +92,8 @@ namespace MUtils
 			MUTILS_API extern const os_version_t WINDOWS_WIN70;  ///< \brief Operating system version constant \details Microsoft(R) Windows 7
 			MUTILS_API extern const os_version_t WINDOWS_WIN80;  ///< \brief Operating system version constant \details Microsoft(R) Windows 8
 			MUTILS_API extern const os_version_t WINDOWS_WIN81;  ///< \brief Operating system version constant \details Microsoft(R) Windows 8.1
-			MUTILS_API extern const os_version_t WINDOWS_WN100;  ///< \brief Operating system version constant \details Microsoft(R) Windows 10
+			MUTILS_API extern const os_version_t WINDOWS_WIN10;  ///< \brief Operating system version constant \details Microsoft(R) Windows 10
+			MUTILS_API extern const os_version_t WINDOWS_WIN11;  ///< \brief Operating system version constant \details Microsoft(R) Windows 11
 
 			//Unknown OS
 			MUTILS_API extern const os_version_t UNKNOWN_OPSYS;  ///< \brief Operating system version constant \details Unknown operating system version

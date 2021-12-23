@@ -244,12 +244,11 @@ int MUtils::Startup::startup(int &argc, char **argv, main_function_t *const entr
 static QMutex g_init_lock;
 static const char *const g_imageformats[] = {"bmp", "png", "jpg", "gif", "ico", "xpm", "svg", NULL};
 
-#define REQUIRE_OS(MIN_OS, MIN_SP) \
-	((osVersion.type == MUtils::OS::Version::OS_WINDOWS) && ((osVersion > MUtils::OS::Version::MIN_OS) || \
-	((osVersion == MUtils::OS::Version::MIN_OS) && (osVersion.versionSPack >= (MIN_SP)))))
+#define CHECK_OSVER(MINREQ_OS) \
+	((osVersion.type == MUtils::OS::Version::OS_WINDOWS) && (osVersion >= MUtils::OS::Version::MINREQ_OS))
 
-#define REQUIRE_SP(OS_VER, MIN_SP) \
-	((osVersion != MUtils::OS::Version::OS_VER) || (osVersion.versionSPack >= (MIN_SP)))
+#define CHECK_SPACK(MIN_OS, MAX_OS, REQUIRED_SP) \
+	((osVersion < MUtils::OS::Version::MIN_OS) || (osVersion >= MUtils::OS::Version::MAX_OS) || (osVersion.versionSPack >= (REQUIRED_SP)))
 
 static FORCE_INLINE QString getExecutableName(int &argc, char **argv)
 {
@@ -327,29 +326,37 @@ QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &
 	//Check whether we are running on a supported Windows version
 	if (xpSupport)
 	{
-		if (!REQUIRE_OS(WINDOWS_WINXP, 3))
+		if (!CHECK_OSVER(WINDOWS_WINXP))
 		{
-			qFatal("%s", MUTILS_L1STR(QApplication::tr("Executable '%1' requires Windows XP with SP-3 or later.").arg(executableName)));
+			qFatal("%s", MUTILS_L1STR(QApplication::tr("Executable '%1' requires Windows XP or later.").arg(executableName)));
 		}
-		if (!REQUIRE_SP(WINDOWS_XPX64, 2))
+		else if (!CHECK_SPACK(WINDOWS_WINXP, WINDOWS_XPX64, 3))
 		{
-			qFatal("%s", MUTILS_L1STR(QApplication::tr("Executable '%1' requires Windows XP x64-Edition with SP-2 or later.").arg(executableName)));
+			qFatal("%s", MUTILS_L1STR(QApplication::tr("Executable '%1' requires Service Pack 3 for Windows XP.").arg(executableName)));
+		}
+		else if (!CHECK_SPACK(WINDOWS_XPX64, WINDOWS_VISTA, 2))
+		{
+			qFatal("%s", MUTILS_L1STR(QApplication::tr("Executable '%1' requires Service Pack 2 for Windows XP x64-Edition.").arg(executableName)));
 		}
 	}
 	else
 	{
-		if (!REQUIRE_OS(WINDOWS_VISTA, 2))
+		if (!CHECK_OSVER(WINDOWS_VISTA))
 		{
-			qFatal("%s", MUTILS_L1STR(QApplication::tr("Executable '%1' requires Windows Vista with SP-2 or later.").arg(executableName)));
+			qFatal("%s", MUTILS_L1STR(QApplication::tr("Executable '%1' requires Windows Vista or later.").arg(executableName)));
+		}
+		else if (!CHECK_SPACK(WINDOWS_VISTA, WINDOWS_WIN70, 2))
+		{
+			qFatal("%s", MUTILS_L1STR(QApplication::tr("Executable '%1' requires Service Pack 2 for Windows Vista.").arg(executableName)));
 		}
 	}
-	if (osVersion == MUtils::OS::Version::WINDOWS_WIN80)
+	if ((osVersion >= MUtils::OS::Version::WINDOWS_WIN80) && (osVersion < MUtils::OS::Version::WINDOWS_WIN81))
 	{
 		qFatal("%s", MUTILS_L1STR(QApplication::tr("Executable '%1' requires Windows 8.1 or later.").arg(executableName)));
 	}
 
 	//Check for compat mode
-	if(osVersion.overrideFlag && (osVersion <= MUtils::OS::Version::WINDOWS_WN100))
+	if(osVersion.overrideFlag && (osVersion <= MUtils::OS::Version::WINDOWS_WIN10))
 	{
 		qWarning("Windows compatibility mode detected!");
 		if(!arguments.contains("ignore-compat-mode"))

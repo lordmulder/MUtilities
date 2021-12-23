@@ -211,14 +211,17 @@ bool MUtils::GUI::sheet_of_glass(QWidget *const window)
 	}
 
 	//Create and populate the Blur Behind structure
-	DWM_BLURBEHIND bb;
-	memset(&bb, 0, sizeof(DWM_BLURBEHIND));
-	bb.fEnable = TRUE;
-	bb.dwFlags = DWM_BB_ENABLE;
-	if(HRESULT hr = dwmEnableBlurBehindWindowFun(reinterpret_cast<HWND>(window->winId()), &bb))
+	if (MUtils::OS::os_version() < MUtils::OS::Version::WINDOWS_WIN11)
 	{
-		qWarning("DwmEnableBlurBehindWindow function has failed! (error %d)", hr);
-		return false;
+		DWM_BLURBEHIND bb;
+		memset(&bb, 0, sizeof(DWM_BLURBEHIND));
+		bb.fEnable = TRUE;
+		bb.dwFlags = DWM_BB_ENABLE;
+		if (HRESULT hr = dwmEnableBlurBehindWindowFun(reinterpret_cast<HWND>(window->winId()), &bb))
+		{
+			qWarning("DwmEnableBlurBehindWindow function has failed! (error %d)", hr);
+			return false;
+		}
 	}
 
 	//Required for Qt

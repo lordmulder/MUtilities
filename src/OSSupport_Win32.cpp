@@ -288,7 +288,8 @@ g_os_version_lut[] =
 	{ MUtils::OS::Version::WINDOWS_WIN70, "Windows 7 or Windows Server 2008 R2"           },	//7
 	{ MUtils::OS::Version::WINDOWS_WIN80, "Windows 8 or Windows Server 2012"              },	//8
 	{ MUtils::OS::Version::WINDOWS_WIN81, "Windows 8.1 or Windows Server 2012 R2"         },	//8.1
-	{ MUtils::OS::Version::WINDOWS_WN100, "Windows 10 or Windows Server 2016"             },	//10
+	{ MUtils::OS::Version::WINDOWS_WIN10, "Windows 10 or Windows Server 2016/2019"        },	//10
+	{ MUtils::OS::Version::WINDOWS_WIN11, "Windows 11 or Windows Server 2022"             },	//11
 	{ MUtils::OS::Version::UNKNOWN_OPSYS, "N/A" }
 };
 
@@ -300,12 +301,10 @@ namespace MUtils
 		namespace Version
 		{
 			//Comparision operators for os_version_t
-			bool os_version_t::operator== (const os_version_t &rhs) const { return (type == rhs.type) && (versionMajor == rhs.versionMajor) && ((versionMinor == rhs.versionMinor)); }
-			bool os_version_t::operator!= (const os_version_t &rhs) const { return (type != rhs.type) || (versionMajor != rhs.versionMajor) || ((versionMinor != rhs.versionMinor)); }
-			bool os_version_t::operator>  (const os_version_t &rhs) const { return (type == rhs.type) && ((versionMajor > rhs.versionMajor) || ((versionMajor == rhs.versionMajor) && (versionMinor >  rhs.versionMinor))); }
-			bool os_version_t::operator>= (const os_version_t &rhs) const { return (type == rhs.type) && ((versionMajor > rhs.versionMajor) || ((versionMajor == rhs.versionMajor) && (versionMinor >= rhs.versionMinor))); }
-			bool os_version_t::operator<  (const os_version_t &rhs) const { return (type == rhs.type) && ((versionMajor < rhs.versionMajor) || ((versionMajor == rhs.versionMajor) && (versionMinor <  rhs.versionMinor))); }
-			bool os_version_t::operator<= (const os_version_t &rhs) const { return (type == rhs.type) && ((versionMajor < rhs.versionMajor) || ((versionMajor == rhs.versionMajor) && (versionMinor <= rhs.versionMinor))); }
+			bool os_version_t::operator>  (const os_version_t &rhs) const { return (versionMajor > rhs.versionMajor) || ((versionMajor == rhs.versionMajor) && (versionMinor > rhs.versionMinor)) || ((versionMajor == rhs.versionMajor) && (versionMinor == rhs.versionMinor) && (versionBuild >  rhs.versionBuild)); }
+			bool os_version_t::operator>= (const os_version_t &rhs) const { return (versionMajor > rhs.versionMajor) || ((versionMajor == rhs.versionMajor) && (versionMinor > rhs.versionMinor)) || ((versionMajor == rhs.versionMajor) && (versionMinor == rhs.versionMinor) && (versionBuild >= rhs.versionBuild)); }
+			bool os_version_t::operator<  (const os_version_t &rhs) const { return (versionMajor < rhs.versionMajor) || ((versionMajor == rhs.versionMajor) && (versionMinor < rhs.versionMinor)) || ((versionMajor == rhs.versionMajor) && (versionMinor == rhs.versionMinor) && (versionBuild <  rhs.versionBuild)); }
+			bool os_version_t::operator<= (const os_version_t &rhs) const { return (versionMajor < rhs.versionMajor) || ((versionMajor == rhs.versionMajor) && (versionMinor < rhs.versionMinor)) || ((versionMajor == rhs.versionMajor) && (versionMinor == rhs.versionMinor) && (versionBuild <= rhs.versionBuild)); }
 
 			//Known Windows NT versions
 			const os_version_t WINDOWS_WIN2K = { OS_WINDOWS,  5, 0,  2195, 0 };	// 2000
@@ -315,7 +314,8 @@ namespace MUtils
 			const os_version_t WINDOWS_WIN70 = { OS_WINDOWS,  6, 1,  7600, 0 };	// 7
 			const os_version_t WINDOWS_WIN80 = { OS_WINDOWS,  6, 2,  9200, 0 };	// 8
 			const os_version_t WINDOWS_WIN81 = { OS_WINDOWS,  6, 3,  9600, 0 };	// 8.1
-			const os_version_t WINDOWS_WN100 = { OS_WINDOWS, 10, 0, 10240, 0 };	// 10
+			const os_version_t WINDOWS_WIN10 = { OS_WINDOWS, 10, 0, 10240, 0 };	// 10
+			const os_version_t WINDOWS_WIN11 = { OS_WINDOWS, 10, 0, 20348, 0 };	// 11
 
 			//Unknown OS
 			const os_version_t UNKNOWN_OPSYS = { OS_UNKNOWN, 0,  0,     0, 0 };	// N/A
@@ -369,113 +369,6 @@ static bool rtl_get_version(OSVERSIONINFOEXW *const osInfo)
 
 #pragma warning(pop) 
 
-static bool rtl_verify_version(OSVERSIONINFOEXW *const osInfo, const ULONG typeMask, const ULONGLONG condMask)
-{
-	typedef LONG(__stdcall *RtlVerifyVersionInfo)(LPOSVERSIONINFOEXW, ULONG, ULONGLONG);
-	if (const HMODULE ntdll = GetModuleHandleW(L"ntdll"))
-	{
-		if (const RtlVerifyVersionInfo pRtlVerifyVersionInfo = (RtlVerifyVersionInfo)GetProcAddress(ntdll, "RtlVerifyVersionInfo"))
-		{
-			if (pRtlVerifyVersionInfo(osInfo, typeMask, condMask) == 0)
-			{
-				return true;
-			}
-		}
-	}
-
-	//Fallback
-	return (VerifyVersionInfoW(osInfo, typeMask, condMask) != FALSE);
-}
-
-static bool verify_os_version(const DWORD major, const DWORD minor)
-{
-	OSVERSIONINFOEXW osvi;
-	DWORDLONG dwlConditionMask = 0;
-	initialize_os_version(&osvi);
-
-	//Initialize the OSVERSIONINFOEX structure
-	osvi.dwMajorVersion = major;
-	osvi.dwMinorVersion = minor;
-	osvi.dwPlatformId = VER_PLATFORM_WIN32_NT;
-
-	//Initialize the condition mask
-	VER_SET_CONDITION(dwlConditionMask, VER_MAJORVERSION, VER_GREATER_EQUAL);
-	VER_SET_CONDITION(dwlConditionMask, VER_MINORVERSION, VER_GREATER_EQUAL);
-	VER_SET_CONDITION(dwlConditionMask, VER_PLATFORMID,   VER_EQUAL);
-
-	// Perform the test
-	const BOOL ret = rtl_verify_version(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_PLATFORMID, dwlConditionMask);
-
-	//Error checking
-	if(!ret)
-	{
-		if(GetLastError() != ERROR_OLD_WIN_VERSION)
-		{
-			qWarning("VerifyVersionInfo() system call has failed!");
-		}
-	}
-
-	return (ret != FALSE);
-}
-
-static bool verify_os_build(const DWORD build)
-{
-	OSVERSIONINFOEXW osvi;
-	DWORDLONG dwlConditionMask = 0;
-	initialize_os_version(&osvi);
-
-	//Initialize the OSVERSIONINFOEX structure
-	osvi.dwBuildNumber = build;
-	osvi.dwPlatformId = VER_PLATFORM_WIN32_NT;
-
-	//Initialize the condition mask
-	VER_SET_CONDITION(dwlConditionMask, VER_BUILDNUMBER, VER_GREATER_EQUAL);
-	VER_SET_CONDITION(dwlConditionMask, VER_PLATFORMID, VER_EQUAL);
-
-	// Perform the test
-	const BOOL ret = rtl_verify_version(&osvi, VER_BUILDNUMBER | VER_PLATFORMID, dwlConditionMask);
-
-	//Error checking
-	if (!ret)
-	{
-		if (GetLastError() != ERROR_OLD_WIN_VERSION)
-		{
-			qWarning("VerifyVersionInfo() system call has failed!");
-		}
-	}
-
-	return (ret != FALSE);
-}
-
-static bool verify_os_spack(const WORD spack)
-{
-	OSVERSIONINFOEXW osvi;
-	DWORDLONG dwlConditionMask = 0;
-	initialize_os_version(&osvi);
-
-	//Initialize the OSVERSIONINFOEX structure
-	osvi.wServicePackMajor = spack;
-	osvi.dwPlatformId = VER_PLATFORM_WIN32_NT;
-
-	//Initialize the condition mask
-	VER_SET_CONDITION(dwlConditionMask, VER_SERVICEPACKMAJOR, VER_GREATER_EQUAL);
-	VER_SET_CONDITION(dwlConditionMask, VER_PLATFORMID, VER_EQUAL);
-
-	// Perform the test
-	const BOOL ret = rtl_verify_version(&osvi, VER_SERVICEPACKMAJOR | VER_PLATFORMID, dwlConditionMask);
-
-	//Error checking
-	if (!ret)
-	{
-		if (GetLastError() != ERROR_OLD_WIN_VERSION)
-		{
-			qWarning("VerifyVersionInfo() system call has failed!");
-		}
-	}
-
-	return (ret != FALSE);
-}
-
 static bool get_real_os_version(unsigned int *const major, unsigned int *const minor, unsigned int *const build, unsigned int *const spack, bool *const pbOverride)
 {
 	static const DWORD MAX_VERSION = MAXWORD;
@@ -491,14 +384,14 @@ static bool get_real_os_version(unsigned int *const major, unsigned int *const m
 	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEXW);
 
 	//Try GetVersionEx() first
-	if(rtl_get_version(&osvi) == FALSE)
+	if (!rtl_get_version(&osvi))
 	{
 		qWarning("GetVersionEx() has failed, cannot detect Windows version!");
 		return false;
 	}
 
 	//Make sure we are running on NT
-	if(osvi.dwPlatformId == VER_PLATFORM_WIN32_NT)
+	if (osvi.dwPlatformId == VER_PLATFORM_WIN32_NT)
 	{
 		*major = osvi.dwMajorVersion;
 		*minor = osvi.dwMinorVersion;
@@ -507,84 +400,8 @@ static bool get_real_os_version(unsigned int *const major, unsigned int *const m
 	}
 	else
 	{
-		if (verify_os_version(4, 0))
-		{
-			*major = 4;
-			*build = 1381;
-			*pbOverride = true;
-		}
-		else
-		{
-			qWarning("Not running on Windows NT, unsupported operating system!");
-			return false;
-		}
-	}
-
-	//Major Version
-	for (DWORD nextMajor = (*major) + 1; nextMajor <= MAX_VERSION; nextMajor++)
-	{
-		if (verify_os_version(nextMajor, 0))
-		{
-			*major = nextMajor;
-			*minor = 0;
-			*pbOverride = true;
-			continue;
-		}
-		break;
-	}
-
-	//Minor Version
-	for (DWORD nextMinor = (*minor) + 1; nextMinor <= MAX_VERSION; nextMinor++)
-	{
-		if (verify_os_version((*major), nextMinor))
-		{
-			*minor = nextMinor;
-			*pbOverride = true;
-			continue;
-		}
-		break;
-	}
-
-	//Build Version
-	if (verify_os_build(SAFE_ADD((*build), 1, MAX_BUILDNO)))
-	{
-		DWORD stepSize = initialize_step_size(MAX_BUILDNO);
-		for (DWORD nextBuildNo = SAFE_ADD((*build), stepSize, MAX_BUILDNO); (*build) < MAX_BUILDNO; nextBuildNo = SAFE_ADD((*build), stepSize, MAX_BUILDNO))
-		{
-			if (verify_os_build(nextBuildNo))
-			{
-				*build = nextBuildNo;
-				*pbOverride = true;
-				continue;
-			}
-			if (stepSize > 1)
-			{
-				stepSize = stepSize / 2;
-				continue;
-			}
-			break;
-		}
-	}
-
-	//Service Pack
-	if (verify_os_spack(SAFE_ADD((*spack), 1, MAX_SRVCPCK)))
-	{
-		DWORD stepSize = initialize_step_size(MAX_SRVCPCK);
-		for (DWORD nextSPackNo = SAFE_ADD((*spack), stepSize, MAX_SRVCPCK); (*spack) < MAX_SRVCPCK; nextSPackNo = SAFE_ADD((*spack), stepSize, MAX_SRVCPCK))
-		{
-			if (verify_os_spack(nextSPackNo))
-			{
-				*build = nextSPackNo;
-				*pbOverride = true;
-				continue;
-			}
-			if (stepSize > 1)
-			{
-				stepSize = stepSize / 2;
-				continue;
-			}
-			break;
-		}
+		qWarning("Not running on Windows NT, unsupported operating system!");
+		return false;
 	}
 
 	return true;
@@ -632,15 +449,18 @@ const MUtils::OS::Version::os_version_t &MUtils::OS::os_version(void)
 
 const char *MUtils::OS::os_friendly_name(const MUtils::OS::Version::os_version_t &os_version)
 {
-	for(size_t i = 0; g_os_version_lut[i].version != MUtils::OS::Version::UNKNOWN_OPSYS; i++)
+	const char *friendly_name = NULL;
+	for(size_t i = 0; g_os_version_lut[i].version.type != MUtils::OS::Version::OS_UNKNOWN; i++)
 	{
-		if(os_version == g_os_version_lut[i].version)
+		if(os_version >= g_os_version_lut[i].version)
 		{
-			return g_os_version_lut[i].friendlyName;
+			friendly_name = g_os_version_lut[i].friendlyName;
+			continue;
 		}
+		break;
 	}
 
-	return NULL;
+	return friendly_name;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
