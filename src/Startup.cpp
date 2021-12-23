@@ -330,14 +330,6 @@ QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &
 		{
 			qFatal("%s", MUTILS_L1STR(QApplication::tr("Executable '%1' requires Windows XP or later.").arg(executableName)));
 		}
-		else if (!CHECK_SPACK(WINDOWS_WINXP, WINDOWS_XPX64, 3))
-		{
-			qFatal("%s", MUTILS_L1STR(QApplication::tr("Executable '%1' requires Service Pack 3 for Windows XP.").arg(executableName)));
-		}
-		else if (!CHECK_SPACK(WINDOWS_XPX64, WINDOWS_VISTA, 2))
-		{
-			qFatal("%s", MUTILS_L1STR(QApplication::tr("Executable '%1' requires Service Pack 2 for Windows XP x64-Edition.").arg(executableName)));
-		}
 	}
 	else
 	{
@@ -345,11 +337,23 @@ QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &
 		{
 			qFatal("%s", MUTILS_L1STR(QApplication::tr("Executable '%1' requires Windows Vista or later.").arg(executableName)));
 		}
-		else if (!CHECK_SPACK(WINDOWS_VISTA, WINDOWS_WIN70, 2))
-		{
-			qFatal("%s", MUTILS_L1STR(QApplication::tr("Executable '%1' requires Service Pack 2 for Windows Vista.").arg(executableName)));
-		}
 	}
+
+	//Check for required service packs
+	if (!CHECK_SPACK(WINDOWS_WINXP, WINDOWS_XPX64, 3))
+	{
+		qFatal("%s", MUTILS_L1STR(QApplication::tr("Executable '%1' requires Service Pack 3 for Windows XP.").arg(executableName)));
+	}
+	if (!CHECK_SPACK(WINDOWS_XPX64, WINDOWS_VISTA, 2))
+	{
+		qFatal("%s", MUTILS_L1STR(QApplication::tr("Executable '%1' requires Service Pack 2 for Windows XP x64-Edition.").arg(executableName)));
+	}
+	if (!CHECK_SPACK(WINDOWS_VISTA, WINDOWS_WIN70, 2))
+	{
+		qFatal("%s", MUTILS_L1STR(QApplication::tr("Executable '%1' requires Service Pack 2 for Windows Vista.").arg(executableName)));
+	}
+
+	//Check for Windows 8.0
 	if ((osVersion >= MUtils::OS::Version::WINDOWS_WIN80) && (osVersion < MUtils::OS::Version::WINDOWS_WIN81))
 	{
 		qFatal("%s", MUTILS_L1STR(QApplication::tr("Executable '%1' requires Windows 8.1 or later.").arg(executableName)));
