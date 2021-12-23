@@ -81,7 +81,6 @@ namespace MUtils
 
 		//Sheet of glass
 		MUTILS_API bool sheet_of_glass(QWidget *const window);
-		MUTILS_API bool sheet_of_glass_update(QWidget *const window);
 
 		//System colors
 		MUTILS_API QColor system_color(const int &color_id);

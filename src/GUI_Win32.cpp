@@ -232,44 +232,6 @@ bool MUtils::GUI::sheet_of_glass(QWidget *const window)
 	return true;
 }
 
-bool MUtils::GUI::sheet_of_glass_update(QWidget *const window)
-{
-	const DwmIsCompositionEnabledFun      dwmIsCompositionEnabledFun      = MUtils::Win32Utils::resolve<DwmIsCompositionEnabledFun>     (QLatin1String("dwmapi"), QLatin1String("DwmIsCompositionEnabled")     );
-	const DwmExtendFrameIntoClientAreaFun dwmExtendFrameIntoClientAreaFun = MUtils::Win32Utils::resolve<DwmExtendFrameIntoClientAreaFun>(QLatin1String("dwmapi"), QLatin1String("DwmExtendFrameIntoClientArea"));
-	const DwmEnableBlurBehindWindowFun    dwmEnableBlurBehindWindowFun    = MUtils::Win32Utils::resolve<DwmEnableBlurBehindWindowFun>   (QLatin1String("dwmapi"), QLatin1String("DwmEnableBlurBehindWindow")   );
-	
-	//Required functions available?
-	BOOL bCompositionEnabled = FALSE;
-	if(dwmIsCompositionEnabledFun && dwmExtendFrameIntoClientAreaFun && dwmEnableBlurBehindWindowFun)
-	{
-		//Check if composition is currently enabled
-		if(HRESULT hr = dwmIsCompositionEnabledFun(&bCompositionEnabled))
-		{
-			qWarning("DwmIsCompositionEnabled function has failed! (error %d)", hr);
-			return false;
-		}
-	}
-	
-	//All functions available *and* composition enabled?
-	if(!bCompositionEnabled)
-	{
-		return false;
-	}
-
-	//Create and populate the Blur Behind structure
-	DWM_BLURBEHIND bb;
-	memset(&bb, 0, sizeof(DWM_BLURBEHIND));
-	bb.fEnable = TRUE;
-	bb.dwFlags = DWM_BB_ENABLE;
-	if(HRESULT hr = dwmEnableBlurBehindWindowFun(reinterpret_cast<HWND>(window->winId()), &bb))
-	{
-		qWarning("DwmEnableBlurBehindWindow function has failed! (error %d)", hr);
-		return false;
-	}
-
-	return true;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 // SYSTEM COLORS
 ///////////////////////////////////////////////////////////////////////////////
