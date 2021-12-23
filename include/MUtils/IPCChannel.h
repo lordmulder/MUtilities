@@ -57,7 +57,7 @@ namespace MUtils
 
 	private:
 		IPCChannel(const IPCChannel&) : p(NULL), m_appVersionNo((unsigned int)(-1)) { throw "Constructor is disabled!"; }
-		IPCChannel &operator=(const IPCChannel&) { throw "Assignment operator is disabled!"; return *this; }
+		IPCChannel &operator=(const IPCChannel&) { throw "Assignment operator is disabled!"; }
 
 		const QString m_applicationId;
 		const QString m_channelId;
