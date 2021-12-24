@@ -75,7 +75,6 @@ namespace MUtils
 				unsigned int versionMinor;  ///< The *minor* version of the underlaying operating system
 				unsigned int versionBuild;  ///< The *build* number of the underlaying operating system
 				unsigned int versionSPack;  ///< The *service pack* version of the underlaying operating system
-				bool overrideFlag;
 
 				MUTILS_API bool operator>  (const _os_version_t &rhs) const;
 				MUTILS_API bool operator>= (const _os_version_t &rhs) const;

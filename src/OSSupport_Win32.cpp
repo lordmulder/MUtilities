@@ -277,21 +277,20 @@ static QReadWriteLock g_os_version_lock;
 static const struct
 {
 	MUtils::OS::Version::os_version_t version;
-	bool checkBuildNo;
 	const char friendlyName[64];
 }
 g_os_version_lut[] =
 {
-	{ MUtils::OS::Version::WINDOWS_WIN2K, 0, "Windows 2000"                                  }, //2000
-	{ MUtils::OS::Version::WINDOWS_WINXP, 0, "Windows XP or Windows XP Media Center Edition" }, //XP
-	{ MUtils::OS::Version::WINDOWS_XPX64, 0, "Windows Server 2003 or Windows XP x64"         }, //XP_x64
-	{ MUtils::OS::Version::WINDOWS_VISTA, 0, "Windows Vista or Windows Server 2008"          }, //Vista
-	{ MUtils::OS::Version::WINDOWS_WIN70, 0, "Windows 7 or Windows Server 2008 R2"           }, //7
-	{ MUtils::OS::Version::WINDOWS_WIN80, 0, "Windows 8 or Windows Server 2012"              }, //8
-	{ MUtils::OS::Version::WINDOWS_WIN81, 0, "Windows 8.1 or Windows Server 2012 R2"         }, //8.1
-	{ MUtils::OS::Version::WINDOWS_WIN10, 0, "Windows 10 or Windows Server 2016"             }, //10
-	{ MUtils::OS::Version::WINDOWS_WIN11, 1, "Windows 11 or Windows Server 2022"             }, //11
-	{ MUtils::OS::Version::UNKNOWN_OPSYS, 0, "N/A" }
+	{ MUtils::OS::Version::WINDOWS_WIN2K, "Windows 2000"                                  }, //2000
+	{ MUtils::OS::Version::WINDOWS_WINXP, "Windows XP or Windows XP Media Center Edition" }, //XP
+	{ MUtils::OS::Version::WINDOWS_XPX64, "Windows Server 2003 or Windows XP x64"         }, //XP_x64
+	{ MUtils::OS::Version::WINDOWS_VISTA, "Windows Vista or Windows Server 2008"          }, //Vista
+	{ MUtils::OS::Version::WINDOWS_WIN70, "Windows 7 or Windows Server 2008 R2"           }, //7
+	{ MUtils::OS::Version::WINDOWS_WIN80, "Windows 8 or Windows Server 2012"              }, //8
+	{ MUtils::OS::Version::WINDOWS_WIN81, "Windows 8.1 or Windows Server 2012 R2"         }, //8.1
+	{ MUtils::OS::Version::WINDOWS_WIN10, "Windows 10 or Windows Server 2016"             }, //10
+	{ MUtils::OS::Version::WINDOWS_WIN11, "Windows 11 or Windows Server 2022"             }, //11
+	{ MUtils::OS::Version::UNKNOWN_OPSYS, "N/A" }
 };
 
 //OS version data dtructures
@@ -308,15 +307,15 @@ namespace MUtils
 			bool os_version_t::operator<= (const os_version_t &rhs) const { return (versionMajor < rhs.versionMajor) || ((versionMajor == rhs.versionMajor) && (versionMinor < rhs.versionMinor)) || ((versionMajor == rhs.versionMajor) && (versionMinor == rhs.versionMinor) && (versionBuild <= rhs.versionBuild)); }
 
 			//Known Windows NT versions
-			const os_version_t WINDOWS_WIN2K = { OS_WINDOWS,  5, 0,  2195, 0 };	// 2000
-			const os_version_t WINDOWS_WINXP = { OS_WINDOWS,  5, 1,  2600, 0 };	// XP
-			const os_version_t WINDOWS_XPX64 = { OS_WINDOWS,  5, 2,  3790, 0 };	// XP_x64
-			const os_version_t WINDOWS_VISTA = { OS_WINDOWS,  6, 0,  6000, 0 };	// Vista
-			const os_version_t WINDOWS_WIN70 = { OS_WINDOWS,  6, 1,  7600, 0 };	// 7
-			const os_version_t WINDOWS_WIN80 = { OS_WINDOWS,  6, 2,  9200, 0 };	// 8
-			const os_version_t WINDOWS_WIN81 = { OS_WINDOWS,  6, 3,  9600, 0 };	// 8.1
-			const os_version_t WINDOWS_WIN10 = { OS_WINDOWS, 10, 0, 10240, 0 };	// 10
-			const os_version_t WINDOWS_WIN11 = { OS_WINDOWS, 10, 0, 22000, 0 };	// 11
+			const os_version_t WINDOWS_WIN2K = { OS_WINDOWS,  5U, 0U,     0U, 0U };	// 2000
+			const os_version_t WINDOWS_WINXP = { OS_WINDOWS,  5U, 1U,     0U, 0U };	// XP
+			const os_version_t WINDOWS_XPX64 = { OS_WINDOWS,  5U, 2U,     0U, 0U };	// XP_x64
+			const os_version_t WINDOWS_VISTA = { OS_WINDOWS,  6U, 0U,     0U, 0U };	// Vista
+			const os_version_t WINDOWS_WIN70 = { OS_WINDOWS,  6U, 1U,     0U, 0U };	// 7
+			const os_version_t WINDOWS_WIN80 = { OS_WINDOWS,  6U, 2U,     0U, 0U };	// 8
+			const os_version_t WINDOWS_WIN81 = { OS_WINDOWS,  6U, 3U,     0U, 0U };	// 8.1
+			const os_version_t WINDOWS_WIN10 = { OS_WINDOWS, 10U, 0U,     0U, 0U };	// 10
+			const os_version_t WINDOWS_WIN11 = { OS_WINDOWS, 10U, 0U, 22000U, 0U };	// 11
 
 			//Unknown OS
 			const os_version_t UNKNOWN_OPSYS = { OS_UNKNOWN, 0,  0,     0, 0 };	// N/A
@@ -370,16 +369,14 @@ static bool rtl_get_version(OSVERSIONINFOEXW *const osInfo)
 
 #pragma warning(pop) 
 
-static bool get_real_os_version(unsigned int *const major, unsigned int *const minor, unsigned int *const build, unsigned int *const spack, bool *const pbOverride)
+static bool get_real_os_version(unsigned int *const major, unsigned int *const minor, unsigned int *const build, unsigned int *const spack)
 {
 	static const DWORD MAX_VERSION = MAXWORD;
 	static const DWORD MAX_BUILDNO = MAXINT;
 	static const DWORD MAX_SRVCPCK = MAXWORD;
-
-	*major = *minor = *build = *spack = 0U;
-	*pbOverride = false;
 	
 	//Initialize local variables
+	*major = *minor = *build = *spack = 0U;
 	OSVERSIONINFOEXW osvi;
 	memset(&osvi, 0, sizeof(OSVERSIONINFOEXW));
 	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEXW);
@@ -428,15 +425,14 @@ const MUtils::OS::Version::os_version_t &MUtils::OS::os_version(void)
 	}
 
 	//Detect OS version
-	unsigned int major, minor, build, spack; bool overrideFlg;
-	if(get_real_os_version(&major, &minor, &build, &spack, &overrideFlg))
+	unsigned int major, minor, build, spack;
+	if(get_real_os_version(&major, &minor, &build, &spack))
 	{
 		g_os_version_info.type = Version::OS_WINDOWS;
 		g_os_version_info.versionMajor = major;
 		g_os_version_info.versionMinor = minor;
 		g_os_version_info.versionBuild = build;
 		g_os_version_info.versionSPack = spack;
-		g_os_version_info.overrideFlag = overrideFlg;
 	}
 	else
 	{
@@ -454,7 +450,7 @@ const char *MUtils::OS::os_friendly_name(const MUtils::OS::Version::os_version_t
 	for (size_t i = 0; g_os_version_lut[i].version.type != MUtils::OS::Version::OS_UNKNOWN; i++)
 	{
 		const MUtils::OS::Version::os_version_t &version = g_os_version_lut[i].version;
-		if ((os_version.versionMajor == version.versionMajor) && (os_version.versionMinor == version.versionMinor) && ((!g_os_version_lut[i].checkBuildNo) || (os_version.versionBuild >= version.versionBuild)))
+		if ((os_version.versionMajor == version.versionMajor) && (os_version.versionMinor == version.versionMinor) && (os_version.versionBuild >= version.versionBuild))
 		{
 			friendly_name = g_os_version_lut[i].friendlyName;
 		}

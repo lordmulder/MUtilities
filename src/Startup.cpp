@@ -359,17 +359,6 @@ QApplication *MUtils::Startup::create_qt(int &argc, char **argv, const QString &
 		qFatal("%s", MUTILS_L1STR(QApplication::tr("Executable '%1' requires Windows 8.1 or later.").arg(executableName)));
 	}
 
-	//Check for compat mode
-	if(osVersion.overrideFlag && (osVersion <= MUtils::OS::Version::WINDOWS_WIN10))
-	{
-		qWarning("Windows compatibility mode detected!");
-		if(!arguments.contains("ignore-compat-mode"))
-		{
-			qFatal("%s", QApplication::tr("Executable '%1' doesn't support Windows compatibility mode.").arg(executableName).toLatin1().constData());
-			return NULL;
-		}
-	}
-
 	//Check for Wine
 	if(MUtils::OS::running_on_wine())
 	{
