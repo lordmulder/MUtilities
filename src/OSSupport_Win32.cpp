@@ -277,20 +277,21 @@ static QReadWriteLock g_os_version_lock;
 static const struct
 {
 	MUtils::OS::Version::os_version_t version;
+	bool checkBuildNo;
 	const char friendlyName[64];
 }
 g_os_version_lut[] =
 {
-	{ MUtils::OS::Version::WINDOWS_WIN2K, "Windows 2000"                                  },	//2000
-	{ MUtils::OS::Version::WINDOWS_WINXP, "Windows XP or Windows XP Media Center Edition" },	//XP
-	{ MUtils::OS::Version::WINDOWS_XPX64, "Windows Server 2003 or Windows XP x64"         },	//XP_x64
-	{ MUtils::OS::Version::WINDOWS_VISTA, "Windows Vista or Windows Server 2008"          },	//Vista
-	{ MUtils::OS::Version::WINDOWS_WIN70, "Windows 7 or Windows Server 2008 R2"           },	//7
-	{ MUtils::OS::Version::WINDOWS_WIN80, "Windows 8 or Windows Server 2012"              },	//8
-	{ MUtils::OS::Version::WINDOWS_WIN81, "Windows 8.1 or Windows Server 2012 R2"         },	//8.1
-	{ MUtils::OS::Version::WINDOWS_WIN10, "Windows 10 or Windows Server 2016/2019"        },	//10
-	{ MUtils::OS::Version::WINDOWS_WIN11, "Windows 11 or Windows Server 2022"             },	//11
-	{ MUtils::OS::Version::UNKNOWN_OPSYS, "N/A" }
+	{ MUtils::OS::Version::WINDOWS_WIN2K, 0, "Windows 2000"                                  }, //2000
+	{ MUtils::OS::Version::WINDOWS_WINXP, 0, "Windows XP or Windows XP Media Center Edition" }, //XP
+	{ MUtils::OS::Version::WINDOWS_XPX64, 0, "Windows Server 2003 or Windows XP x64"         }, //XP_x64
+	{ MUtils::OS::Version::WINDOWS_VISTA, 0, "Windows Vista or Windows Server 2008"          }, //Vista
+	{ MUtils::OS::Version::WINDOWS_WIN70, 0, "Windows 7 or Windows Server 2008 R2"           }, //7
+	{ MUtils::OS::Version::WINDOWS_WIN80, 0, "Windows 8 or Windows Server 2012"              }, //8
+	{ MUtils::OS::Version::WINDOWS_WIN81, 0, "Windows 8.1 or Windows Server 2012 R2"         }, //8.1
+	{ MUtils::OS::Version::WINDOWS_WIN10, 0, "Windows 10 or Windows Server 2016"             }, //10
+	{ MUtils::OS::Version::WINDOWS_WIN11, 1, "Windows 11 or Windows Server 2022"             }, //11
+	{ MUtils::OS::Version::UNKNOWN_OPSYS, 0, "N/A" }
 };
 
 //OS version data dtructures
@@ -315,7 +316,7 @@ namespace MUtils
 			const os_version_t WINDOWS_WIN80 = { OS_WINDOWS,  6, 2,  9200, 0 };	// 8
 			const os_version_t WINDOWS_WIN81 = { OS_WINDOWS,  6, 3,  9600, 0 };	// 8.1
 			const os_version_t WINDOWS_WIN10 = { OS_WINDOWS, 10, 0, 10240, 0 };	// 10
-			const os_version_t WINDOWS_WIN11 = { OS_WINDOWS, 10, 0, 20348, 0 };	// 11
+			const os_version_t WINDOWS_WIN11 = { OS_WINDOWS, 10, 0, 22000, 0 };	// 11
 
 			//Unknown OS
 			const os_version_t UNKNOWN_OPSYS = { OS_UNKNOWN, 0,  0,     0, 0 };	// N/A
@@ -453,7 +454,7 @@ const char *MUtils::OS::os_friendly_name(const MUtils::OS::Version::os_version_t
 	for (size_t i = 0; g_os_version_lut[i].version.type != MUtils::OS::Version::OS_UNKNOWN; i++)
 	{
 		const MUtils::OS::Version::os_version_t &version = g_os_version_lut[i].version;
-		if ((os_version.versionMajor == version.versionMajor) && (os_version.versionMinor == version.versionMinor) && (os_version.versionBuild >= version.versionBuild))
+		if ((os_version.versionMajor == version.versionMajor) && (os_version.versionMinor == version.versionMinor) && ((!g_os_version_lut[i].checkBuildNo) || (os_version.versionBuild >= version.versionBuild)))
 		{
 			friendly_name = g_os_version_lut[i].friendlyName;
 		}
