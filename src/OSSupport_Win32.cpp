@@ -450,14 +450,13 @@ const MUtils::OS::Version::os_version_t &MUtils::OS::os_version(void)
 const char *MUtils::OS::os_friendly_name(const MUtils::OS::Version::os_version_t &os_version)
 {
 	const char *friendly_name = NULL;
-	for(size_t i = 0; g_os_version_lut[i].version.type != MUtils::OS::Version::OS_UNKNOWN; i++)
+	for (size_t i = 0; g_os_version_lut[i].version.type != MUtils::OS::Version::OS_UNKNOWN; i++)
 	{
-		if(os_version >= g_os_version_lut[i].version)
+		const MUtils::OS::Version::os_version_t &version = g_os_version_lut[i].version;
+		if ((os_version.versionMajor == version.versionMajor) && (os_version.versionMinor == version.versionMinor) && (os_version.versionBuild >= version.versionBuild))
 		{
 			friendly_name = g_os_version_lut[i].friendlyName;
-			continue;
 		}
-		break;
 	}
 
 	return friendly_name;
@@ -1785,7 +1784,7 @@ const QLatin1String &MUtils::OS::null_device(void)
 // DEBUGGER CHECK
 ///////////////////////////////////////////////////////////////////////////////
 
-#if (!(MUTILS_DEBUG))
+#if 0//(!(MUTILS_DEBUG))
 static __forceinline bool is_debugger_present(void)
 {
 	__try
