@@ -7,16 +7,154 @@
   <meta name="author" content="Created by LoRd_MuldeR &lt;mulder2@gmx&gt; – check http://muldersoft.com/ for news and updates!" />
   <title>MUtilities – README</title>
   <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     span.underline{text-decoration: underline;}
     div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
-  <!--[if lt IE 9]>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
-  <![endif]-->
   <style type="text/css">
   <!--
     body { font-family: "Times New Roman", Times, serif; color: #000000; background-color: #FFFFFF; }
@@ -34,42 +172,85 @@
     li>ul, li>ol  { margin-bottom: 0em; }
   -->
   </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 <header id="title-block-header">
 <h1 class="title">MUtilities – README</h1>
-<p class="author">Created by LoRd_MuldeR &lt;<a href="mailto:mulder2@gmx" class="email">mulder2@gmx</a>&gt; – check <a href="http://muldersoft.com/" class="uri">http://muldersoft.com/</a> for news and updates!</p>
+<p class="author">Created by LoRd_MuldeR &lt;<a
+href="mailto:mulder2@gmx" class="email">mulder2@gmx</a>&gt; – check <a
+href="http://muldersoft.com/" class="uri">http://muldersoft.com/</a> for
+news and updates!</p>
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#introduction"><span class="toc-section-number">1</span> Introduction</a></li>
-<li><a href="#project-structure"><span class="toc-section-number">2</span> Project Structure</a></li>
-<li><a href="#example"><span class="toc-section-number">3</span> Example</a>
+<li><a href="#introduction" id="toc-introduction"><span
+class="toc-section-number">1</span> Introduction</a></li>
+<li><a href="#project-structure" id="toc-project-structure"><span
+class="toc-section-number">2</span> Project Structure</a></li>
+<li><a href="#example" id="toc-example"><span
+class="toc-section-number">3</span> Example</a>
 <ul>
-<li><a href="#build-notes"><span class="toc-section-number">3.1</span> Build Notes</a></li>
+<li><a href="#build-notes" id="toc-build-notes"><span
+class="toc-section-number">3.1</span> Build Notes</a></li>
 </ul></li>
-<li><a href="#api-documentation"><span class="toc-section-number">4</span> API Documentation</a></li>
-<li><a href="#license"><span class="toc-section-number">5</span> License</a></li>
-<li><a href="#acknowledgement"><span class="toc-section-number">6</span> Acknowledgement</a></li>
+<li><a href="#api-documentation" id="toc-api-documentation"><span
+class="toc-section-number">4</span> API Documentation</a></li>
+<li><a href="#license" id="toc-license"><span
+class="toc-section-number">5</span> License</a></li>
+<li><a href="#acknowledgement" id="toc-acknowledgement"><span
+class="toc-section-number">6</span> Acknowledgement</a></li>
 </ul>
 </nav>
-<h1 data-number="1" id="introduction"><span class="header-section-number">1</span> Introduction</h1>
-<p>The <strong>MUtilities</strong> library is a collection of routines and classes to extend the <a href="http://qt-project.org/"><em>Qt cross-platform framework</em></a>. It contains various convenience and utility functions as well as wrappers for OS-specific functionalities. The library was originally created as a "side product" of the <a href="http://lamexp.sourceforge.net/"><strong>LameXP</strong></a> application: Over the years, a lot of code, <strong>not</strong> really specific to <em>LameXP</em>, had accumulated in the <em>LameXP</em> code base. Some of that code even had been used in other projects too, in a "copy &amp; paste" fashion – which had lead to redundancy and much complicated maintenance. In order to clean-up the LameXP code base, to eliminate the ugly redundancy and to simplify maintenance, the code in question has finally been refactored into the <strong>MUtilities</strong> (aka "MuldeR's Utilities for Qt") library. This library now forms the foundation of <em>LameXP</em> and <a href="https://github.com/lordmulder"><em>other OpenSource projects</em></a>.</p>
-<h1 data-number="2" id="project-structure"><span class="header-section-number">2</span> Project Structure</h1>
-<p>The <em>MUtilities</em> project directory is organized as follows:</p>
+<h1 data-number="1" id="introduction"><span
+class="header-section-number">1</span> Introduction</h1>
+<p>The <strong>MUtilities</strong> library is a collection of routines
+and classes to extend the <a href="http://qt-project.org/"><em>Qt
+cross-platform framework</em></a>. It contains various convenience and
+utility functions as well as wrappers for OS-specific functionalities.
+The library was originally created as a "side product" of the <a
+href="http://lamexp.sourceforge.net/"><strong>LameXP</strong></a>
+application: Over the years, a lot of code, <strong>not</strong> really
+specific to <em>LameXP</em>, had accumulated in the <em>LameXP</em> code
+base. Some of that code even had been used in other projects too, in a
+"copy &amp; paste" fashion – which had lead to redundancy and much
+complicated maintenance. In order to clean-up the LameXP code base, to
+eliminate the ugly redundancy and to simplify maintenance, the code in
+question has finally been refactored into the
+<strong>MUtilities</strong> (aka "MuldeR's Utilities for Qt") library.
+This library now forms the foundation of <em>LameXP</em> and <a
+href="https://github.com/lordmulder"><em>other OpenSource
+projects</em></a>.</p>
+<h1 data-number="2" id="project-structure"><span
+class="header-section-number">2</span> Project Structure</h1>
+<p>The <em>MUtilities</em> project directory is organized as
+follows:</p>
 <ul>
-<li><code>bin/</code> – compiled library files (static or shared), link those files in projects that use the MUtilities library</li>
-<li><code>docs/</code> – programming interface documentation, generated with Doxygen tool</li>
-<li><code>etc/</code> – miscellaneous files, everything that doesn't fit in anywhere else</li>
-<li><code>include/</code> – public header files, include this directory in projects that use the MUtilities library</li>
-<li><code>obj/</code> – object code files, intermediate files generated during the build process</li>
-<li><code>res/</code> – resource files, required for building the MUtilities library</li>
-<li><code>src/</code> – source code files, required for building the MUtilities library (third-party code in <code>src/3rd_party/</code>)</li>
+<li><code>bin/</code> – compiled library files (static or shared), link
+those files in projects that use the MUtilities library</li>
+<li><code>docs/</code> – programming interface documentation, generated
+with Doxygen tool</li>
+<li><code>etc/</code> – miscellaneous files, everything that doesn't fit
+in anywhere else</li>
+<li><code>include/</code> – public header files, include this directory
+in projects that use the MUtilities library</li>
+<li><code>obj/</code> – object code files, intermediate files generated
+during the build process</li>
+<li><code>res/</code> – resource files, required for building the
+MUtilities library</li>
+<li><code>src/</code> – source code files, required for building the
+MUtilities library (third-party code in
+<code>src/3rd_party/</code>)</li>
 <li><code>test/</code> – unit tests, based on Google Test framework</li>
-<li><code>tmp/</code> – temporary files, automatically generated during the build process</li>
+<li><code>tmp/</code> – temporary files, automatically generated during
+the build process</li>
 </ul>
-<h1 data-number="3" id="example"><span class="header-section-number">3</span> Example</h1>
-<p>Here is a minimal example on how to use the <em>MUtilities</em> library in your project:</p>
+<h1 data-number="3" id="example"><span
+class="header-section-number">3</span> Example</h1>
+<p>Here is a minimal example on how to use the <em>MUtilities</em>
+library in your project:</p>
 <pre><code>//MUtils
 #include &lt;MUtils/Global.h&gt;
 
@@ -77,19 +258,41 @@ int main(int argc, char **argv)
 {
     qDebug(&quot;Random number: %u\n&quot;, MUtils::next_rand_u32());
 }</code></pre>
-<h2 data-number="3.1" id="build-notes"><span class="header-section-number">3.1</span> Build Notes</h2>
+<h2 data-number="3.1" id="build-notes"><span
+class="header-section-number">3.1</span> Build Notes</h2>
 <ul>
-<li>In order to use the <em>MUtilities</em> library in your project, your build environment must have already been set up for building Qt-based projects. Setting up Qt is <em>not</em> covered by this document.</li>
-<li>Additionally, make sure that <em>MUtilities'</em> <code>include/</code> directory is contained in your "Additional Include Directories" and that the <em>MUtilities'</em> <code>bin/</code> directory is contained in your "Additional Library Directories".</li>
-<li>Finally, make sure that your project links against the <code>MUtils32-1.lib</code> library file. For each build configuration, pick the proper <strong>.lib</strong> file from the corresponding <code>bin/&lt;platform&gt;/&lt;config&gt;/</code> directory!</li>
-<li>If your projects intends to use the <em>MUtilities</em> library as a <strong>static</strong> library, then the macro <code>MUTILS_STATIC_LIB</code> <em>must</em> be added to your project's "Preprocessor Definitions".</li>
+<li>In order to use the <em>MUtilities</em> library in your project,
+your build environment must have already been set up for building
+Qt-based projects. Setting up Qt is <em>not</em> covered by this
+document.</li>
+<li>Additionally, make sure that <em>MUtilities'</em>
+<code>include/</code> directory is contained in your "Additional Include
+Directories" and that the <em>MUtilities'</em> <code>bin/</code>
+directory is contained in your "Additional Library Directories".</li>
+<li>Finally, make sure that your project links against the
+<code>MUtils32-1.lib</code> library file. For each build configuration,
+pick the proper <strong>.lib</strong> file from the corresponding
+<code>bin/&lt;platform&gt;/&lt;config&gt;/</code> directory!</li>
+<li>If your projects intends to use the <em>MUtilities</em> library as a
+<strong>static</strong> library, then the macro
+<code>MUTILS_STATIC_LIB</code> <em>must</em> be added to your project's
+"Preprocessor Definitions".</li>
 </ul>
-<h1 data-number="4" id="api-documentation"><span class="header-section-number">4</span> API Documentation</h1>
-<p>A fully-fledged documentation of the <em>MUtilities</em> programming interface (API) is available thanks to <a href="http://www.stack.nl/~dimitri/doxygen/"><em>Doxygen</em></a>. Please see <a href="docs/index.html"><strong><code>docs/index.html</code></strong></a> for details!</p>
-<h1 data-number="5" id="license"><span class="header-section-number">5</span> License</h1>
-<p>This library is free software. It is released under the terms of the <a href="https://www.gnu.org/licenses/lgpl-2.1.html"><em>GNU Lesser General Public License (LGPL), Version 2.1</em></a>.</p>
+<h1 data-number="4" id="api-documentation"><span
+class="header-section-number">4</span> API Documentation</h1>
+<p>A fully-fledged documentation of the <em>MUtilities</em> programming
+interface (API) is available thanks to <a
+href="http://www.stack.nl/~dimitri/doxygen/"><em>Doxygen</em></a>.
+Please see <a
+href="docs/index.html"><strong><code>docs/index.html</code></strong></a>
+for details!</p>
+<h1 data-number="5" id="license"><span
+class="header-section-number">5</span> License</h1>
+<p>This library is free software. It is released under the terms of the
+<a href="https://www.gnu.org/licenses/lgpl-2.1.html"><em>GNU Lesser
+General Public License (LGPL), Version 2.1</em></a>.</p>
 <pre><code>MUtilities - MuldeR&#39;s Utilities for Qt
-Copyright (C) 2004-2021 LoRd_MuldeR &lt;MuldeR2@GMX.de&gt;. Some rights reserved.
+Copyright (C) 2004-2022 LoRd_MuldeR &lt;MuldeR2@GMX.de&gt;. Some rights reserved.
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -104,19 +307,27 @@ Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA.</code></pre>
-<h1 data-number="6" id="acknowledgement"><span class="header-section-number">6</span> Acknowledgement</h1>
-<p>The following people have contributed in the development of the MUtilities library:</p>
+<h1 data-number="6" id="acknowledgement"><span
+class="header-section-number">6</span> Acknowledgement</h1>
+<p>The following people have contributed in the development of the
+MUtilities library:</p>
 <ul>
-<li><strong>John Buonagurio &lt;<a href="mailto:jbuonagurio@exponent.com" class="email">jbuonagurio@exponent.com</a>&gt;</strong><br />
+<li><strong>John Buonagurio &lt;<a
+href="mailto:jbuonagurio@exponent.com"
+class="email">jbuonagurio@exponent.com</a>&gt;</strong><br />
 Support for Qt5</li>
 </ul>
 <p>The following third-party code is used in the MUtilities library:</p>
 <ul>
 <li><p><strong>Keccak/SHA-3 Reference Implementation</strong><br />
-Implementation by the Keccak, Keyak and Ketje Teams, namely, Guido Bertoni, Joan Daemen, Michaël Peeters, Gilles Van Assche and Ronny Van Keer<br />
+Implementation by the Keccak, Keyak and Ketje Teams, namely, Guido
+Bertoni, Joan Daemen, Michaël Peeters, Gilles Van Assche and Ronny Van
+Keer<br />
 No Copyright / Dedicated to the Public Domain</p></li>
 <li><p><strong>Natural Order String Comparison</strong><br />
-Copyright (C) 2000, 2004 by Martin Pool &lt;<a href="mailto:mbp@sourcefrog.net" class="email">mbp@sourcefrog.net</a>&gt;<br />
+Copyright (C) 2000, 2004 by Martin Pool &lt;<a
+href="mailto:mbp@sourcefrog.net"
+class="email">mbp@sourcefrog.net</a>&gt;<br />
 Released under the zlib License</p></li>
 <li><p><strong>Adler-32 Checksum Algorithm (from zlib)</strong><br />
 Copyright (C) 1995-2013 Jean-loup Gailly and Mark Adler<br />

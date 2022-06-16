@@ -5,7 +5,7 @@ setlocal EnableDelayedExpansion
 :: Setup Paths
 :: ------------------------------------------
 
-set "PATH_PANDOC=C:\Program Files (x86)\Pandoc"
+set "PATH_PANDOC=C:\Program Files\Pandoc"
 set "PATH_DOXYGN=%~dp0\..\Prerequisites\Doxygen\doxygen.exe"
 
 :: ------------------------------------------
