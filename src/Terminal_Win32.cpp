@@ -427,7 +427,7 @@ void MUtils::Terminal::set_icon(const QIcon &icon)
 			bool success = false;
 			if (const SetConsoleIconFun pSetConsoleIconFun = MUtils::Win32Utils::resolve<SetConsoleIconFun>(QLatin1String("kernel32"), QLatin1String("SetConsoleIcon")))
 			{
-				const DWORD before = GetLastError();
+				//const DWORD before = GetLastError();
 				if (pSetConsoleIconFun(hIcon))
 				{
 					success = true;
