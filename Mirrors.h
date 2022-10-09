@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // MuldeR's Utilities for Qt
-// Copyright (C) 2004-2021 LoRd_MuldeR <MuldeR2@GMX.de>
+// Copyright (C) 2004-2022 LoRd_MuldeR <MuldeR2@GMX.de>
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -29,19 +29,20 @@ static const char *update_mirrors[] =
 	"http://muldersoft.chickenkiller.com/",
 	"http://muldersoft.com/",
 	"http://mulder.bplaced.net/",
-	"http://mulder.000webhostapp.com/",
 	"http://muldersoft.square7.ch/",
 	"http://muldersoft.lima-city.de/",
 	"http://www.muldersoft.keepfree.de/",
 	"http://lamexp.sourceforge.net/",
-	"http://muldersoft.sourceforge.net/",
 	"http://lamexp.osdn.io/",
+	"http://muldersoft.sourceforge.net/",
 	"http://x264-launcher.osdn.io/",
+	"http://slunkcrypt.osdn.io/",
 	"http://lordmulder.github.io/LameXP/",
 	"http://muldersoft.bitbucket.io/",
 	"http://www.tricksoft.de/",
 	"http://repo.or.cz/LameXP.git/blob_plain/gh-pages:/",
 	"http://gitlab.com/lamexp/lamexp/raw/gh-pages/",
+	//"http://mulder.000webhostapp.com/",
 	//"http://mulder.webuda.com/",
 	//"http://mulder.6te.net/",
 	//"http://mulder.pe.hu/",
