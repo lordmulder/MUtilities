@@ -49,7 +49,7 @@ BEGIN
             VALUE "FileDescription", "MuldeR's Utilities for Qt"
             VALUE "FileVersion", VER_MUTILS_STR
             VALUE "InternalName", "MUtilities"
-            VALUE "LegalCopyright", "Copyright (C) 2004-2022 LoRd_MuldeR <MuldeR2@GMX.de>"
+            VALUE "LegalCopyright", "Copyright (C) 2004-2023 LoRd_MuldeR <MuldeR2@GMX.de>"
             VALUE "LegalTrademarks", "This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License <http://www.gnu.org/>"
             VALUE "OriginalFilename", "MUtils32-1.dll"
             VALUE "ProductName", "MuldeR's Utilities for Qt"
