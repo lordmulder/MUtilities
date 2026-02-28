@@ -58,7 +58,7 @@ static const int MAX_CONN_TIMEOUT = 16000;
 static const int DOWNLOAD_TIMEOUT = 30000;
 
 static const int VERSION_INFO_EXPIRES_MONTHS = 6;
-static char *USER_AGENT_STR = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:149.0) Gecko/20100101 Firefox/149.0"; /*use something innocuous*/
+static char *USER_AGENT_STR = "Mozilla/5.0 (Windows NT 6.1; rv:109.0) Gecko/20100101 Firefox/115.0"; /*use something innocuous*/
 
 ////////////////////////////////////////////////////////////
 // Utility Macros
