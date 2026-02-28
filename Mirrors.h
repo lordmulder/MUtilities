@@ -38,6 +38,7 @@ static const char *update_mirrors[] =
 	"http://raw.githubusercontent.com/lordmulder/LameXP/refs/heads/gh-pages/",
 	"http://www.tricksoft.de/",
 	"http://gitlab.com/lamexp/lamexp/raw/gh-pages/",
+	"http://codeberg.org/MuldeR/LameXP/raw/branch/gh-pages/",
 	//"http://muldersoft.bitbucket.io/",
 	//"http://repo.or.cz/LameXP.git/blob_plain/gh-pages:/",
 	//"http://lamexp.osdn.io/",
