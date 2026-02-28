@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // MuldeR's Utilities for Qt
-// Copyright (C) 2004-2022 LoRd_MuldeR <MuldeR2@GMX.de>
+// Copyright (C) 2004-2026 LoRd_MuldeR <MuldeR2@GMX.de>
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -35,6 +35,7 @@ static const char *update_mirrors[] =
 	"http://lamexp.sourceforge.net/",
 	"http://muldersoft.sourceforge.net/",
 	"http://lordmulder.github.io/LameXP/",
+	"http://raw.githubusercontent.com/lordmulder/LameXP/refs/heads/gh-pages/",
 	"http://www.tricksoft.de/",
 	"http://gitlab.com/lamexp/lamexp/raw/gh-pages/",
 	//"http://muldersoft.bitbucket.io/",
@@ -62,7 +63,7 @@ static const char *known_hosts[] =		//Taken form: http://www.alexa.com/topsites 
 	"www.7-zip.org",
 	"www.ac3filter.net",
 	"clbianco.altervista.org",
-	"status.aws.amazon.com",
+	"health.aws.amazon.com",
 	"help.aol.com",
 	"www.apache.org",
 	"www.apple.com",
