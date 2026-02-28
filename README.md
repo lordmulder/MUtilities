@@ -51,7 +51,7 @@ A fully-fledged documentation of the *MUtilities* programming interface (API) is
 This library is free software. It is released under the terms of the [*GNU Lesser General Public License (LGPL), Version 2.1*](https://www.gnu.org/licenses/lgpl-2.1.html).
 
     MUtilities - MuldeR's Utilities for Qt
-    Copyright (C) 2004-2025 LoRd_MuldeR <MuldeR2@GMX.de>. Some rights reserved.
+    Copyright (C) 2004-2026 LoRd_MuldeR <MuldeR2@GMX.de>. Some rights reserved.
     
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
